@@ -14,19 +14,19 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function NewsPage() {
-  const news = await getLatestInternationalNews(50);
+  const news = await getLatestInternationalNews();
 
   return (
     <>
       <SiteHeader />
       <main>
         <header className="page-shell news-hero">
-          <p className="eyebrow">LIVE WORLD NEWS · 15 分钟更新</p>
+          <p className="eyebrow">全球即時新聞 · 每 15 分鐘更新</p>
           <div>
             <h1>最近的国际新闻</h1>
             <p>
-              来自 BBC、The Guardian、The New York Times 与 Financial Times，
-              按发布时间汇集并保留媒体原文。
+              來自英國廣播公司新聞網、衛報、紐約時報與金融時報，
+              依發布時間彙整，顯示所有可取得的新聞。
             </p>
           </div>
           <span>{news.length} 条</span>
@@ -39,7 +39,7 @@ export default async function NewsPage() {
                 <article className="news-card" key={`${item.source}-${item.url}`}>
                   <a href={item.url} target="_blank" rel="noreferrer">
                     <div className="news-card-meta">
-                      <span>{item.source}</span>
+                      <span>{item.sourceName}</span>
                       <time dateTime={item.publishedAt}>
                         {formatNewsDate(item.publishedAt)}
                       </time>

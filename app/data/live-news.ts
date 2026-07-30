@@ -4,6 +4,7 @@ export type LiveNewsItem = {
   title: string;
   summary: string;
   source: string;
+  sourceName: string;
   url: string;
   publishedAt: string;
 };
@@ -11,18 +12,22 @@ export type LiveNewsItem = {
 const feeds = [
   {
     source: "BBC News",
+    sourceName: "英國廣播公司新聞網",
     url: "https://feeds.bbci.co.uk/news/world/rss.xml",
   },
   {
     source: "The Guardian",
+    sourceName: "衛報",
     url: "https://www.theguardian.com/world/rss",
   },
   {
     source: "The New York Times",
+    sourceName: "紐約時報",
     url: "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
   },
   {
     source: "Financial Times",
+    sourceName: "金融時報",
     url: "https://www.ft.com/world?format=rss",
   },
 ] as const;
@@ -52,7 +57,11 @@ function field(item: string, name: string): string {
   return match ? clean(match[1]) : "";
 }
 
-function parseFeed(xml: string, source: string): LiveNewsItem[] {
+function parseFeed(
+  xml: string,
+  source: string,
+  sourceName: string,
+): LiveNewsItem[] {
   const items =
     xml.match(/<item(?:\s[^>]*)?>[\s\S]*?<\/item>/gi) ??
     xml.match(/<entry(?:\s[^>]*)?>[\s\S]*?<\/entry>/gi) ??
@@ -74,6 +83,7 @@ function parseFeed(xml: string, source: string): LiveNewsItem[] {
           field(item, "summary") ||
           field(item, "media:description"),
         source,
+        sourceName,
         url: atomLink?.[1] || field(item, "link") || field(item, "guid"),
         publishedAt,
       };
@@ -84,7 +94,7 @@ function parseFeed(xml: string, source: string): LiveNewsItem[] {
     );
 }
 
-export async function getLatestInternationalNews(limit = 50) {
+export async function getLatestInternationalNews() {
   const responses = await Promise.allSettled(
     feeds.map(async (feed) => {
       const response = await fetch(feed.url, {
@@ -96,7 +106,7 @@ export async function getLatestInternationalNews(limit = 50) {
         throw new Error(`${feed.source} returned ${response.status}`);
       }
 
-      return parseFeed(await response.text(), feed.source);
+      return parseFeed(await response.text(), feed.source, feed.sourceName);
     }),
   );
 
@@ -120,8 +130,7 @@ export async function getLatestInternationalNews(limit = 50) {
       (left, right) =>
         new Date(right.publishedAt).getTime() -
         new Date(left.publishedAt).getTime(),
-    )
-    .slice(0, limit);
+    );
 }
 
 export function formatNewsDate(value: string) {
