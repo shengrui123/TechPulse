@@ -32,10 +32,13 @@ const feeds = [
   },
 ] as const;
 
+const translationEndpoint =
+  "https://translate.googleapis.com/translate_a/single";
+const translationConcurrency = 8;
+
 function clean(value: string): string {
   return value
     .replace(/^<!\[CDATA\[|\]\]>$/g, "")
-    .replace(/<[^>]*>/g, " ")
     .replace(/&nbsp;/g, " ")
     .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
@@ -43,9 +46,13 @@ function clean(value: string): string {
     .replace(/&#39;/g, "'")
     .replace(/&apos;/g, "'")
     .replace(/&quot;/g, '"')
+    .replace(/&#x([\da-f]+);/gi, (_, code: string) =>
+      String.fromCharCode(Number.parseInt(code, 16)),
+    )
     .replace(/&#(\d+);/g, (_, code: string) =>
       String.fromCharCode(Number(code)),
     )
+    .replace(/<[^>]*>/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -75,13 +82,14 @@ function parseFeed(
         field(item, "published") ||
         field(item, "updated") ||
         field(item, "dc:date");
+      const summary =
+        field(item, "description") ||
+        field(item, "summary") ||
+        field(item, "media:description");
 
       return {
         title: field(item, "title"),
-        summary:
-          field(item, "description") ||
-          field(item, "summary") ||
-          field(item, "media:description"),
+        summary: summary.length > 360 ? `${summary.slice(0, 357)}…` : summary,
         source,
         sourceName,
         url: atomLink?.[1] || field(item, "link") || field(item, "guid"),
@@ -92,6 +100,85 @@ function parseFeed(
       (item: LiveNewsItem) =>
         item.title && item.url.startsWith("http") && item.publishedAt,
     );
+}
+
+function translatedText(data: unknown): string {
+  if (!Array.isArray(data) || !Array.isArray(data[0])) {
+    return "";
+  }
+
+  return data[0]
+    .map((segment: unknown) =>
+      Array.isArray(segment) && typeof segment[0] === "string"
+        ? segment[0]
+        : "",
+    )
+    .join("")
+    .trim();
+}
+
+async function translateToChinese(value: string): Promise<string> {
+  if (!value || /[\u3400-\u9fff]/u.test(value)) {
+    return value;
+  }
+
+  const url = new URL(translationEndpoint);
+  url.searchParams.set("client", "gtx");
+  url.searchParams.set("sl", "auto");
+  url.searchParams.set("tl", "zh-CN");
+  url.searchParams.set("dt", "t");
+  url.searchParams.set("q", value);
+
+  try {
+    const response = await fetch(url, {
+      headers: { "User-Agent": "WorldPulse/1.0 news translator" },
+      next: { revalidate: 86400 },
+      signal: AbortSignal.timeout(6000),
+    });
+
+    if (!response.ok) {
+      return value;
+    }
+
+    return translatedText(await response.json()) || value;
+  } catch {
+    return value;
+  }
+}
+
+async function translateNewsItem(
+  item: LiveNewsItem,
+): Promise<LiveNewsItem> {
+  const [title, summary] = await Promise.all([
+    translateToChinese(item.title),
+    translateToChinese(item.summary),
+  ]);
+
+  return { ...item, title, summary };
+}
+
+async function translateNewsItems(
+  items: LiveNewsItem[],
+): Promise<LiveNewsItem[]> {
+  const translated = new Array<LiveNewsItem>(items.length);
+  let nextIndex = 0;
+
+  async function worker() {
+    while (nextIndex < items.length) {
+      const index = nextIndex;
+      nextIndex += 1;
+      translated[index] = await translateNewsItem(items[index]);
+    }
+  }
+
+  await Promise.all(
+    Array.from(
+      { length: Math.min(translationConcurrency, items.length) },
+      () => worker(),
+    ),
+  );
+
+  return translated;
 }
 
 export async function getLatestInternationalNews() {
@@ -125,12 +212,13 @@ export async function getLatestInternationalNews() {
     });
   });
 
-  return [...unique.values()]
-    .sort(
-      (left, right) =>
-        new Date(right.publishedAt).getTime() -
-        new Date(left.publishedAt).getTime(),
-    );
+  const sorted = [...unique.values()].sort(
+    (left, right) =>
+      new Date(right.publishedAt).getTime() -
+      new Date(left.publishedAt).getTime(),
+  );
+
+  return translateNewsItems(sorted);
 }
 
 export function formatNewsDate(value: string) {

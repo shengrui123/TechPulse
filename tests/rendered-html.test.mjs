@@ -50,6 +50,10 @@ test("keeps the editorial homepage, article routes, and trusted sources", async 
   assert.match(liveNews, /衛報/);
   assert.match(liveNews, /紐約時報/);
   assert.match(liveNews, /金融時報/);
+  assert.match(liveNews, /translateToChinese/);
+  assert.match(liveNews, /translate\.googleapis\.com/);
+  assert.match(liveNews, /tl", "zh-CN"/);
+  assert.match(newsPage, /所有新闻均提供中文标题与中文摘要/);
   assert.match(liveNews, /revalidate: 900/);
   assert.match(articlePage, /generateStaticParams/);
   assert.match(articlePage, /继续阅读/);

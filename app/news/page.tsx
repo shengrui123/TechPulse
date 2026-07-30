@@ -21,12 +21,12 @@ export default async function NewsPage() {
       <SiteHeader />
       <main>
         <header className="page-shell news-hero">
-          <p className="eyebrow">全球即時新聞 · 每 15 分鐘更新</p>
+          <p className="eyebrow">全球即时新闻 · 每 15 分钟更新</p>
           <div>
             <h1>最近的国际新闻</h1>
             <p>
-              來自英國廣播公司新聞網、衛報、紐約時報與金融時報，
-              依發布時間彙整，顯示所有可取得的新聞。
+              来自英国广播公司新闻网、卫报、纽约时报与金融时报，
+              依发布时间汇总，所有新闻均提供中文标题与中文摘要。
             </p>
           </div>
           <span>{news.length} 条</span>
