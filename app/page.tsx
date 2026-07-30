@@ -5,7 +5,7 @@ import SiteHeader from "./components/SiteHeader";
 import { articles } from "./data/articles";
 
 const featured = articles.slice(0, 3);
-const latest = articles.slice(3, 7);
+const latest = articles.slice(3, 10);
 const analysis = articles.slice(7, 10);
 
 export default function Home() {
@@ -40,7 +40,33 @@ export default function Home() {
           </Link>
         </section>
 
-        <section className="page-shell content-section" id="featured">
+        <section className="page-shell feed-layout" id="latest">
+          <div className="feed-main">
+            <div className="section-heading">
+              <h2>最新动态</h2>
+              <Link className="more-news-link" href="/news">
+                查看更多 <span aria-hidden="true">→</span>
+              </Link>
+            </div>
+            <div className="feed-list">
+              {latest.map((article) => (
+                <article className="feed-item" key={article.slug}>
+                  <div className="feed-time">
+                    {article.published}
+                    <span>{article.tag}</span>
+                  </div>
+                  <Link className="clickable feed-link" href={`/articles/${article.slug}`}>
+                    <h3>{article.title}</h3>
+                    <p>{article.summary}</p>
+                    <span className="feed-read">阅读全文 →</span>
+                  </Link>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="page-shell content-section featured-section" id="featured">
           <div className="section-heading">
             <h2>今日值得关注</h2>
             <span>由编辑选读 · {featured.length} 篇</span>
@@ -62,37 +88,6 @@ export default function Home() {
               </article>
             ))}
           </div>
-        </section>
-
-        <section className="page-shell feed-layout" id="latest">
-          <div>
-            <div className="section-heading">
-              <h2>最新动态</h2>
-              <span>持续更新</span>
-            </div>
-            <div className="feed-list">
-              {latest.map((article) => (
-                <article className="feed-item" key={article.slug}>
-                  <div className="feed-time">
-                    {article.published}
-                    <span>{article.tag}</span>
-                  </div>
-                  <Link className="clickable feed-link" href={`/articles/${article.slug}`}>
-                    <h3>{article.title}</h3>
-                    <p>{article.summary}</p>
-                    <span className="feed-read">阅读全文 →</span>
-                  </Link>
-                </article>
-              ))}
-            </div>
-          </div>
-
-          <aside className="daily-brief">
-            <span>DAILY BRIEF · 08:00</span>
-            <h2>每天五分钟，看懂世界最重要的变化。</h2>
-            <p>国际、经济、社会与气候重点，以及它们为何值得你关心。</p>
-            <Link href={`/articles/${articles[0].slug}`}>查看今日简报 →</Link>
-          </aside>
         </section>
 
         <section className="analysis-band" id="analysis">

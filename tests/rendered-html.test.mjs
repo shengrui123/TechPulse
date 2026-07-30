@@ -7,6 +7,8 @@ const projectRoot = new URL("../", import.meta.url);
 test("keeps the editorial homepage, article routes, and trusted sources", async () => {
   const [
     page,
+    newsPage,
+    liveNews,
     articlePage,
     sourcesPage,
     header,
@@ -17,6 +19,8 @@ test("keeps the editorial homepage, article routes, and trusted sources", async 
     packageJson,
   ] = await Promise.all([
     readFile(new URL("app/page.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/news/page.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/data/live-news.ts", projectRoot), "utf8"),
     readFile(new URL("app/articles/[slug]/page.tsx", projectRoot), "utf8"),
     readFile(new URL("app/sources/page.tsx", projectRoot), "utf8"),
     readFile(new URL("app/components/SiteHeader.tsx", projectRoot), "utf8"),
@@ -32,7 +36,21 @@ test("keeps the editorial homepage, article routes, and trusted sources", async 
   assert.match(page, /最新动态/);
   assert.match(page, /深度解读/);
   assert.match(page, /全球权威媒体与国际机构/);
+  assert.match(page, /href="\/news"/);
+  assert.match(page, /查看更多/);
   assert.match(page, /href=\{`\/articles\/\$\{/);
+  assert.ok(
+    page.indexOf('id="latest"') < page.indexOf('id="featured"'),
+    "latest news should appear before editor picks",
+  );
+  assert.match(newsPage, /getLatestInternationalNews\(50\)/);
+  assert.match(newsPage, /news-waterfall/);
+  assert.match(newsPage, /最近的国际新闻/);
+  assert.match(liveNews, /BBC News/);
+  assert.match(liveNews, /The Guardian/);
+  assert.match(liveNews, /The New York Times/);
+  assert.match(liveNews, /Financial Times/);
+  assert.match(liveNews, /revalidate: 900/);
   assert.match(articlePage, /generateStaticParams/);
   assert.match(articlePage, /继续阅读/);
   assert.match(articlePage, /返回首页/);

@@ -5,7 +5,7 @@ import { useState } from "react";
 
 const navigation = [
   ["精选", "/#featured"],
-  ["国际", "/#latest"],
+  ["国际", "/news"],
   ["政治", "/#latest"],
   ["经济", "/#latest"],
   ["社会", "/#analysis"],
