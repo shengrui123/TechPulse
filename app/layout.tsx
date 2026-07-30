@@ -47,7 +47,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-Hans">
+    <html lang="zh-Hans" data-scroll-behavior="smooth">
       <body>{children}</body>
     </html>
   );
