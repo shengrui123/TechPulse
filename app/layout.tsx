@@ -7,9 +7,9 @@ export async function generateMetadata(): Promise<Metadata> {
   const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host");
   const protocol = requestHeaders.get("x-forwarded-proto") ?? "https";
   const siteUrl = host ? `${protocol}://${host}` : "http://localhost:3000";
-  const title = "TechPulse | 洞察全球科技，預見未來趨勢";
+  const title = "TechPulse | 洞察全球科技，预见未来趋势";
   const description =
-    "AI 驅動的全球科技資訊情報平台，聚合全球新聞、AI 摘要、趨勢分析與科技公司情報。";
+    "AI 驱动的全球科技资讯情报平台，聚合全球新闻、AI 摘要、趋势分析与科技公司情报。";
 
   return {
     metadataBase: new URL(siteUrl),
@@ -28,7 +28,7 @@ export async function generateMetadata(): Promise<Metadata> {
           url: new URL("/og.png", siteUrl).toString(),
           width: 1536,
           height: 1024,
-          alt: "TechPulse 科技情報雷達",
+          alt: "TechPulse 科技情报雷达",
         },
       ],
     },
@@ -47,7 +47,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-Hant">
+    <html lang="zh-Hans">
       <body>{children}</body>
     </html>
   );
