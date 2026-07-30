@@ -5,6 +5,7 @@ import {
   formatNewsDate,
   getLatestInternationalNews,
 } from "../data/live-news";
+import { trustedSources } from "../data/sources";
 
 export const metadata: Metadata = {
   title: "最新国际新闻 | WorldPulse",
@@ -12,9 +13,11 @@ export const metadata: Metadata = {
 };
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 300;
 
 export default async function NewsPage() {
   const news = await getLatestInternationalNews();
+  const activeSourceCount = new Set(news.map((item) => item.source)).size;
 
   return (
     <>
@@ -25,11 +28,13 @@ export default async function NewsPage() {
           <div>
             <h1>最近的国际新闻</h1>
             <p>
-              来自英国广播公司新闻网、卫报、纽约时报与金融时报，
-              依发布时间汇总，所有新闻均提供中文标题与中文摘要。
+              汇总“信源标准”收录的 {trustedSources.length} 家媒体最近 48
+              小时的报道，所有新闻均提供中文标题与中文摘要。
             </p>
           </div>
-          <span>{news.length} 条</span>
+          <span>
+            {news.length} 条 · {activeSourceCount}/{trustedSources.length} 家
+          </span>
         </header>
 
         <section className="page-shell news-stream" aria-label="最新国际新闻">
