@@ -5,10 +5,12 @@ import { useState } from "react";
 
 const navigation = [
   ["精选", "/#featured"],
-  ["人工智能", "/#latest"],
-  ["产品与设计", "/#latest"],
-  ["科学与未来", "/#analysis"],
-  ["产业观察", "/#analysis"],
+  ["国际", "/#latest"],
+  ["政治", "/#latest"],
+  ["经济", "/#latest"],
+  ["社会", "/#analysis"],
+  ["科技", "/#analysis"],
+  ["气候与文化", "/#analysis"],
 ];
 
 export default function SiteHeader() {
@@ -21,7 +23,7 @@ export default function SiteHeader() {
       <header className="site-header">
         <div className="page-shell header-row">
           <Link className="brand" href="/">
-            TechPulse <small>科技脉动</small>
+            WorldPulse <small>世界脉动</small>
           </Link>
           <div className="header-actions">
             <button
@@ -30,7 +32,7 @@ export default function SiteHeader() {
               aria-pressed={briefEnabled}
               onClick={() => setBriefEnabled((enabled) => !enabled)}
             >
-              {briefEnabled ? "晨报已订阅" : "订阅科技晨报"}
+              {briefEnabled ? "晨报已订阅" : "订阅全球晨报"}
             </button>
             <button
               className={`menu-button ${menuOpen ? "is-active" : ""}`}
@@ -54,7 +56,7 @@ export default function SiteHeader() {
               {label}
             </Link>
           ))}
-          <span>全球科技 · 中文阅读</span>
+          <span>全球时事 · 中文阅读</span>
         </div>
       </nav>
       <nav

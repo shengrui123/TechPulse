@@ -16,9 +16,9 @@ export default function Home() {
         <section className="page-shell hero">
           <div className="hero-copy">
             <p className="eyebrow">TODAY&apos;S BRIEF · 2026.07.30</p>
-            <h1>把全球科技的重要讯号，整理成值得慢慢读的中文。</h1>
+            <h1>把世界正在发生的事，整理成值得慢慢读的中文。</h1>
             <p className="hero-description">
-              TechPulse 筛选人工智能、半导体、科学与产品领域的重要变化，以清楚的摘要、趋势脉络和编辑判断，帮助你理解世界正在发生什么。
+              WorldPulse 从全球权威媒体与国际机构中筛选重要时事，涵盖国际、政治、经济、社会、科技、气候与文化，并保留每篇原始报道链接。
             </p>
             <Link className="text-link" href={`/articles/${featured[0].slug}`}>
               阅读今日封面 <span aria-hidden="true">→</span>
@@ -30,13 +30,13 @@ export default function Home() {
             aria-label={`阅读：${featured[0].title}`}
           >
             <Image
-              src="/og.png"
-              alt="TechPulse 全球科技讯号图"
+              src="/world-brief.png"
+              alt="WorldPulse 全球时事编辑图"
               width={1536}
               height={1024}
               priority
             />
-            <span>TECHPULSE INTELLIGENCE · 001</span>
+            <span>WORLDPULSE · GLOBAL EDITION 001</span>
           </Link>
         </section>
 
@@ -51,12 +51,12 @@ export default function Home() {
                 <Link className="clickable story-link" href={`/articles/${article.slug}`}>
                   <div className="story-kicker">
                     <i className={`dot dot-${index + 1}`} />
-                    {article.kicker} · {article.tag}
+                    {article.source} · {article.region}
                   </div>
                   <h3>{article.title}</h3>
                   <p>{article.summary}</p>
                   <div className="story-meta">
-                    {article.readTime}阅读 · AI SCORE {article.score}
+                    {article.published} · {article.readTime}阅读
                   </div>
                 </Link>
               </article>
@@ -74,7 +74,7 @@ export default function Home() {
               {latest.map((article) => (
                 <article className="feed-item" key={article.slug}>
                   <div className="feed-time">
-                    {article.time}
+                    {article.published}
                     <span>{article.tag}</span>
                   </div>
                   <Link className="clickable feed-link" href={`/articles/${article.slug}`}>
@@ -89,8 +89,8 @@ export default function Home() {
 
           <aside className="daily-brief">
             <span>DAILY BRIEF · 08:00</span>
-            <h2>每天五分钟，看懂最重要的科技变化。</h2>
-            <p>三条重点新闻、一组趋势变化，以及它们为何值得你关心。</p>
+            <h2>每天五分钟，看懂世界最重要的变化。</h2>
+            <p>国际、经济、社会与气候重点，以及它们为何值得你关心。</p>
             <Link href={`/articles/${articles[0].slug}`}>查看今日简报 →</Link>
           </aside>
         </section>

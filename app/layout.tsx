@@ -7,9 +7,9 @@ export async function generateMetadata(): Promise<Metadata> {
   const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host");
   const protocol = requestHeaders.get("x-forwarded-proto") ?? "https";
   const siteUrl = host ? `${protocol}://${host}` : "http://localhost:3000";
-  const title = "TechPulse | 洞察全球科技，预见未来趋势";
+  const title = "WorldPulse | 读懂全球正在发生什么";
   const description =
-    "AI 驱动的全球科技资讯情报平台，聚合全球新闻、AI 摘要、趋势分析与科技公司情报。";
+    "汇集全球权威可信新闻来源，以中文整理国际、政治、经济、社会、科技、气候与文化时事。";
 
   return {
     metadataBase: new URL(siteUrl),
@@ -25,10 +25,10 @@ export async function generateMetadata(): Promise<Metadata> {
       type: "website",
       images: [
         {
-          url: new URL("/og.png", siteUrl).toString(),
+          url: new URL("/world-brief.png", siteUrl).toString(),
           width: 1536,
           height: 1024,
-          alt: "TechPulse 科技情报雷达",
+          alt: "WorldPulse 全球时事编辑图",
         },
       ],
     },
@@ -36,7 +36,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: "summary_large_image",
       title,
       description,
-      images: [new URL("/og.png", siteUrl).toString()],
+      images: [new URL("/world-brief.png", siteUrl).toString()],
     },
   };
 }

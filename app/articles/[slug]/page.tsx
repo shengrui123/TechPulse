@@ -23,7 +23,7 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${article.title} | TechPulse`,
+    title: `${article.title} | WorldPulse`,
     description: article.summary,
   };
 }
@@ -57,10 +57,10 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
             <h1>{article.title}</h1>
             <p className="article-deck">{article.summary}</p>
             <div className="article-byline">
-              <span>TechPulse 编辑部</span>
-              <span>{article.time}</span>
+              <span>WorldPulse 编辑部</span>
+              <span>{article.published}</span>
               <span>{article.readTime}阅读</span>
-              <strong>AI SCORE {article.score}</strong>
+              <strong>{article.source}</strong>
             </div>
           </header>
 
@@ -84,10 +84,13 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                 </p>
               ))}
               <div className="article-note">
-                <strong>TechPulse 观察</strong>
+                <strong>WorldPulse 编辑说明</strong>
                 <p>
-                  我们持续追踪这项变化，并在产业采用、产品落地或研究进展出现重要转折时更新本文。
+                  本文依据权威来源整理为中文摘要，不替代原始报道。重要事实与后续更新请以来源页面为准。
                 </p>
+                <a href={article.sourceUrl} target="_blank" rel="noreferrer">
+                  查看 {article.source} 原始报道 ↗
+                </a>
               </div>
               <Link className="back-link" href="/">
                 ← 返回首页
@@ -99,7 +102,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
         <section className="page-shell related-section">
           <div className="section-heading">
             <h2>继续阅读</h2>
-            <span>更多科技脉络</span>
+            <span>跨地区、跨议题理解世界</span>
           </div>
           <div className="featured-grid">
             {related.map((item, index) => (
@@ -107,7 +110,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                 <Link className="clickable story-link" href={`/articles/${item.slug}`}>
                   <div className="story-kicker">
                     <i className={`dot dot-${index + 1}`} />
-                    {item.tag}
+                    {item.source} · {item.region}
                   </div>
                   <h3>{item.title}</h3>
                   <p>{item.summary}</p>

@@ -16,15 +16,19 @@ test("keeps the editorial homepage and article detail routes", async () => {
     readFile(new URL("package.json", projectRoot), "utf8"),
   ]);
 
-  assert.match(page, /把全球科技的重要讯号/);
+  assert.match(page, /把世界正在发生的事/);
   assert.match(page, /今日值得关注/);
   assert.match(page, /最新动态/);
   assert.match(page, /深度解读/);
+  assert.match(page, /全球权威媒体与国际机构/);
   assert.match(page, /href=\{`\/articles\/\$\{/);
   assert.match(articlePage, /generateStaticParams/);
   assert.match(articlePage, /继续阅读/);
   assert.match(articlePage, /返回首页/);
-  assert.match(header, /订阅科技晨报/);
+  assert.match(articlePage, /查看 \{article.source\} 原始报道/);
+  assert.match(header, /WorldPulse/);
+  assert.match(header, /国际/);
+  assert.match(header, /订阅全球晨报/);
   assert.doesNotMatch(
     `${page}\n${articlePage}\n${header}`,
     /資訊來源|资讯来源|来源库|sources-band|source-row/,
@@ -35,7 +39,17 @@ test("keeps the editorial homepage and article detail routes", async () => {
   );
   assert.equal(slugs.length, 10);
   assert.equal(new Set(slugs).size, slugs.length);
-  assert.match(layout, /TechPulse \| 洞察全球科技，预见未来趋势/);
+
+  const sourceUrls = [...articleData.matchAll(/sourceUrl:\s*\n?\s*"([^"]+)"/g)].map(
+    (match) => match[1],
+  );
+  assert.equal(sourceUrls.length, slugs.length);
+  assert.ok(sourceUrls.every((url) => url.startsWith("https://")));
+  assert.match(articleData, /国际货币基金组织 IMF/);
+  assert.match(articleData, /世界卫生组织 WHO/);
+  assert.match(articleData, /联合国教科文组织 UNESCO/);
+  assert.match(articleData, /美联社 AP/);
+  assert.match(layout, /WorldPulse \| 读懂全球正在发生什么/);
 
   const vercel = JSON.parse(vercelConfig);
   const pkg = JSON.parse(packageJson);
