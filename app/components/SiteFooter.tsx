@@ -7,7 +7,9 @@ export default function SiteFooter() {
         <Link className="footer-brand" href="/">
           WorldPulse
         </Link>
-        <p>从全球动态，到可信理解。</p>
+        <p>
+          从全球动态，到可信理解。 <Link href="/sources">查看信源标准</Link>
+        </p>
         <span>权威来源 · 中文整理 · 保留原文</span>
       </div>
     </footer>

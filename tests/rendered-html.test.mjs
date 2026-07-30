@@ -4,13 +4,24 @@ import test from "node:test";
 
 const projectRoot = new URL("../", import.meta.url);
 
-test("keeps the editorial homepage and article detail routes", async () => {
-  const [page, articlePage, header, articleData, layout, vercelConfig, packageJson] =
-    await Promise.all([
+test("keeps the editorial homepage, article routes, and trusted sources", async () => {
+  const [
+    page,
+    articlePage,
+    sourcesPage,
+    header,
+    articleData,
+    sourceData,
+    layout,
+    vercelConfig,
+    packageJson,
+  ] = await Promise.all([
     readFile(new URL("app/page.tsx", projectRoot), "utf8"),
     readFile(new URL("app/articles/[slug]/page.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/sources/page.tsx", projectRoot), "utf8"),
     readFile(new URL("app/components/SiteHeader.tsx", projectRoot), "utf8"),
     readFile(new URL("app/data/articles.ts", projectRoot), "utf8"),
+    readFile(new URL("app/data/sources.ts", projectRoot), "utf8"),
     readFile(new URL("app/layout.tsx", projectRoot), "utf8"),
     readFile(new URL("vercel.json", projectRoot), "utf8"),
     readFile(new URL("package.json", projectRoot), "utf8"),
@@ -28,6 +39,7 @@ test("keeps the editorial homepage and article detail routes", async () => {
   assert.match(articlePage, /查看 \{article.source\} 原始报道/);
   assert.match(header, /WorldPulse/);
   assert.match(header, /国际/);
+  assert.match(header, /信源标准/);
   assert.match(header, /订阅全球晨报/);
   assert.doesNotMatch(
     `${page}\n${articlePage}\n${header}`,
@@ -50,6 +62,30 @@ test("keeps the editorial homepage and article detail routes", async () => {
   assert.match(articleData, /联合国教科文组织 UNESCO/);
   assert.match(articleData, /美联社 AP/);
   assert.match(layout, /WorldPulse \| 读懂全球正在发生什么/);
+
+  const trustedNames = [
+    "BBC News",
+    "Reuters",
+    "The Wall Street Journal",
+    "Bloomberg",
+    "Associated Press",
+    "Agence France-Presse",
+    "The New York Times",
+    "The Washington Post",
+    "The Guardian",
+    "ProPublica",
+    "Financial Times",
+    "The Economist",
+  ];
+  trustedNames.forEach((name) => assert.match(sourceData, new RegExp(name)));
+  assert.match(sourcesPage, /可信不是标签/);
+  assert.match(sourcesPage, /交叉查核/);
+
+  const directoryUrls = [
+    ...sourceData.matchAll(/url: "([^"]+)"/g),
+  ].map((match) => match[1]);
+  assert.equal(directoryUrls.length, 23);
+  assert.ok(directoryUrls.every((url) => url.startsWith("https://")));
 
   const vercel = JSON.parse(vercelConfig);
   const pkg = JSON.parse(packageJson);

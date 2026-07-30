@@ -11,6 +11,7 @@ const navigation = [
   ["社会", "/#analysis"],
   ["科技", "/#analysis"],
   ["气候与文化", "/#analysis"],
+  ["信源标准", "/sources"],
 ];
 
 export default function SiteHeader() {
