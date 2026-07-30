@@ -57,10 +57,10 @@ test("keeps the editorial homepage, article routes, and trusted sources", async 
   );
   assert.equal(sourceUrls.length, slugs.length);
   assert.ok(sourceUrls.every((url) => url.startsWith("https://")));
-  assert.match(articleData, /国际货币基金组织 IMF/);
-  assert.match(articleData, /世界卫生组织 WHO/);
-  assert.match(articleData, /联合国教科文组织 UNESCO/);
-  assert.match(articleData, /美联社 AP/);
+  assert.match(articleData, /Associated Press \/ AP/);
+  assert.match(articleData, /ProPublica/);
+  assert.match(articleData, /2026\.07\.30/);
+  assert.match(articleData, /乌克兰称袭击俄两座大型炼油厂/);
   assert.match(layout, /WorldPulse \| 读懂全球正在发生什么/);
 
   const trustedNames = [

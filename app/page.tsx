@@ -15,7 +15,7 @@ export default function Home() {
       <main>
         <section className="page-shell hero">
           <div className="hero-copy">
-            <p className="eyebrow">TODAY&apos;S BRIEF · 2026.07.30</p>
+            <p className="eyebrow">NEWS DESK · UPDATED 2026.07.30</p>
             <h1>把世界正在发生的事，整理成值得慢慢读的中文。</h1>
             <p className="hero-description">
               WorldPulse 从全球权威媒体与国际机构中筛选重要时事，涵盖国际、政治、经济、社会、科技、气候与文化，并保留每篇原始报道链接。
