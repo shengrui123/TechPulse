@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import BackToTop from "./components/BackToTop";
 import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -48,7 +49,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-Hans" data-scroll-behavior="smooth">
-      <body>{children}</body>
+      <body>
+        {children}
+        <BackToTop />
+      </body>
     </html>
   );
 }

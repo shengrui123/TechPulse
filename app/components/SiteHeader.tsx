@@ -6,16 +6,14 @@ import { useState } from "react";
 import { newsCategories } from "../data/news-categories";
 
 const navigation = [
-  ["精选", "/"],
   ...newsCategories.map(
-    ({ id, label }) => [label, `/news/${id}`] as const,
+    ({ id, label }) => [label, id === "world" ? "/" : `/news/${id}`] as const,
   ),
   ["信源标准", "/sources"],
 ];
 
 export default function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [briefEnabled, setBriefEnabled] = useState(false);
   const pathname = usePathname();
 
   function isActive(href: string) {
@@ -40,15 +38,6 @@ export default function SiteHeader() {
             <small>世界脉动 · GLOBAL AFFAIRS</small>
           </Link>
           <div className="header-actions">
-            <button
-              className="brief-button"
-              type="button"
-              aria-label="订阅全球晨报"
-              aria-pressed={briefEnabled}
-              onClick={() => setBriefEnabled((enabled) => !enabled)}
-            >
-              {briefEnabled ? "已订阅" : "订阅"}
-            </button>
             <button
               className={`menu-button ${menuOpen ? "is-active" : ""}`}
               type="button"

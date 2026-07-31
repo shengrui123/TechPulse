@@ -11,8 +11,7 @@ export default function SiteFooter() {
         <div className="footer-directory">
           <div>
             <strong>EXPLORE</strong>
-            <Link href="/">今日精选</Link>
-            <Link href="/news/world">国际</Link>
+            <Link href="/">国际</Link>
             <Link href="/news/politics">政治</Link>
             <Link href="/news/economy">经济</Link>
           </div>
