@@ -1,5 +1,9 @@
 import "server-only";
 import { trustedSources } from "./sources";
+import {
+  matchesNewsCategory,
+  type NewsCategory,
+} from "./news-categories";
 
 export type LiveNewsItem = {
   title: string;
@@ -404,6 +408,13 @@ export async function getSourceEdition(): Promise<LiveNewsItem[]> {
   });
 
   return translateNewsItems(onePerSource);
+}
+
+export async function getNewsByCategory(category: NewsCategory) {
+  const news = await getLatestInternationalNews();
+  return news.filter((item) =>
+    matchesNewsCategory(category, item.title, item.summary),
+  );
 }
 
 export function formatNewsDate(value: string) {
