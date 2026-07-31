@@ -41,7 +41,10 @@ const newsWindowMs = 48 * 60 * 60 * 1000;
 function googleNewsFeedUrl(sourceUrl: string): string {
   const domain = new URL(sourceUrl).hostname.replace(/^www\./, "");
   const url = new URL("https://news.google.com/rss/search");
-  url.searchParams.set("q", `site:${domain} when:2d`);
+  // Keep a seven-day reservoir so the curated front page can always choose
+  // one current story from each of the 23 publishers. The regular news stream
+  // still applies its stricter 48-hour cutoff below.
+  url.searchParams.set("q", `site:${domain} when:7d`);
   url.searchParams.set("hl", "en-US");
   url.searchParams.set("gl", "US");
   url.searchParams.set("ceid", "US:en");
@@ -369,6 +372,35 @@ export async function getLatestInternationalNews(limit?: number) {
     typeof limit === "number" ? sorted.slice(0, limit) : sorted;
 
   return translateNewsItems(selected);
+}
+
+export async function getSourceEdition(): Promise<LiveNewsItem[]> {
+  const responses = await fetchAllFeeds();
+  const now = Date.now();
+  const onePerSource: LiveNewsItem[] = [];
+
+  responses.forEach((response) => {
+    if (response.status !== "fulfilled") {
+      return;
+    }
+
+    const latest = response.value
+      .filter((item) => {
+        const publishedAt = new Date(item.publishedAt).getTime();
+        return Number.isFinite(publishedAt) && publishedAt <= now;
+      })
+      .sort(
+        (left, right) =>
+          new Date(right.publishedAt).getTime() -
+          new Date(left.publishedAt).getTime(),
+      )[0];
+
+    if (latest) {
+      onePerSource.push(latest);
+    }
+  });
+
+  return translateNewsItems(onePerSource);
 }
 
 export function formatNewsDate(value: string) {

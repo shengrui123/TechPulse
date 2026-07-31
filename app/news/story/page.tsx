@@ -46,6 +46,10 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
     articleContent.paragraphs.length > 0
       ? articleContent.paragraphs
       : summaryParagraphs;
+  const readingMinutes = Math.max(
+    1,
+    Math.ceil(paragraphs.join("").length / 450),
+  );
 
   return (
     <>
@@ -63,6 +67,9 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
               {story.sourceName} · {formatNewsDate(story.publishedAt)}
             </p>
             <h1>{story.title}</h1>
+            {story.summary && (
+              <p className="news-article-deck">{story.summary}</p>
+            )}
           </header>
 
           <figure className="news-article-image">
@@ -82,6 +89,10 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
 
           <div className="news-article-layout">
             <div className="news-article-copy">
+              <div className="article-reading-line">
+                <span>WORLD PULSE / 国际</span>
+                <span>预计阅读 {readingMinutes} 分钟</span>
+              </div>
               {articleContent.byline && (
                 <p className="news-article-byline">
                   记者 / 作者：{articleContent.byline}
@@ -90,9 +101,15 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
               <p className="news-article-lead">
                 {paragraphs[0] || "该来源暂未提供新闻摘要。"}
               </p>
-              {paragraphs.slice(1).map((paragraph) => (
-                <p key={paragraph}>{paragraph}</p>
-              ))}
+              {paragraphs.slice(1).map((paragraph, index) =>
+                index === 2 ? (
+                  <blockquote className="news-article-pullquote" key={paragraph}>
+                    {paragraph}
+                  </blockquote>
+                ) : (
+                  <p key={paragraph}>{paragraph}</p>
+                ),
+              )}
 
               <div className="news-article-note">
                 <span>编辑说明</span>
