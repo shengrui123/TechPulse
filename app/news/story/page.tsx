@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import SiteFooter from "../../components/SiteFooter";
 import SiteHeader from "../../components/SiteHeader";
 import { resolveOriginalNewsUrl } from "../../data/google-news";
+import { fetchArticleContent } from "../../data/news-article-content";
 import { formatNewsDate } from "../../data/live-news";
 import { decodeNewsStory } from "../../data/news-story";
 
@@ -37,9 +38,14 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
   }
 
   const originalUrl = await resolveOriginalNewsUrl(story.url);
-  const paragraphs = story.summary
+  const articleContent = await fetchArticleContent(originalUrl);
+  const summaryParagraphs = story.summary
     .split(/(?<=[。！？.!?])\s+/u)
     .filter(Boolean);
+  const paragraphs =
+    articleContent.paragraphs.length > 0
+      ? articleContent.paragraphs
+      : summaryParagraphs;
 
   return (
     <>
@@ -76,6 +82,11 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
 
           <div className="news-article-layout">
             <div className="news-article-copy">
+              {articleContent.byline && (
+                <p className="news-article-byline">
+                  记者 / 作者：{articleContent.byline}
+                </p>
+              )}
               <p className="news-article-lead">
                 {paragraphs[0] || "该来源暂未提供新闻摘要。"}
               </p>
@@ -86,7 +97,9 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
               <div className="news-article-note">
                 <span>编辑说明</span>
                 <p>
-                  本页按照杂志阅读方式整理聚合源提供的标题与摘要。完整报道、后续更新及图片版权信息请以原媒体页面为准。
+                  {articleContent.mode === "full"
+                    ? "本信源已标记为允许全文展示，正文经自动提取、中文翻译并按照杂志阅读方式排版。"
+                    : "本页自动提取并翻译原媒体公开页面的有限内容。完整报道、后续更新及图片版权信息请以原媒体页面为准。"}
                 </p>
               </div>
 
@@ -109,6 +122,10 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
               </time>
               <span>阅读语言</span>
               <strong>简体中文</strong>
+              <span>内容范围</span>
+              <strong>
+                {articleContent.mode === "full" ? "授权全文" : "新闻节选"}
+              </strong>
             </aside>
           </div>
         </article>

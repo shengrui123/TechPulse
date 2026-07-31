@@ -11,6 +11,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
     newsStream,
     newsStoryPage,
     newsStoryData,
+    newsArticleContent,
     googleNewsData,
     newsImageRoute,
     liveNews,
@@ -28,6 +29,10 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
     readFile(new URL("app/components/NewsStream.tsx", projectRoot), "utf8"),
     readFile(new URL("app/news/story/page.tsx", projectRoot), "utf8"),
     readFile(new URL("app/data/news-story.ts", projectRoot), "utf8"),
+    readFile(
+      new URL("app/data/news-article-content.ts", projectRoot),
+      "utf8",
+    ),
     readFile(new URL("app/data/google-news.ts", projectRoot), "utf8"),
     readFile(new URL("app/api/news-image/route.ts", projectRoot), "utf8"),
     readFile(new URL("app/data/live-news.ts", projectRoot), "utf8"),
@@ -69,6 +74,14 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(googleNewsData, /isTrustedExternalNewsUrl/);
   assert.match(googleNewsData, /Fbv4je/);
   assert.match(newsStoryPage, /resolveOriginalNewsUrl/);
+  assert.match(newsStoryPage, /fetchArticleContent/);
+  assert.match(newsStoryPage, /授权全文/);
+  assert.match(newsStoryPage, /新闻节选/);
+  assert.match(newsArticleContent, /articleBody/);
+  assert.match(newsArticleContent, /application\\\/ld\\\+json/);
+  assert.match(newsArticleContent, /limitExcerpt/);
+  assert.match(newsArticleContent, /contentPolicyForUrl/);
+  assert.match(newsArticleContent, /translateToChinese/);
   assert.match(newsImageRoute, /resolveOriginalNewsUrl/);
   assert.match(newsImageRoute, /og:image/);
   assert.match(newsImageRoute, /world-brief\.png/);

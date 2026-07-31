@@ -4,6 +4,11 @@ export type NewsSource = {
   region: string;
   focus: string;
   url: string;
+  /**
+   * Only use "full" after the publisher has granted republication rights.
+   * Sources without an explicit policy are displayed as attributed excerpts.
+   */
+  contentPolicy?: "excerpt" | "full";
 };
 
 export type SourceGroup = {
@@ -213,3 +218,17 @@ export const sourceGroups: SourceGroup[] = [
 ];
 
 export const trustedSources = sourceGroups.flatMap((group) => group.sources);
+
+export function contentPolicyForUrl(value: string): "excerpt" | "full" {
+  try {
+    const hostname = new URL(value).hostname.replace(/^www\./, "");
+    const source = trustedSources.find((item) => {
+      const sourceHost = new URL(item.url).hostname.replace(/^www\./, "");
+      return hostname === sourceHost || hostname.endsWith(`.${sourceHost}`);
+    });
+
+    return source?.contentPolicy === "full" ? "full" : "excerpt";
+  } catch {
+    return "excerpt";
+  }
+}
