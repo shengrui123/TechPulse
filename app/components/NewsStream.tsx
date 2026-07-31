@@ -40,7 +40,7 @@ export default function NewsStream({
           <p className="eyebrow">
             {magazineEdition
               ? `THE GLOBAL EDITION · ${trustedSources.length} SOURCES`
-              : "全球即时新闻 · 每 15 分钟更新"}
+              : "全球即时新闻 · 每 30 分钟更新"}
           </p>
           <div>
             <h1>
@@ -51,7 +51,7 @@ export default function NewsStream({
               {description ??
                 (magazineEdition
                   ? `从“信源标准”收录的 ${trustedSources.length} 家媒体各选一篇最新报道，以中文编辑、视觉分层与沉浸式长文版式重新呈现。`
-                  : `汇总“信源标准”收录的 ${trustedSources.length} 家媒体最近 48 小时的报道，所有新闻均提供中文标题与中文摘要。`)}
+                  : `汇总“信源标准”收录的 ${trustedSources.length} 家媒体最近 2 小时的报道，所有新闻均提供中文标题与中文摘要。`)}
             </p>
           </div>
           <div className="news-hero-meta">

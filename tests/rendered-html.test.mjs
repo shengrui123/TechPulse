@@ -95,7 +95,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(newsImageRoute, /world-brief\.png/);
   assert.match(liveNews, /trustedSources\.map/);
   assert.match(liveNews, /site:\$\{domain\} when:7d/);
-  assert.match(liveNews, /newsWindowMs = 48/);
+  assert.match(liveNews, /newsWindowMs = 2/);
   assert.match(liveNews, /路透社/);
   assert.match(liveNews, /美联社/);
   assert.match(liveNews, /法新社/);
@@ -135,11 +135,12 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(liveNews, /tl", "zh-CN"/);
   assert.match(newsStream, /trustedSources\.length/);
   assert.match(newsStream, /activeSourceCount/);
-  assert.match(newsStream, /最近 48/);
+  assert.match(newsStream, /最近 2/);
   assert.match(newsPage, /maxDuration = 300/);
   assert.match(page, /maxDuration = 300/);
   assert.match(liveNews, /sorted\.slice\(0, limit\)/);
-  assert.match(liveNews, /revalidate: 900/);
+  assert.match(liveNews, /revalidate: 1800/);
+  assert.match(newsArticleContent, /cache: "no-store"/);
   assert.match(articlePage, /generateStaticParams/);
   assert.match(articlePage, /继续阅读/);
   assert.match(articlePage, /返回首页/);

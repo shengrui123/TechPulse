@@ -44,14 +44,14 @@ const sourceNames: Record<string, string> = {
   ProPublica: "ProPublica 调查新闻",
 };
 
-const newsWindowMs = 48 * 60 * 60 * 1000;
+const newsWindowMs = 2 * 60 * 60 * 1000;
 
 function googleNewsFeedUrl(sourceUrl: string): string {
   const domain = new URL(sourceUrl).hostname.replace(/^www\./, "");
   const url = new URL("https://news.google.com/rss/search");
   // Keep a seven-day reservoir so the curated front page can always choose
   // one current story from each of the 23 publishers. The regular news stream
-  // still applies its stricter 48-hour cutoff below.
+  // still applies its stricter two-hour cutoff below.
   url.searchParams.set("q", `site:${domain} when:7d`);
   url.searchParams.set("hl", "en-US");
   url.searchParams.set("gl", "US");
@@ -292,7 +292,7 @@ async function fetchFeed(
     try {
       const response = await fetch(feed.url, {
         headers: { "User-Agent": "WorldPulse/1.0 news reader" },
-        next: { revalidate: 900 },
+        next: { revalidate: 1800 },
         signal: AbortSignal.timeout(5000),
       });
 

@@ -175,7 +175,7 @@ async function translateToChinese(value: string): Promise<string> {
     url.searchParams.set("q", value);
     const response = await fetch(url, {
       headers: { "User-Agent": "WorldPulse/1.0 article translator" },
-      next: { revalidate: 86400 },
+      cache: "no-store",
       signal: AbortSignal.timeout(8000),
     });
     return response.ok
@@ -218,7 +218,7 @@ export async function fetchArticleContent(
         Accept: "text/html,application/xhtml+xml",
         "User-Agent": "Mozilla/5.0 WorldPulse article reader",
       },
-      next: { revalidate: 900 },
+      cache: "no-store",
       signal: AbortSignal.timeout(12000),
     });
     if (!response.ok) {
