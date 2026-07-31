@@ -33,17 +33,21 @@ export default function SiteHeader() {
       <div className="topline" />
       <header className="site-header">
         <div className="page-shell header-row">
-          <Link className="brand" href="/">
-            WorldPulse <small>世界脉动</small>
+          <span className="masthead-issue">THE DAILY EDITION · SHANGHAI</span>
+          <Link className="brand" href="/" aria-label="WorldPulse 首页">
+            <span>WORLD</span>
+            <span>PULSE</span>
+            <small>世界脉动 · GLOBAL AFFAIRS</small>
           </Link>
           <div className="header-actions">
             <button
               className="brief-button"
               type="button"
+              aria-label="订阅全球晨报"
               aria-pressed={briefEnabled}
               onClick={() => setBriefEnabled((enabled) => !enabled)}
             >
-              {briefEnabled ? "晨报已订阅" : "订阅全球晨报"}
+              {briefEnabled ? "已订阅" : "订阅"}
             </button>
             <button
               className={`menu-button ${menuOpen ? "is-active" : ""}`}
