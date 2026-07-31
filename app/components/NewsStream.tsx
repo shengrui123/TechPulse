@@ -24,7 +24,14 @@ export default function NewsStream({
   description,
   hideHeader = false,
 }: NewsStreamProps) {
-  const activeSourceCount = new Set(news.map((item) => item.source)).size;
+  const orderedNews = [...news].sort(
+    (left, right) =>
+      new Date(right.publishedAt).getTime() -
+      new Date(left.publishedAt).getTime(),
+  );
+  const activeSourceCount = new Set(
+    orderedNews.map((item) => item.source),
+  ).size;
 
   return (
     <main>
@@ -49,7 +56,7 @@ export default function NewsStream({
           </div>
           <div className="news-hero-meta">
             <span>
-              {news.length} 条 · {activeSourceCount}/{trustedSources.length} 家
+              {orderedNews.length} 条 · {activeSourceCount}/{trustedSources.length} 家
             </span>
             {showMore && (
               <Link className="news-more-link" href="/news">
@@ -61,7 +68,7 @@ export default function NewsStream({
       )}
 
       <section className="page-shell news-stream" aria-label="最新国际新闻">
-        {news.length > 0 ? (
+        {orderedNews.length > 0 ? (
           <div
             className={
               magazineEdition
@@ -69,7 +76,7 @@ export default function NewsStream({
                 : "news-waterfall"
             }
           >
-            {news.map((item, index) => (
+            {orderedNews.map((item, index) => (
               <article className="news-card" key={`${item.source}-${item.url}`}>
                 <Link
                   href={`/news/story?story=${encodeNewsStory(item)}`}
