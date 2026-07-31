@@ -1532,11 +1532,35 @@ button {
 }
 
 .route-loading p {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin: 24px 0 0;
   color: var(--muted);
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.28em;
+}
+
+.route-loading-dots {
+  display: flex;
+  gap: 5px;
+}
+
+.route-loading-dots i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--orange);
+  animation: loading-dot 900ms ease-in-out infinite;
+}
+
+.route-loading-dots i:nth-child(2) {
+  animation-delay: 150ms;
+}
+
+.route-loading-dots i:nth-child(3) {
+  animation-delay: 300ms;
 }
 
 @keyframes editorial-progress {
@@ -1548,6 +1572,18 @@ button {
   }
   100% {
     transform: translateX(340%) scaleX(0.5);
+  }
+}
+
+@keyframes loading-dot {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-4px);
   }
 }
 
@@ -1564,8 +1600,9 @@ button {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .route-loading-bar,
-  .route-loading-mark {
+.route-loading-bar,
+  .route-loading-mark,
+  .route-loading-dots i {
     animation: none;
   }
 }

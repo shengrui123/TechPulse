@@ -37,17 +37,12 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     notFound();
   }
 
-  const label = categoryLabels[category];
   const news = await getNewsByCategory(category);
 
   return (
     <>
       <SiteHeader />
-      <NewsStream
-        news={news}
-        heading={`${label}新闻`}
-        description={`来自完整信源名单的${label}相关新闻，按发布时间排列，并提供中文标题、摘要与杂志式正文阅读。`}
-      />
+      <NewsStream news={news} hideHeader />
       <SiteFooter />
     </>
   );

@@ -20,8 +20,7 @@ export default async function Home() {
       <SiteHeader />
       <NewsStream
         news={news}
-        heading="国际新闻"
-        description="来自完整信源名单的国际相关新闻，按发布时间排列，并提供中文标题、摘要与杂志式正文阅读。"
+        hideHeader
       />
       <SiteFooter />
     </>

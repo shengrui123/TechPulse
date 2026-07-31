@@ -7,7 +7,14 @@ export default function Loading() {
         <i />
         <span>P</span>
       </div>
-      <p>正在编辑今日世界</p>
+      <p>
+        正在加载新闻
+        <span className="route-loading-dots" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+        </span>
+      </p>
     </div>
   );
 }

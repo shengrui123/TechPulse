@@ -13,6 +13,7 @@ type NewsStreamProps = {
   magazineEdition?: boolean;
   heading?: string;
   description?: string;
+  hideHeader?: boolean;
 };
 
 export default function NewsStream({
@@ -21,40 +22,43 @@ export default function NewsStream({
   magazineEdition = false,
   heading,
   description,
+  hideHeader = false,
 }: NewsStreamProps) {
   const activeSourceCount = new Set(news.map((item) => item.source)).size;
 
   return (
     <main>
-      <header className="page-shell news-hero">
-        <p className="eyebrow">
-          {magazineEdition
-            ? `THE GLOBAL EDITION · ${trustedSources.length} SOURCES`
-            : "全球即时新闻 · 每 15 分钟更新"}
-        </p>
-        <div>
-          <h1>
-            {heading ??
-              (magazineEdition ? "今日全球新闻杂志" : "最近的国际新闻")}
-          </h1>
-          <p>
-            {description ??
-              (magazineEdition
-              ? `从“信源标准”收录的 ${trustedSources.length} 家媒体各选一篇最新报道，以中文编辑、视觉分层与沉浸式长文版式重新呈现。`
-              : `汇总“信源标准”收录的 ${trustedSources.length} 家媒体最近 48 小时的报道，所有新闻均提供中文标题与中文摘要。`)}
+      {!hideHeader && (
+        <header className="page-shell news-hero">
+          <p className="eyebrow">
+            {magazineEdition
+              ? `THE GLOBAL EDITION · ${trustedSources.length} SOURCES`
+              : "全球即时新闻 · 每 15 分钟更新"}
           </p>
-        </div>
-        <div className="news-hero-meta">
-          <span>
-            {news.length} 条 · {activeSourceCount}/{trustedSources.length} 家
-          </span>
-          {showMore && (
-            <Link className="news-more-link" href="/news">
-              查看更多 <span aria-hidden="true">→</span>
-            </Link>
-          )}
-        </div>
-      </header>
+          <div>
+            <h1>
+              {heading ??
+                (magazineEdition ? "今日全球新闻杂志" : "最近的国际新闻")}
+            </h1>
+            <p>
+              {description ??
+                (magazineEdition
+                  ? `从“信源标准”收录的 ${trustedSources.length} 家媒体各选一篇最新报道，以中文编辑、视觉分层与沉浸式长文版式重新呈现。`
+                  : `汇总“信源标准”收录的 ${trustedSources.length} 家媒体最近 48 小时的报道，所有新闻均提供中文标题与中文摘要。`)}
+            </p>
+          </div>
+          <div className="news-hero-meta">
+            <span>
+              {news.length} 条 · {activeSourceCount}/{trustedSources.length} 家
+            </span>
+            {showMore && (
+              <Link className="news-more-link" href="/news">
+                查看更多 <span aria-hidden="true">→</span>
+              </Link>
+            )}
+          </div>
+        </header>
+      )}
 
       <section className="page-shell news-stream" aria-label="最新国际新闻">
         {news.length > 0 ? (

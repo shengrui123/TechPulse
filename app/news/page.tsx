@@ -18,11 +18,7 @@ export default async function NewsPage() {
   return (
     <>
       <SiteHeader />
-      <NewsStream
-        news={news}
-        heading="全部新闻"
-        description="来自完整信源名单的全部近期新闻，按发布时间排列，并提供中文标题、摘要与杂志式正文阅读。"
-      />
+      <NewsStream news={news} hideHeader />
       <SiteFooter />
     </>
   );
