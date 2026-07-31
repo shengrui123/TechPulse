@@ -11,12 +11,16 @@ type NewsStreamProps = {
   news: LiveNewsItem[];
   showMore?: boolean;
   magazineEdition?: boolean;
+  heading?: string;
+  description?: string;
 };
 
 export default function NewsStream({
   news,
   showMore = false,
   magazineEdition = false,
+  heading,
+  description,
 }: NewsStreamProps) {
   const activeSourceCount = new Set(news.map((item) => item.source)).size;
 
@@ -29,11 +33,15 @@ export default function NewsStream({
             : "全球即时新闻 · 每 15 分钟更新"}
         </p>
         <div>
-          <h1>{magazineEdition ? "今日全球新闻杂志" : "最近的国际新闻"}</h1>
+          <h1>
+            {heading ??
+              (magazineEdition ? "今日全球新闻杂志" : "最近的国际新闻")}
+          </h1>
           <p>
-            {magazineEdition
+            {description ??
+              (magazineEdition
               ? `从“信源标准”收录的 ${trustedSources.length} 家媒体各选一篇最新报道，以中文编辑、视觉分层与沉浸式长文版式重新呈现。`
-              : `汇总“信源标准”收录的 ${trustedSources.length} 家媒体最近 48 小时的报道，所有新闻均提供中文标题与中文摘要。`}
+              : `汇总“信源标准”收录的 ${trustedSources.length} 家媒体最近 48 小时的报道，所有新闻均提供中文标题与中文摘要。`)}
           </p>
         </div>
         <div className="news-hero-meta">
@@ -92,8 +100,8 @@ export default function NewsStream({
           </div>
         ) : (
           <div className="news-empty">
-            <h2>新闻源暂时没有回应</h2>
-            <p>页面会自动重试，请稍后刷新。</p>
+            <h2>该分类暂时没有近期新闻</h2>
+            <p>新闻源会持续更新，你也可以稍后刷新查看。</p>
           </div>
         )}
       </section>

@@ -8,6 +8,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   const [
     page,
     newsPage,
+    categoryPage,
     newsStream,
     newsStoryPage,
     newsStoryData,
@@ -26,6 +27,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   ] = await Promise.all([
     readFile(new URL("app/page.tsx", projectRoot), "utf8"),
     readFile(new URL("app/news/page.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/news/[category]/page.tsx", projectRoot), "utf8"),
     readFile(new URL("app/components/NewsStream.tsx", projectRoot), "utf8"),
     readFile(new URL("app/news/story/page.tsx", projectRoot), "utf8"),
     readFile(new URL("app/data/news-story.ts", projectRoot), "utf8"),
@@ -49,7 +51,11 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(page, /getSourceEdition\(\)/);
   assert.match(page, /<NewsStream news=\{news\} showMore magazineEdition \/>/);
   assert.match(newsPage, /getLatestInternationalNews\(\)/);
-  assert.match(newsPage, /<NewsStream news=\{news\} \/>/);
+  assert.match(categoryPage, /getNewsByCategory/);
+  assert.match(categoryPage, /isNewsCategory/);
+  assert.match(categoryPage, /categoryLabels/);
+  assert.match(newsPage, /heading="全部新闻"/);
+  assert.match(categoryPage, /heading=\{`\$\{label\}新闻`\}/);
   assert.match(newsStream, /news-waterfall/);
   assert.match(newsStream, /最近的国际新闻/);
   assert.match(newsStream, /showMore/);
@@ -133,7 +139,8 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(articlePage, /返回首页/);
   assert.match(articlePage, /查看 \{article.source\} 原始报道/);
   assert.match(header, /WorldPulse/);
-  assert.match(header, /国际/);
+  assert.match(header, /newsCategories/);
+  assert.match(header, /`\/news\/\$\{id\}`/);
   assert.match(header, /信源标准/);
   assert.match(header, /订阅全球晨报/);
   assert.doesNotMatch(

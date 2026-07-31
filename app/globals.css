@@ -189,6 +189,10 @@ button {
   font-size: 15px;
 }
 
+.mobile-nav a.is-active {
+  color: var(--yellow);
+}
+
 .hero {
   display: grid;
   grid-template-columns: minmax(0, 1.12fr) minmax(360px, 0.88fr);

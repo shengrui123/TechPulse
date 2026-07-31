@@ -1,22 +1,32 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { newsCategories } from "../data/news-categories";
 
 const navigation = [
-  ["精选", "/#featured"],
-  ["国际", "/news"],
-  ["政治", "/#latest"],
-  ["经济", "/#latest"],
-  ["社会", "/#analysis"],
-  ["科技", "/#analysis"],
-  ["气候与文化", "/#analysis"],
+  ["精选", "/"],
+  ...newsCategories.map(
+    ({ id, label }) => [label, `/news/${id}`] as const,
+  ),
   ["信源标准", "/sources"],
 ];
 
 export default function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [briefEnabled, setBriefEnabled] = useState(false);
+  const pathname = usePathname();
+
+  function isActive(href: string) {
+    if (href === "/") {
+      return pathname === "/";
+    }
+    if (href === "/sources") {
+      return pathname === "/sources";
+    }
+    return pathname === href;
+  }
 
   return (
     <>
@@ -52,8 +62,13 @@ export default function SiteHeader() {
       </header>
       <nav className="desktop-nav" aria-label="主要栏目">
         <div className="page-shell nav-inner">
-          {navigation.map(([label, href], index) => (
-            <Link className={index === 0 ? "is-active" : ""} href={href} key={label}>
+          {navigation.map(([label, href]) => (
+            <Link
+              className={isActive(href) ? "is-active" : ""}
+              href={href}
+              key={label}
+              aria-current={isActive(href) ? "page" : undefined}
+            >
               {label}
             </Link>
           ))}
@@ -68,7 +83,13 @@ export default function SiteHeader() {
       >
         <div className="page-shell">
           {navigation.map(([label, href]) => (
-            <Link href={href} key={label} onClick={() => setMenuOpen(false)}>
+            <Link
+              className={isActive(href) ? "is-active" : ""}
+              href={href}
+              key={label}
+              aria-current={isActive(href) ? "page" : undefined}
+              onClick={() => setMenuOpen(false)}
+            >
               {label}
             </Link>
           ))}
