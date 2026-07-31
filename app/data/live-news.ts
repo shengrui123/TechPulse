@@ -21,6 +21,8 @@ const sourceNames: Record<string, string> = {
   "CBC News": "加拿大广播公司新闻网",
   "ABC News Australia": "澳大利亚广播公司新闻网",
   "Al Jazeera": "半岛电视台",
+  "The Reporter": "报导者",
+  "Central News Agency Taiwan": "中央社",
   "The New York Times": "纽约时报",
   "The Washington Post": "华盛顿邮报",
   "The Guardian": "卫报",
@@ -28,6 +30,7 @@ const sourceNames: Record<string, string> = {
   "Le Monde": "世界报",
   "The Hindu": "印度教徒报",
   "Channel NewsAsia": "亚洲新闻台",
+  "Initium Media": "端传媒",
   Bloomberg: "彭博社",
   "Financial Times": "金融时报",
   "The Wall Street Journal": "华尔街日报",
@@ -54,7 +57,7 @@ function googleNewsFeedUrl(sourceUrl: string): string {
 const feeds = trustedSources.map((source) => ({
   source: source.name,
   sourceName: sourceNames[source.name] ?? source.name,
-  url: googleNewsFeedUrl(source.url),
+  url: source.rssUrl ?? googleNewsFeedUrl(source.url),
 }));
 
 const translationEndpoint =

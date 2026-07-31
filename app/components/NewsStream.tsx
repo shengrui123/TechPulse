@@ -25,7 +25,7 @@ export default function NewsStream({
       <header className="page-shell news-hero">
         <p className="eyebrow">
           {magazineEdition
-            ? "THE GLOBAL EDITION · 23 SOURCES"
+            ? `THE GLOBAL EDITION · ${trustedSources.length} SOURCES`
             : "全球即时新闻 · 每 15 分钟更新"}
         </p>
         <div>

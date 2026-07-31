@@ -6,7 +6,7 @@ import { getSourceEdition } from "./data/live-news";
 
 export const metadata: Metadata = {
   title: "最新国际新闻 | WorldPulse",
-  description: "每日精选 23 家全球权威媒体各自最新的一篇重要报道。",
+  description: "每日精选完整全球信源名单中各家媒体的最新重要报道。",
 };
 
 export const dynamic = "force-dynamic";
