@@ -4,6 +4,7 @@ export type NewsSource = {
   region: string;
   focus: string;
   url: string;
+  rssUrl?: string;
   /**
    * Only use "full" after the publisher has granted republication rights.
    * Sources without an explicit policy are displayed as attributed excerpts.
@@ -93,6 +94,8 @@ export const sourceGroups: SourceGroup[] = [
         region: "澳大利亚 / 太平洋",
         focus: "澳大利亚、亚太与气候",
         url: "https://www.abc.net.au/news/",
+        rssUrl:
+          "https://www.abc.net.au/news/feed/8537074/rss_fulltext.xml",
       },
       {
         name: "Al Jazeera",
@@ -100,6 +103,23 @@ export const sourceGroups: SourceGroup[] = [
         region: "中东 / 全球",
         focus: "中东、全球南方与国际现场",
         url: "https://www.aljazeera.com/",
+      },
+      {
+        name: "The Reporter",
+        shortName: "報導者",
+        region: "台湾 / 亚洲",
+        focus: "公共议题、调查报道与深度专题",
+        url: "https://www.twreporter.org/",
+        rssUrl:
+          "https://public.twreporter.org/rss/twreporter-rss.xml",
+      },
+      {
+        name: "Central News Agency Taiwan",
+        shortName: "中央社",
+        region: "台湾 / 全球",
+        focus: "国际、两岸、政治与即时新闻",
+        url: "https://www.cna.com.tw/",
+        rssUrl: "https://feeds.feedburner.com/rsscna/intworld",
       },
     ],
   },
@@ -156,6 +176,14 @@ export const sourceGroups: SourceGroup[] = [
         region: "新加坡 / 亚洲",
         focus: "东南亚、亚洲与商业",
         url: "https://www.channelnewsasia.com/",
+      },
+      {
+        name: "Initium Media",
+        shortName: "INITIUM",
+        region: "华语世界 / 全球",
+        focus: "华语世界、国际议题与深度报道",
+        url: "https://theinitium.com/",
+        rssUrl: "https://theinitium.com/rss/",
       },
     ],
   },

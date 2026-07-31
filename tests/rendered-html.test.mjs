@@ -98,6 +98,8 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(liveNews, /加拿大广播公司新闻网/);
   assert.match(liveNews, /澳大利亚广播公司新闻网/);
   assert.match(liveNews, /半岛电视台/);
+  assert.match(liveNews, /报导者/);
+  assert.match(liveNews, /中央社/);
   assert.match(liveNews, /纽约时报/);
   assert.match(liveNews, /华盛顿邮报/);
   assert.match(liveNews, /卫报/);
@@ -105,6 +107,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(liveNews, /世界报/);
   assert.match(liveNews, /印度教徒报/);
   assert.match(liveNews, /亚洲新闻台/);
+  assert.match(liveNews, /端传媒/);
   assert.match(liveNews, /彭博社/);
   assert.match(liveNews, /金融时报/);
   assert.match(liveNews, /华尔街日报/);
@@ -176,8 +179,14 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   const directoryUrls = [
     ...sourceData.matchAll(/url: "([^"]+)"/g),
   ].map((match) => match[1]);
-  assert.equal(directoryUrls.length, 23);
+  assert.equal(directoryUrls.length, 26);
   assert.ok(directoryUrls.every((url) => url.startsWith("https://")));
+
+  const rssUrls = [...sourceData.matchAll(/rssUrl:\s*\n?\s*"([^"]+)"/g)].map(
+    (match) => match[1],
+  );
+  assert.equal(rssUrls.length, 4);
+  assert.ok(rssUrls.every((url) => url.startsWith("https://")));
 
   const vercel = JSON.parse(vercelConfig);
   const pkg = JSON.parse(packageJson);
