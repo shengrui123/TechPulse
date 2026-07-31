@@ -2160,10 +2160,10 @@ body {
 
 .news-article-header h1 {
   font-family: "Times New Roman", "Songti SC", serif;
-  font-size: clamp(62px, 7.3vw, 112px);
+  font-size: clamp(42px, 5vw, 76px);
   font-weight: 400;
-  line-height: 0.98;
-  letter-spacing: -0.055em;
+  line-height: 1.04;
+  letter-spacing: -0.04em;
 }
 
 .news-article-deck {
@@ -2187,13 +2187,13 @@ body {
 .article-body > p {
   color: #252422;
   font-family: "Times New Roman", "Songti SC", serif;
-  font-size: 20px;
-  line-height: 1.95;
+  font-size: 17px;
+  line-height: 1.85;
 }
 
 .news-article-copy .news-article-lead {
-  font-size: 30px;
-  line-height: 1.55;
+  font-size: 23px;
+  line-height: 1.65;
 }
 
 .news-article-pullquote {
@@ -2233,10 +2233,10 @@ body {
 .article-hero h1 {
   max-width: 1080px;
   font-family: "Times New Roman", "Songti SC", serif;
-  font-size: clamp(60px, 7vw, 106px);
+  font-size: clamp(42px, 5vw, 76px);
   font-weight: 400;
-  line-height: 1;
-  letter-spacing: -0.05em;
+  line-height: 1.04;
+  letter-spacing: -0.04em;
 }
 
 .article-deck {
@@ -2453,7 +2453,7 @@ body {
   }
 
   .news-article-header h1 {
-    font-size: clamp(48px, 14vw, 72px);
+    font-size: clamp(36px, 10vw, 48px);
   }
 
   .news-article-header .eyebrow {
@@ -2461,7 +2461,7 @@ body {
   }
 
   .news-article-deck {
-    font-size: 20px;
+    font-size: 18px;
   }
 
   .news-article-layout,
@@ -2473,11 +2473,11 @@ body {
 
   .news-article-copy > p,
   .article-body > p {
-    font-size: 18px;
+    font-size: 16px;
   }
 
   .news-article-copy .news-article-lead {
-    font-size: 24px;
+    font-size: 20px;
   }
 
   .source-group {
