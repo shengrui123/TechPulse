@@ -67,9 +67,9 @@ const feeds = trustedSources.map((source) => ({
 
 const translationEndpoint =
   "https://translate.googleapis.com/translate_a/single";
-const feedConcurrency = 10;
-const translationConcurrency = 8;
-const translationBatchCharacters = 2400;
+const feedConcurrency = 26;
+const translationConcurrency = 12;
+const translationBatchCharacters = 5000;
 
 function clean(value: string): string {
   return value
@@ -160,7 +160,7 @@ async function requestTranslation(value: string): Promise<string> {
   url.searchParams.set("dt", "t");
   url.searchParams.set("q", value);
 
-  for (let attempt = 0; attempt < 2; attempt += 1) {
+  for (let attempt = 0; attempt < 1; attempt += 1) {
     try {
       const response = await fetch(url, {
         headers: { "User-Agent": "WorldPulse/1.0 news translator" },
@@ -293,7 +293,7 @@ async function fetchFeed(
       const response = await fetch(feed.url, {
         headers: { "User-Agent": "WorldPulse/1.0 news reader" },
         next: { revalidate: 900 },
-        signal: AbortSignal.timeout(8000),
+        signal: AbortSignal.timeout(5000),
       });
 
       if (!response.ok) {

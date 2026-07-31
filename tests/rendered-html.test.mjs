@@ -126,7 +126,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(liveNews, /translationBatchCharacters/);
   assert.match(liveNews, /fetchAllFeeds/);
   assert.match(liveNews, /getSourceEdition/);
-  assert.match(liveNews, /feedConcurrency = 10/);
+  assert.match(liveNews, /feedConcurrency = 26/);
   assert.match(liveNews, /unstable_cache/);
   assert.match(liveNews, /worldpulse-source-edition-v1/);
   assert.match(loading, /route-loading-bar/);

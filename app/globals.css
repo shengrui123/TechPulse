@@ -2525,3 +2525,55 @@ body {
     justify-self: start;
   }
 }
+
+/* Final visual overrides — intentionally last in the cascade. */
+.header-row,
+.desktop-nav,
+.news-hero,
+.news-card,
+.news-card a,
+.section-heading,
+.news-article-header,
+.news-article-image figcaption,
+.article-reading-line,
+.news-article-note,
+.article-note,
+.news-article-aside,
+.article-rule,
+.article-aside,
+.source-principles,
+.source-group,
+.source-list,
+.source-item,
+.principle-grid article,
+.principle-grid article:first-child,
+.footer-statement,
+.footer-signoff {
+  border-top-color: transparent;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+  border-left-color: transparent;
+}
+
+.site-footer {
+  background: var(--white);
+  color: var(--ink);
+}
+
+.footer-statement > span,
+.footer-directory strong,
+.footer-signoff {
+  color: var(--muted);
+}
+
+.footer-directory a {
+  color: var(--ink);
+}
+
+.footer-directory a:hover {
+  color: var(--orange);
+}
+
+.footer-brand {
+  color: var(--ink);
+}
