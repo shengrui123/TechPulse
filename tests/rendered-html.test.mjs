@@ -9,6 +9,10 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
     page,
     newsPage,
     newsStream,
+    newsStoryPage,
+    newsStoryData,
+    googleNewsData,
+    newsImageRoute,
     liveNews,
     articlePage,
     sourcesPage,
@@ -22,6 +26,10 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
     readFile(new URL("app/page.tsx", projectRoot), "utf8"),
     readFile(new URL("app/news/page.tsx", projectRoot), "utf8"),
     readFile(new URL("app/components/NewsStream.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/news/story/page.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/data/news-story.ts", projectRoot), "utf8"),
+    readFile(new URL("app/data/google-news.ts", projectRoot), "utf8"),
+    readFile(new URL("app/api/news-image/route.ts", projectRoot), "utf8"),
     readFile(new URL("app/data/live-news.ts", projectRoot), "utf8"),
     readFile(new URL("app/articles/[slug]/page.tsx", projectRoot), "utf8"),
     readFile(new URL("app/sources/page.tsx", projectRoot), "utf8"),
@@ -42,6 +50,28 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(newsStream, /showMore/);
   assert.match(newsStream, /href="\/news"/);
   assert.match(newsStream, /查看更多/);
+  assert.match(newsStream, /news-card-image/);
+  assert.match(newsStream, /\/api\/news-image\?url=/);
+  assert.match(newsStream, /\/news\/story\?story=/);
+  assert.ok(
+    newsStream.indexOf("news-card-image") <
+      newsStream.indexOf("<h2>{item.title}</h2>"),
+    "news image should appear before the news title",
+  );
+  assert.match(newsStoryPage, /news-article-page/);
+  assert.match(newsStoryPage, /news-article-image/);
+  assert.match(newsStoryPage, /查看原网页新闻/);
+  assert.match(newsStoryPage, /完整报道、后续更新及图片版权信息/);
+  assert.match(newsStoryData, /encodeNewsStory/);
+  assert.match(newsStoryData, /decodeNewsStory/);
+  assert.match(newsStoryData, /isSupportedNewsUrl/);
+  assert.match(googleNewsData, /resolveOriginalNewsUrl/);
+  assert.match(googleNewsData, /isTrustedExternalNewsUrl/);
+  assert.match(googleNewsData, /Fbv4je/);
+  assert.match(newsStoryPage, /resolveOriginalNewsUrl/);
+  assert.match(newsImageRoute, /resolveOriginalNewsUrl/);
+  assert.match(newsImageRoute, /og:image/);
+  assert.match(newsImageRoute, /world-brief\.png/);
   assert.match(liveNews, /trustedSources\.map/);
   assert.match(liveNews, /site:\$\{domain\} when:2d/);
   assert.match(liveNews, /newsWindowMs = 48/);

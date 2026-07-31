@@ -1,0 +1,119 @@
+import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import SiteFooter from "../../components/SiteFooter";
+import SiteHeader from "../../components/SiteHeader";
+import { resolveOriginalNewsUrl } from "../../data/google-news";
+import { formatNewsDate } from "../../data/live-news";
+import { decodeNewsStory } from "../../data/news-story";
+
+type StoryPageProps = {
+  searchParams: Promise<{ story?: string }>;
+};
+
+async function storyFromParams(searchParams: StoryPageProps["searchParams"]) {
+  const { story } = await searchParams;
+  return story ? decodeNewsStory(story) : null;
+}
+
+export async function generateMetadata({
+  searchParams,
+}: StoryPageProps): Promise<Metadata> {
+  const story = await storyFromParams(searchParams);
+
+  return story
+    ? {
+        title: `${story.title} | WorldPulse`,
+        description: story.summary || `${story.sourceName} 最新报道`,
+      }
+    : { title: "新闻未找到 | WorldPulse" };
+}
+
+export default async function StoryPage({ searchParams }: StoryPageProps) {
+  const story = await storyFromParams(searchParams);
+  if (!story) {
+    notFound();
+  }
+
+  const originalUrl = await resolveOriginalNewsUrl(story.url);
+  const paragraphs = story.summary
+    .split(/(?<=[。！？.!?])\s+/u)
+    .filter(Boolean);
+
+  return (
+    <>
+      <SiteHeader />
+      <main className="news-article-page">
+        <article className="page-shell news-article">
+          <nav className="news-article-breadcrumb" aria-label="面包屑">
+            <Link href="/">首页</Link>
+            <span>/</span>
+            <Link href="/news">全部新闻</Link>
+          </nav>
+
+          <header className="news-article-header">
+            <p className="eyebrow">
+              {story.sourceName} · {formatNewsDate(story.publishedAt)}
+            </p>
+            <h1>{story.title}</h1>
+          </header>
+
+          <figure className="news-article-image">
+            <Image
+              src={`/api/news-image?url=${encodeURIComponent(story.url)}&v=2`}
+              alt={`${story.title} 新闻图片`}
+              width={1600}
+              height={900}
+              sizes="(max-width: 1200px) 100vw, 1160px"
+              priority
+              unoptimized
+            />
+            <figcaption>
+              图片与报道来自 {story.sourceName}，WorldPulse 进行中文整理。
+            </figcaption>
+          </figure>
+
+          <div className="news-article-layout">
+            <div className="news-article-copy">
+              <p className="news-article-lead">
+                {paragraphs[0] || "该来源暂未提供新闻摘要。"}
+              </p>
+              {paragraphs.slice(1).map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+
+              <div className="news-article-note">
+                <span>编辑说明</span>
+                <p>
+                  本页按照杂志阅读方式整理聚合源提供的标题与摘要。完整报道、后续更新及图片版权信息请以原媒体页面为准。
+                </p>
+              </div>
+
+              <a
+                className="original-news-button"
+                href={originalUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
+                查看原网页新闻 <span aria-hidden="true">↗</span>
+              </a>
+            </div>
+
+            <aside className="news-article-aside">
+              <span>来源</span>
+              <strong>{story.sourceName}</strong>
+              <span>发布时间</span>
+              <time dateTime={story.publishedAt}>
+                {formatNewsDate(story.publishedAt)}
+              </time>
+              <span>阅读语言</span>
+              <strong>简体中文</strong>
+            </aside>
+          </div>
+        </article>
+      </main>
+      <SiteFooter />
+    </>
+  );
+}
