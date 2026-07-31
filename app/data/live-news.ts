@@ -1,4 +1,5 @@
 import "server-only";
+import { unstable_cache } from "next/cache";
 import { trustedSources } from "./sources";
 import {
   matchesNewsCategory,
@@ -66,8 +67,8 @@ const feeds = trustedSources.map((source) => ({
 
 const translationEndpoint =
   "https://translate.googleapis.com/translate_a/single";
-const feedConcurrency = 3;
-const translationConcurrency = 4;
+const feedConcurrency = 10;
+const translationConcurrency = 8;
 const translationBatchCharacters = 2400;
 
 function clean(value: string): string {
@@ -287,12 +288,12 @@ async function fetchFeed(
 ): Promise<LiveNewsItem[]> {
   let lastError: unknown;
 
-  for (let attempt = 0; attempt < 3; attempt += 1) {
+  for (let attempt = 0; attempt < 2; attempt += 1) {
     try {
       const response = await fetch(feed.url, {
         headers: { "User-Agent": "WorldPulse/1.0 news reader" },
         next: { revalidate: 900 },
-        signal: AbortSignal.timeout(15000),
+        signal: AbortSignal.timeout(8000),
       });
 
       if (!response.ok) {
@@ -381,7 +382,7 @@ export async function getLatestInternationalNews(limit?: number) {
   return translateNewsItems(selected);
 }
 
-export async function getSourceEdition(): Promise<LiveNewsItem[]> {
+async function buildSourceEdition(): Promise<LiveNewsItem[]> {
   const responses = await fetchAllFeeds();
   const now = Date.now();
   const onePerSource: LiveNewsItem[] = [];
@@ -409,6 +410,12 @@ export async function getSourceEdition(): Promise<LiveNewsItem[]> {
 
   return translateNewsItems(onePerSource);
 }
+
+export const getSourceEdition = unstable_cache(
+  buildSourceEdition,
+  ["worldpulse-source-edition-v1"],
+  { revalidate: 900, tags: ["source-edition"] },
+);
 
 export async function getNewsByCategory(category: NewsCategory) {
   const news = await getLatestInternationalNews();

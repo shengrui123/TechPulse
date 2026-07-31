@@ -21,6 +21,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
     header,
     articleData,
     sourceData,
+    loading,
     layout,
     vercelConfig,
     packageJson,
@@ -43,6 +44,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
     readFile(new URL("app/components/SiteHeader.tsx", projectRoot), "utf8"),
     readFile(new URL("app/data/articles.ts", projectRoot), "utf8"),
     readFile(new URL("app/data/sources.ts", projectRoot), "utf8"),
+    readFile(new URL("app/loading.tsx", projectRoot), "utf8"),
     readFile(new URL("app/layout.tsx", projectRoot), "utf8"),
     readFile(new URL("vercel.json", projectRoot), "utf8"),
     readFile(new URL("package.json", projectRoot), "utf8"),
@@ -124,7 +126,11 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(liveNews, /translationBatchCharacters/);
   assert.match(liveNews, /fetchAllFeeds/);
   assert.match(liveNews, /getSourceEdition/);
-  assert.match(liveNews, /feedConcurrency = 3/);
+  assert.match(liveNews, /feedConcurrency = 10/);
+  assert.match(liveNews, /unstable_cache/);
+  assert.match(liveNews, /worldpulse-source-edition-v1/);
+  assert.match(loading, /route-loading-bar/);
+  assert.match(loading, /正在编辑今日世界/);
   assert.match(liveNews, /translate\.googleapis\.com/);
   assert.match(liveNews, /tl", "zh-CN"/);
   assert.match(newsStream, /trustedSources\.length/);

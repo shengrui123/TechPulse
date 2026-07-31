@@ -1444,6 +1444,134 @@ button {
   }
 }
 
+/* Fast, quiet transitions: no rules, white editorial footer. */
+.header-row,
+.desktop-nav,
+.news-hero,
+.news-card,
+.news-card a,
+.section-heading,
+.news-article-header,
+.news-article-image figcaption,
+.article-reading-line,
+.news-article-note,
+.article-note,
+.news-article-aside,
+.article-rule,
+.article-aside,
+.source-principles,
+.source-group,
+.source-list,
+.source-item,
+.principle-grid article,
+.principle-grid article:first-child,
+.footer-statement,
+.footer-signoff {
+  border-color: transparent;
+}
+
+.site-footer {
+  background: var(--white);
+  color: var(--ink);
+}
+
+.footer-statement > span,
+.footer-directory strong,
+.footer-signoff {
+  color: var(--muted);
+}
+
+.footer-directory a:hover {
+  color: var(--orange);
+}
+
+.footer-brand {
+  color: var(--ink);
+}
+
+.route-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  overflow: hidden;
+  background: rgba(247, 246, 242, 0.98);
+  color: var(--ink);
+}
+
+.route-loading-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 42%;
+  height: 3px;
+  background: var(--orange);
+  animation: editorial-progress 1.15s cubic-bezier(0.65, 0, 0.35, 1)
+    infinite;
+  transform-origin: left;
+}
+
+.route-loading-mark {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  font-family: "Times New Roman", serif;
+  font-size: clamp(58px, 10vw, 110px);
+  font-style: italic;
+  line-height: 1;
+  letter-spacing: -0.08em;
+  animation: editorial-breathe 1.5s ease-in-out infinite;
+}
+
+.route-loading-mark i {
+  display: block;
+  width: 44px;
+  height: 1px;
+  background: var(--orange);
+  transform: rotate(-45deg);
+}
+
+.route-loading p {
+  margin: 24px 0 0;
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+}
+
+@keyframes editorial-progress {
+  0% {
+    transform: translateX(-100%) scaleX(0.4);
+  }
+  55% {
+    transform: translateX(115%) scaleX(1.2);
+  }
+  100% {
+    transform: translateX(340%) scaleX(0.5);
+  }
+}
+
+@keyframes editorial-breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.98);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .route-loading-bar,
+  .route-loading-mark {
+    animation: none;
+  }
+}
+
 @media (max-width: 480px) {
   .hero h1 {
     font-size: 33px;
