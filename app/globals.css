@@ -1489,6 +1489,122 @@ button {
   color: var(--ink);
 }
 
+/* Compact magazine colophon. */
+.footer-editorial {
+  padding-top: 54px;
+  padding-bottom: 28px;
+}
+
+.footer-statement {
+  display: grid;
+  grid-template-columns: minmax(340px, 0.9fr) minmax(300px, 1.1fr);
+  align-items: end;
+  gap: 64px;
+  padding-bottom: 42px;
+}
+
+.footer-wordmark {
+  font-family: "Times New Roman", "Songti SC", serif;
+  font-size: clamp(52px, 6vw, 88px);
+  font-weight: 500;
+  line-height: 0.82;
+  letter-spacing: -0.075em;
+}
+
+.footer-wordmark span {
+  font-style: italic;
+  font-weight: 400;
+}
+
+.footer-statement > div {
+  max-width: 480px;
+  padding-bottom: 2px;
+}
+
+.footer-statement strong {
+  font-size: 9px;
+  letter-spacing: 0.2em;
+}
+
+.footer-statement p {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-family: "Times New Roman", "Songti SC", serif;
+  font-size: 17px;
+  line-height: 1.55;
+}
+
+.footer-directory {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 12px 36px;
+  padding: 22px 0 34px;
+}
+
+.footer-directory a {
+  position: relative;
+  font-family: "Helvetica Neue", Arial, "PingFang SC", sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.footer-directory a:not(:last-child)::after {
+  position: absolute;
+  right: -19px;
+  color: #c8c5be;
+  content: "·";
+}
+
+.footer-signoff {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 20px;
+  color: #8a8781;
+  font-size: 8px;
+  letter-spacing: 0.13em;
+}
+
+.footer-signoff p {
+  margin: 0;
+}
+
+.footer-signoff > span {
+  justify-self: auto;
+}
+
+@media (max-width: 720px) {
+  .footer-editorial {
+    padding-top: 42px;
+  }
+
+  .footer-statement {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding-bottom: 30px;
+  }
+
+  .footer-wordmark {
+    font-size: clamp(48px, 18vw, 72px);
+  }
+
+  .footer-directory {
+    gap: 16px 28px;
+  }
+
+  .footer-directory a:not(:last-child)::after {
+    display: none;
+  }
+
+  .footer-signoff {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 9px;
+  }
+}
+
 .route-loading {
   position: fixed;
   inset: 0;
