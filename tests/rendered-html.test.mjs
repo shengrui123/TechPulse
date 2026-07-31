@@ -46,8 +46,8 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
     readFile(new URL("package.json", projectRoot), "utf8"),
   ]);
 
-  assert.match(page, /getLatestInternationalNews\(200\)/);
-  assert.match(page, /<NewsStream news=\{news\} showMore \/>/);
+  assert.match(page, /getSourceEdition\(\)/);
+  assert.match(page, /<NewsStream news=\{news\} showMore magazineEdition \/>/);
   assert.match(newsPage, /getLatestInternationalNews\(\)/);
   assert.match(newsPage, /<NewsStream news=\{news\} \/>/);
   assert.match(newsStream, /news-waterfall/);
@@ -86,7 +86,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(newsImageRoute, /og:image/);
   assert.match(newsImageRoute, /world-brief\.png/);
   assert.match(liveNews, /trustedSources\.map/);
-  assert.match(liveNews, /site:\$\{domain\} when:2d/);
+  assert.match(liveNews, /site:\$\{domain\} when:7d/);
   assert.match(liveNews, /newsWindowMs = 48/);
   assert.match(liveNews, /路透社/);
   assert.match(liveNews, /美联社/);
@@ -114,6 +114,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(liveNews, /translationBatches/);
   assert.match(liveNews, /translationBatchCharacters/);
   assert.match(liveNews, /fetchAllFeeds/);
+  assert.match(liveNews, /getSourceEdition/);
   assert.match(liveNews, /feedConcurrency = 3/);
   assert.match(liveNews, /translate\.googleapis\.com/);
   assert.match(liveNews, /tl", "zh-CN"/);

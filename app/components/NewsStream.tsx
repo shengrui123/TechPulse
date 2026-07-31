@@ -10,23 +10,30 @@ import { trustedSources } from "../data/sources";
 type NewsStreamProps = {
   news: LiveNewsItem[];
   showMore?: boolean;
+  magazineEdition?: boolean;
 };
 
 export default function NewsStream({
   news,
   showMore = false,
+  magazineEdition = false,
 }: NewsStreamProps) {
   const activeSourceCount = new Set(news.map((item) => item.source)).size;
 
   return (
     <main>
       <header className="page-shell news-hero">
-        <p className="eyebrow">全球即时新闻 · 每 15 分钟更新</p>
+        <p className="eyebrow">
+          {magazineEdition
+            ? "THE GLOBAL EDITION · 23 SOURCES"
+            : "全球即时新闻 · 每 15 分钟更新"}
+        </p>
         <div>
-          <h1>最近的国际新闻</h1>
+          <h1>{magazineEdition ? "今日全球新闻杂志" : "最近的国际新闻"}</h1>
           <p>
-            汇总“信源标准”收录的 {trustedSources.length} 家媒体最近 48
-            小时的报道，所有新闻均提供中文标题与中文摘要。
+            {magazineEdition
+              ? `从“信源标准”收录的 ${trustedSources.length} 家媒体各选一篇最新报道，以中文编辑、视觉分层与沉浸式长文版式重新呈现。`
+              : `汇总“信源标准”收录的 ${trustedSources.length} 家媒体最近 48 小时的报道，所有新闻均提供中文标题与中文摘要。`}
           </p>
         </div>
         <div className="news-hero-meta">
@@ -43,7 +50,13 @@ export default function NewsStream({
 
       <section className="page-shell news-stream" aria-label="最新国际新闻">
         {news.length > 0 ? (
-          <div className="news-waterfall">
+          <div
+            className={
+              magazineEdition
+                ? "news-waterfall news-editorial-grid"
+                : "news-waterfall"
+            }
+          >
             {news.map((item, index) => (
               <article className="news-card" key={`${item.source}-${item.url}`}>
                 <Link
