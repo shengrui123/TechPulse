@@ -4,10 +4,11 @@ import test from "node:test";
 
 const projectRoot = new URL("../", import.meta.url);
 
-test("keeps the editorial homepage, article routes, and trusted sources", async () => {
+test("keeps the live-news homepage, article routes, and trusted sources", async () => {
   const [
     page,
     newsPage,
+    newsStream,
     liveNews,
     articlePage,
     sourcesPage,
@@ -20,6 +21,7 @@ test("keeps the editorial homepage, article routes, and trusted sources", async 
   ] = await Promise.all([
     readFile(new URL("app/page.tsx", projectRoot), "utf8"),
     readFile(new URL("app/news/page.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/components/NewsStream.tsx", projectRoot), "utf8"),
     readFile(new URL("app/data/live-news.ts", projectRoot), "utf8"),
     readFile(new URL("app/articles/[slug]/page.tsx", projectRoot), "utf8"),
     readFile(new URL("app/sources/page.tsx", projectRoot), "utf8"),
@@ -31,21 +33,15 @@ test("keeps the editorial homepage, article routes, and trusted sources", async 
     readFile(new URL("package.json", projectRoot), "utf8"),
   ]);
 
-  assert.match(page, /把世界正在发生的事/);
-  assert.match(page, /今日值得关注/);
-  assert.match(page, /最新动态/);
-  assert.match(page, /深度解读/);
-  assert.match(page, /全球权威媒体与国际机构/);
-  assert.match(page, /href="\/news"/);
-  assert.match(page, /查看更多/);
-  assert.match(page, /href=\{`\/articles\/\$\{/);
-  assert.ok(
-    page.indexOf('id="latest"') < page.indexOf('id="featured"'),
-    "latest news should appear before editor picks",
-  );
+  assert.match(page, /getLatestInternationalNews\(200\)/);
+  assert.match(page, /<NewsStream news=\{news\} showMore \/>/);
   assert.match(newsPage, /getLatestInternationalNews\(\)/);
-  assert.match(newsPage, /news-waterfall/);
-  assert.match(newsPage, /最近的国际新闻/);
+  assert.match(newsPage, /<NewsStream news=\{news\} \/>/);
+  assert.match(newsStream, /news-waterfall/);
+  assert.match(newsStream, /最近的国际新闻/);
+  assert.match(newsStream, /showMore/);
+  assert.match(newsStream, /href="\/news"/);
+  assert.match(newsStream, /查看更多/);
   assert.match(liveNews, /trustedSources\.map/);
   assert.match(liveNews, /site:\$\{domain\} when:2d/);
   assert.match(liveNews, /newsWindowMs = 48/);
@@ -78,10 +74,12 @@ test("keeps the editorial homepage, article routes, and trusted sources", async 
   assert.match(liveNews, /feedConcurrency = 3/);
   assert.match(liveNews, /translate\.googleapis\.com/);
   assert.match(liveNews, /tl", "zh-CN"/);
-  assert.match(newsPage, /trustedSources\.length/);
-  assert.match(newsPage, /activeSourceCount/);
-  assert.match(newsPage, /最近 48/);
+  assert.match(newsStream, /trustedSources\.length/);
+  assert.match(newsStream, /activeSourceCount/);
+  assert.match(newsStream, /最近 48/);
   assert.match(newsPage, /maxDuration = 300/);
+  assert.match(page, /maxDuration = 300/);
+  assert.match(liveNews, /sorted\.slice\(0, limit\)/);
   assert.match(liveNews, /revalidate: 900/);
   assert.match(articlePage, /generateStaticParams/);
   assert.match(articlePage, /继续阅读/);

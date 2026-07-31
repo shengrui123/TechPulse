@@ -330,7 +330,7 @@ async function fetchAllFeeds() {
   return responses;
 }
 
-export async function getLatestInternationalNews() {
+export async function getLatestInternationalNews(limit?: number) {
   const responses = await fetchAllFeeds();
 
   const unique = new Map<string, LiveNewsItem>();
@@ -365,7 +365,10 @@ export async function getLatestInternationalNews() {
       new Date(left.publishedAt).getTime(),
   );
 
-  return translateNewsItems(sorted);
+  const selected =
+    typeof limit === "number" ? sorted.slice(0, limit) : sorted;
+
+  return translateNewsItems(selected);
 }
 
 export function formatNewsDate(value: string) {
