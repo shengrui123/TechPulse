@@ -87,9 +87,13 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(newsStoryPage, /新闻节选/);
   assert.match(newsArticleContent, /articleBody/);
   assert.match(newsArticleContent, /application\\\/ld\\\+json/);
+  assert.match(newsArticleContent, /semanticRegions/);
+  assert.match(newsArticleContent, /readableParagraphs/);
   assert.match(newsArticleContent, /limitExcerpt/);
   assert.match(newsArticleContent, /contentPolicyForUrl/);
   assert.match(newsArticleContent, /translateToChinese/);
+  assert.match(newsStoryPage, /paragraphizeSummary/);
+  assert.match(newsStoryPage, /按自然段重新排版/);
   assert.match(newsImageRoute, /resolveOriginalNewsUrl/);
   assert.match(newsImageRoute, /og:image/);
   assert.match(newsImageRoute, /world-brief\.png/);

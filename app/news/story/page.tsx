@@ -18,6 +18,30 @@ async function storyFromParams(searchParams: StoryPageProps["searchParams"]) {
   return story ? decodeNewsStory(story) : null;
 }
 
+function paragraphizeSummary(summary: string): string[] {
+  const sentences =
+    summary.match(/[^。！？.!?]+[。！？.!?]+[”’」』】)]*|[^。！？.!?]+$/gu) ??
+    [];
+  const paragraphs: string[] = [];
+  let current = "";
+
+  for (const rawSentence of sentences) {
+    const sentence = rawSentence.trim();
+    if (!sentence) {
+      continue;
+    }
+    if (current && current.length + sentence.length > 180) {
+      paragraphs.push(current);
+      current = "";
+    }
+    current += sentence;
+  }
+  if (current) {
+    paragraphs.push(current);
+  }
+  return paragraphs;
+}
+
 export async function generateMetadata({
   searchParams,
 }: StoryPageProps): Promise<Metadata> {
@@ -39,9 +63,7 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
 
   const originalUrl = await resolveOriginalNewsUrl(story.url);
   const articleContent = await fetchArticleContent(originalUrl);
-  const summaryParagraphs = story.summary
-    .split(/(?<=[。！？.!?])\s+/u)
-    .filter(Boolean);
+  const summaryParagraphs = paragraphizeSummary(story.summary);
   const paragraphs =
     articleContent.paragraphs.length > 0
       ? articleContent.paragraphs
@@ -103,11 +125,14 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
               </p>
               {paragraphs.slice(1).map((paragraph, index) =>
                 index === 2 ? (
-                  <blockquote className="news-article-pullquote" key={paragraph}>
+                  <blockquote
+                    className="news-article-pullquote"
+                    key={`${index}-${paragraph}`}
+                  >
                     {paragraph}
                   </blockquote>
                 ) : (
-                  <p key={paragraph}>{paragraph}</p>
+                  <p key={`${index}-${paragraph}`}>{paragraph}</p>
                 ),
               )}
 
@@ -116,7 +141,7 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
                 <p>
                   {articleContent.mode === "full"
                     ? "本信源已标记为允许全文展示，正文经自动提取、中文翻译并按照杂志阅读方式排版。"
-                    : "本页自动提取并翻译原媒体公开页面的有限内容。完整报道、后续更新及图片版权信息请以原媒体页面为准。"}
+                    : "本页自动提取并翻译原媒体公开页面的较长节选，并按自然段重新排版。完整报道、后续更新及图片版权信息请以原媒体页面为准。"}
                 </p>
               </div>
 

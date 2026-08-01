@@ -32,10 +32,98 @@ function textFromHtml(value: string): string {
     value
       .replace(/<script[\s\S]*?<\/script>/gi, " ")
       .replace(/<style[\s\S]*?<\/style>/gi, " ")
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<\/(?:p|div|li|blockquote|h[1-6])>/gi, "\n")
       .replace(/<[^>]+>/g, " "),
   )
-    .replace(/\s+/g, " ")
+    .replace(/[^\S\r\n]+/g, " ")
+    .replace(/ *\n */g, "\n")
+    .replace(/\n{2,}/g, "\n")
     .trim();
+}
+
+const paragraphNoise =
+  /^(sign up|subscribe|advertisement|read more|copyright|all rights reserved|related (?:stories|articles)|recommended|follow us|share this|newsletter|cookie|accept all)/i;
+
+function sentenceParts(value: string): string[] {
+  return (
+    value.match(/[^。！？.!?]+[。！？.!?]+[”’」』】)]*|[^。！？.!?]+$/gu) ??
+    [value]
+  )
+    .map((sentence) => sentence.trim())
+    .filter(Boolean);
+}
+
+/**
+ * Some publishers expose articleBody as one very long string. Keep publisher
+ * paragraphs when present, otherwise group complete sentences into readable
+ * paragraphs instead of rendering a wall of text.
+ */
+function readableParagraphs(value: string): string[] {
+  const blocks = value
+    .split(/\n+/)
+    .map((block) => block.trim())
+    .filter(Boolean);
+
+  return blocks.flatMap((block) => {
+    if (block.length <= 620) {
+      return [block];
+    }
+
+    const result: string[] = [];
+    let paragraph = "";
+    for (const sentence of sentenceParts(block)) {
+      if (paragraph && paragraph.length + sentence.length > 520) {
+        result.push(paragraph);
+        paragraph = "";
+      }
+      paragraph += sentence;
+    }
+    if (paragraph) {
+      result.push(paragraph);
+    }
+    return result;
+  });
+}
+
+function paragraphTags(value: string): string[] {
+  return [...value.matchAll(/<p(?:\s[^>]*)?>([\s\S]*?)<\/p>/gi)].flatMap(
+    (match) => readableParagraphs(textFromHtml(match[1])),
+  );
+}
+
+function semanticRegions(html: string): string[] {
+  const regions: string[] = [];
+  const elementPattern = /<(article|main)\b[^>]*>([\s\S]*?)<\/\1>/gi;
+  for (const match of html.matchAll(elementPattern)) {
+    regions.push(match[2]);
+  }
+
+  // Common article-body wrappers on publishers that do not use <article>.
+  const bodyPattern =
+    /<(?:div|section)\b[^>]*(?:itemprop=["']articleBody["']|class=["'][^"']*(?:article-body|article-content|story-body|post-content|entry-content)[^"']*["'])[^>]*>([\s\S]*?)<\/(?:div|section)>/gi;
+  for (const match of html.matchAll(bodyPattern)) {
+    regions.push(match[1]);
+  }
+  return regions;
+}
+
+function cleanParagraphs(rawParagraphs: string[]): string[] {
+  const seen = new Set<string>();
+  return rawParagraphs
+    .map((paragraph) => paragraph.replace(/\s+/g, " ").trim())
+    .filter((paragraph) => {
+      if (
+        paragraph.length < 35 ||
+        paragraph.length > 1200 ||
+        paragraphNoise.test(paragraph) ||
+        seen.has(paragraph)
+      ) {
+        return false;
+      }
+      seen.add(paragraph);
+      return true;
+    });
 }
 
 function jsonLdObjects(html: string): Record<string, unknown>[] {
@@ -100,29 +188,25 @@ function paragraphsFromHtml(html: string): {
     )
     .find(Boolean);
 
-  const rawParagraphs = articleBody
-    ? articleBody.split(/\n{2,}|(?<=[.!?。！？])\s+(?=[A-Z\u3400-\u9fff])/u)
-    : [...html.matchAll(/<p(?:\s[^>]*)?>([\s\S]*?)<\/p>/gi)].map(
-        (match) => match[1],
-      );
-
-  const seen = new Set<string>();
-  const paragraphs = rawParagraphs
-    .map(textFromHtml)
-    .filter((paragraph) => {
-      if (
-        paragraph.length < 45 ||
-        paragraph.length > 4000 ||
-        /^(sign up|subscribe|advertisement|read more|copyright|all rights reserved)/i.test(
-          paragraph,
-        ) ||
-        seen.has(paragraph)
-      ) {
-        return false;
-      }
-      seen.add(paragraph);
-      return true;
-    });
+  const jsonLdParagraphs = articleBody
+    ? cleanParagraphs(readableParagraphs(textFromHtml(articleBody)))
+    : [];
+  const regionCandidates = semanticRegions(html)
+    .map((region) => cleanParagraphs(paragraphTags(region)))
+    .filter((paragraphs) => paragraphs.length > 0)
+    .sort(
+      (left, right) =>
+        right.reduce((sum, paragraph) => sum + paragraph.length, 0) -
+        left.reduce((sum, paragraph) => sum + paragraph.length, 0),
+    );
+  const semanticParagraphs = regionCandidates[0] ?? [];
+  const fallbackParagraphs = cleanParagraphs(paragraphTags(html));
+  const paragraphs =
+    jsonLdParagraphs.length >= 2
+      ? jsonLdParagraphs
+      : semanticParagraphs.length >= 2
+        ? semanticParagraphs
+        : fallbackParagraphs;
 
   return { paragraphs, byline: bylineFromJsonLd(objects) };
 }
@@ -132,10 +216,10 @@ function limitExcerpt(paragraphs: string[]): string[] {
   let characters = 0;
 
   for (const paragraph of paragraphs) {
-    if (selected.length >= 4 || characters >= 1200) {
+    if (selected.length >= 7 || characters >= 2600) {
       break;
     }
-    const remaining = 1200 - characters;
+    const remaining = 2600 - characters;
     selected.push(
       paragraph.length > remaining
         ? `${paragraph.slice(0, Math.max(0, remaining - 1)).trim()}…`
