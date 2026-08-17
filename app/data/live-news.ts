@@ -15,6 +15,11 @@ export type LiveNewsItem = {
   publishedAt: string;
 };
 
+export type LiveNewsSource = {
+  source: string;
+  sourceName: string;
+};
+
 const sourceNames: Record<string, string> = {
   Reuters: "路透社",
   "Associated Press": "美联社",
@@ -49,9 +54,8 @@ const newsWindowMs = 2 * 60 * 60 * 1000;
 function googleNewsFeedUrl(sourceUrl: string): string {
   const domain = new URL(sourceUrl).hostname.replace(/^www\./, "");
   const url = new URL("https://news.google.com/rss/search");
-  // Keep a seven-day reservoir so the curated front page can always choose
-  // one current story from each of the 23 publishers. The regular news stream
-  // still applies its stricter two-hour cutoff below.
+  // Keep a seven-day reservoir so every publisher in the source directory can
+  // contribute recent reporting even when it does not expose a public RSS URL.
   url.searchParams.set("q", `site:${domain} when:7d`);
   url.searchParams.set("hl", "en-US");
   url.searchParams.set("gl", "US");
@@ -65,11 +69,16 @@ const feeds = trustedSources.map((source) => ({
   url: source.rssUrl ?? googleNewsFeedUrl(source.url),
 }));
 
+export const liveNewsSourceDirectory: LiveNewsSource[] = feeds.map(
+  ({ source, sourceName }) => ({ source, sourceName }),
+);
+
 const translationEndpoint =
   "https://translate.googleapis.com/translate_a/single";
 const feedConcurrency = 26;
 const translationConcurrency = 12;
 const translationBatchCharacters = 5000;
+const maxStoriesPerSource = 10;
 
 function clean(value: string): string {
   return value
@@ -381,6 +390,50 @@ export async function getLatestInternationalNews(limit?: number) {
 
   return translateNewsItems(selected);
 }
+
+async function buildAllSourceNews(): Promise<LiveNewsItem[]> {
+  const responses = await fetchAllFeeds();
+  const now = Date.now();
+  const unique = new Map<string, LiveNewsItem>();
+
+  responses.forEach((response) => {
+    if (response.status !== "fulfilled") {
+      return;
+    }
+
+    response.value
+      .filter((item) => {
+        const publishedAt = new Date(item.publishedAt).getTime();
+        return Number.isFinite(publishedAt) && publishedAt <= now;
+      })
+      .sort(
+        (left, right) =>
+          new Date(right.publishedAt).getTime() -
+          new Date(left.publishedAt).getTime(),
+      )
+      .slice(0, maxStoriesPerSource)
+      .forEach((item) => {
+        const key = item.url.toLocaleLowerCase();
+        if (!unique.has(key)) {
+          unique.set(key, item);
+        }
+      });
+  });
+
+  const sorted = [...unique.values()].sort(
+    (left, right) =>
+      new Date(right.publishedAt).getTime() -
+      new Date(left.publishedAt).getTime(),
+  );
+
+  return translateNewsItems(sorted);
+}
+
+export const getAllSourceNews = unstable_cache(
+  buildAllSourceNews,
+  ["worldpulse-all-source-news-v1"],
+  { revalidate: 1800, tags: ["all-source-news"] },
+);
 
 async function buildSourceEdition(): Promise<LiveNewsItem[]> {
   const responses = await fetchAllFeeds();

@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import SourceNewsBrowser from "../components/SourceNewsBrowser";
 import SiteFooter from "../components/SiteFooter";
 import SiteHeader from "../components/SiteHeader";
-import { getLatestInternationalNews } from "../data/live-news";
+import {
+  getAllSourceNews,
+  liveNewsSourceDirectory,
+} from "../data/live-news";
 import { encodeNewsStory } from "../data/news-story";
 
 export const metadata: Metadata = {
@@ -14,7 +17,7 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
 export default async function NewsPage() {
-  const news = await getLatestInternationalNews();
+  const news = await getAllSourceNews();
   const searchableNews = news.map((item) => ({
     ...item,
     storyHref: `/news/story?story=${encodeNewsStory(item)}`,
@@ -23,7 +26,11 @@ export default async function NewsPage() {
   return (
     <>
       <SiteHeader />
-      <SourceNewsBrowser news={searchableNews} heading="全部新闻" />
+      <SourceNewsBrowser
+        news={searchableNews}
+        sources={liveNewsSourceDirectory}
+        heading="全部新闻"
+      />
       <SiteFooter />
     </>
   );

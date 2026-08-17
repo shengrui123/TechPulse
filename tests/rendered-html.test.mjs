@@ -52,9 +52,10 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
     readFile(new URL("package.json", projectRoot), "utf8"),
   ]);
 
-  assert.match(page, /getNewsByCategory\("world"\)/);
-  assert.match(page, /<NewsStream[\s\S]*news=\{news\}[\s\S]*hideHeader/);
-  assert.match(newsPage, /getLatestInternationalNews\(\)/);
+  assert.match(page, /getSourceEdition\(\)/);
+  assert.match(page, /<NewsStream news=\{news\} showMore magazineEdition \/>/);
+  assert.match(newsPage, /getAllSourceNews\(\)/);
+  assert.match(newsPage, /sources=\{liveNewsSourceDirectory\}/);
   assert.match(categoryPage, /getNewsByCategory/);
   assert.match(categoryPage, /isNewsCategory/);
   assert.match(categoryPage, /categoryLabels/);
@@ -65,6 +66,9 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(sourceNewsBrowser, /的全部报道/);
   assert.match(sourceNewsBrowser, /sourceName/);
   assert.match(sourceNewsBrowser, /matchedSources/);
+  assert.match(sourceNewsBrowser, /orderedSources/);
+  assert.match(sourceNewsBrowser, /activeSourceCount/);
+  assert.doesNotMatch(sourceNewsBrowser, /new Map<string/);
   assert.match(categoryPage, /<NewsStream news=\{news\} hideHeader \/>/);
   assert.match(newsStream, /news-waterfall/);
   assert.match(newsStream, /最近的国际新闻/);
@@ -138,6 +142,10 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(liveNews, /translationBatchCharacters/);
   assert.match(liveNews, /fetchAllFeeds/);
   assert.match(liveNews, /getSourceEdition/);
+  assert.match(liveNews, /getAllSourceNews/);
+  assert.match(liveNews, /liveNewsSourceDirectory/);
+  assert.match(liveNews, /maxStoriesPerSource = 10/);
+  assert.match(liveNews, /worldpulse-all-source-news-v1/);
   assert.match(liveNews, /feedConcurrency = 26/);
   assert.match(liveNews, /unstable_cache/);
   assert.match(liveNews, /worldpulse-source-edition-v1/);

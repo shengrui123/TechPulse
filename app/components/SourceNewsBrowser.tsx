@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useDeferredValue, useMemo, useState } from "react";
-import type { LiveNewsItem } from "../data/live-news";
+import type { LiveNewsItem, LiveNewsSource } from "../data/live-news";
 
 export type SearchableNewsItem = LiveNewsItem & {
   storyHref: string;
@@ -11,6 +11,7 @@ export type SearchableNewsItem = LiveNewsItem & {
 
 type SourceNewsBrowserProps = {
   news: SearchableNewsItem[];
+  sources: LiveNewsSource[];
   heading?: string;
 };
 
@@ -31,6 +32,7 @@ function formatNewsDate(value: string) {
 
 export default function SourceNewsBrowser({
   news,
+  sources,
   heading = "全部新闻",
 }: SourceNewsBrowserProps) {
   const [query, setQuery] = useState("");
@@ -47,31 +49,24 @@ export default function SourceNewsBrowser({
     [news],
   );
 
-  const sources = useMemo(() => {
-    const entries = new Map<string, { source: string; sourceName: string }>();
-    orderedNews.forEach((item) => {
-      if (!entries.has(item.source)) {
-        entries.set(item.source, {
-          source: item.source,
-          sourceName: item.sourceName,
-        });
-      }
-    });
-    return [...entries.values()].sort((left, right) =>
-      left.sourceName.localeCompare(right.sourceName, "zh-CN"),
-    );
-  }, [orderedNews]);
+  const orderedSources = useMemo(
+    () =>
+      [...sources].sort((left, right) =>
+        left.sourceName.localeCompare(right.sourceName, "zh-CN"),
+      ),
+    [sources],
+  );
 
   const matchedSources = useMemo(
     () =>
       normalizedQuery
-        ? sources.filter(
+        ? orderedSources.filter(
             ({ source, sourceName }) =>
               normalize(source).includes(normalizedQuery) ||
               normalize(sourceName).includes(normalizedQuery),
           )
-        : sources,
-    [normalizedQuery, sources],
+        : orderedSources,
+    [normalizedQuery, orderedSources],
   );
 
   const filteredNews = useMemo(() => {
@@ -84,6 +79,9 @@ export default function SourceNewsBrowser({
 
   const selectedSource =
     matchedSources.length === 1 ? matchedSources[0] : undefined;
+  const activeSourceCount = new Set(
+    filteredNews.map((item) => item.source),
+  ).size;
 
   return (
     <main>
@@ -97,7 +95,7 @@ export default function SourceNewsBrowser({
         </div>
         <div className="news-hero-meta">
           <span>
-            {filteredNews.length} 条 · {matchedSources.length}/{sources.length} 家
+            {filteredNews.length} 条 · {activeSourceCount}/{matchedSources.length} 家已更新
           </span>
         </div>
       </header>
@@ -133,12 +131,12 @@ export default function SourceNewsBrowser({
             )}
           </div>
           <datalist id="news-sources">
-            {sources.map(({ source, sourceName }) => (
+            {orderedSources.map(({ source, sourceName }) => (
               <option value={sourceName} label={source} key={source} />
             ))}
           </datalist>
 
-          <div className="source-filter-list" aria-label="当前有报道的媒体来源">
+          <div className="source-filter-list" aria-label="信源标准收录的全部媒体">
             <button
               type="button"
               className={!query ? "is-active" : ""}
@@ -147,7 +145,7 @@ export default function SourceNewsBrowser({
             >
               全部媒体
             </button>
-            {sources.map(({ source, sourceName }) => {
+            {orderedSources.map(({ source, sourceName }) => {
               const isActive =
                 normalize(query) === normalize(source) ||
                 normalize(query) === normalize(sourceName);
