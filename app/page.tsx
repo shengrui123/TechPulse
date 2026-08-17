@@ -18,7 +18,7 @@ export default async function Home() {
   return (
     <>
       <SiteHeader />
-      <NewsStream news={news} showMore magazineEdition />
+      <NewsStream news={news} hideHeader />
       <SiteFooter />
     </>
   );
