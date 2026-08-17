@@ -53,7 +53,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   ]);
 
   assert.match(page, /getSourceEdition\(\)/);
-  assert.match(page, /<NewsStream news=\{news\} showMore magazineEdition \/>/);
+  assert.match(page, /<NewsStream news=\{news\} hideHeader \/>/);
   assert.match(newsPage, /getAllSourceNews\(\)/);
   assert.match(newsPage, /sources=\{liveNewsSourceDirectory\}/);
   assert.match(categoryPage, /getNewsByCategory/);
