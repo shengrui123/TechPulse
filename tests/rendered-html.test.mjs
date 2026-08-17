@@ -216,6 +216,12 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   );
   assert.equal(rssUrls.length, 4);
   assert.ok(rssUrls.every((url) => url.startsWith("https://")));
+  assert.ok(rssUrls.includes("https://theinitium.com/rss/"));
+  assert.ok(
+    rssUrls.includes(
+      "https://public.twreporter.org/rss/twreporter-rss.xml",
+    ),
+  );
 
   const vercel = JSON.parse(vercelConfig);
   const pkg = JSON.parse(packageJson);
