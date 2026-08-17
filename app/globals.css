@@ -2708,12 +2708,100 @@ body {
   padding-bottom: 54px;
 }
 
+.nav-search-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-left: auto;
+  padding: 8px 12px;
+  border: 1px solid var(--ink);
+  transition:
+    opacity 160ms ease,
+    color 160ms ease,
+    background 160ms ease;
+}
+
+.nav-inner .nav-search-link::after {
+  display: none;
+}
+
+.nav-search-link > span {
+  color: var(--orange);
+  font-size: 17px;
+  line-height: 0;
+  transform: rotate(-20deg);
+}
+
+.nav-search-link:hover {
+  background: var(--ink);
+  color: var(--white) !important;
+}
+
+.nav-search-link.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.floating-search {
+  position: fixed;
+  right: 28px;
+  bottom: 98px;
+  z-index: 60;
+  display: grid;
+  width: 58px;
+  height: 58px;
+  place-content: center;
+  gap: 3px;
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+  background: var(--white);
+  color: var(--ink);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(14px);
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease,
+    background 180ms ease,
+    color 180ms ease;
+}
+
+.floating-search.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.floating-search:hover {
+  background: var(--orange);
+  color: var(--white);
+}
+
+.floating-search > span {
+  justify-self: center;
+  color: var(--orange);
+  font-size: 22px;
+  line-height: 0.8;
+  transform: rotate(-20deg);
+}
+
+.floating-search:hover > span {
+  color: var(--white);
+}
+
+.floating-search small {
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
 .source-search {
   display: grid;
   grid-template-columns: minmax(220px, 0.7fr) minmax(0, 1.3fr);
   gap: clamp(40px, 7vw, 96px);
   padding-top: 40px;
   padding-bottom: 52px;
+  scroll-margin-top: 72px;
 }
 
 .source-search-copy .eyebrow {
@@ -2879,6 +2967,13 @@ body {
 }
 
 @media (max-width: 720px) {
+  .floating-search {
+    right: 16px;
+    bottom: 76px;
+    width: 50px;
+    height: 50px;
+  }
+
   .source-search {
     grid-template-columns: 1fr;
     gap: 28px;
@@ -2892,5 +2987,12 @@ body {
 
   .news-results-heading h2 {
     font-size: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-search-link,
+  .floating-search {
+    transition: none;
   }
 }

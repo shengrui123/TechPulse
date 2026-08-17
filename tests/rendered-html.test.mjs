@@ -161,7 +161,10 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(header, /newsCategories/);
   assert.match(header, /`\/news\/\$\{id\}`/);
   assert.match(header, /信源标准/);
-  assert.match(header, /THE DAILY EDITION · SHANGHAI/);
+  assert.match(header, /nav-search-link/);
+  assert.match(header, /floating-search/);
+  assert.match(header, /\/news#source-search/);
+  assert.doesNotMatch(header, /THE DAILY EDITION · SHANGHAI/);
   assert.doesNotMatch(
     `${page}\n${articlePage}\n${header}`,
     /資訊來源|资讯来源|来源库|sources-band|source-row/,

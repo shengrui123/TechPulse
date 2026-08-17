@@ -102,7 +102,11 @@ export default function SourceNewsBrowser({
         </div>
       </header>
 
-      <section className="page-shell source-search" aria-labelledby="source-search-title">
+      <section
+        className="page-shell source-search"
+        id="source-search"
+        aria-labelledby="source-search-title"
+      >
         <div className="source-search-copy">
           <p className="eyebrow">SEARCH BY PUBLISHER</p>
           <h2 id="source-search-title">按媒体查看报道</h2>

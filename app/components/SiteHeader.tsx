@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { newsCategories } from "../data/news-categories";
 
 const navigation = [
@@ -14,7 +14,23 @@ const navigation = [
 
 export default function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchFloating, setSearchFloating] = useState(false);
   const pathname = usePathname();
+
+  useEffect(() => {
+    function updateSearchPosition() {
+      setSearchFloating(window.scrollY > window.innerHeight);
+    }
+
+    updateSearchPosition();
+    window.addEventListener("scroll", updateSearchPosition, { passive: true });
+    window.addEventListener("resize", updateSearchPosition);
+
+    return () => {
+      window.removeEventListener("scroll", updateSearchPosition);
+      window.removeEventListener("resize", updateSearchPosition);
+    };
+  }, []);
 
   function isActive(href: string) {
     if (href === "/") {
@@ -31,7 +47,6 @@ export default function SiteHeader() {
       <div className="topline" />
       <header className="site-header">
         <div className="page-shell header-row">
-          <span className="masthead-issue">THE DAILY EDITION · SHANGHAI</span>
           <Link className="brand" href="/" aria-label="WorldPulse 首页">
             <span>WORLD</span>
             <span>PULSE</span>
@@ -65,7 +80,14 @@ export default function SiteHeader() {
               {label}
             </Link>
           ))}
-          <span>全球时事 · 中文阅读</span>
+          <Link
+            className={`nav-search-link ${searchFloating ? "is-hidden" : ""}`}
+            href="/news#source-search"
+            aria-label="搜索媒体来源"
+          >
+            <span aria-hidden="true">⌕</span>
+            搜索
+          </Link>
         </div>
       </nav>
       <nav
@@ -86,8 +108,22 @@ export default function SiteHeader() {
               {label}
             </Link>
           ))}
+          <Link
+            href="/news#source-search"
+            onClick={() => setMenuOpen(false)}
+          >
+            搜索媒体来源
+          </Link>
         </div>
       </nav>
+      <Link
+        className={`floating-search ${searchFloating ? "is-visible" : ""}`}
+        href="/news#source-search"
+        aria-label="搜索媒体来源"
+      >
+        <span aria-hidden="true">⌕</span>
+        <small>SEARCH</small>
+      </Link>
     </>
   );
 }
