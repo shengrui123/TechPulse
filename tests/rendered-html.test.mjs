@@ -52,7 +52,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
     readFile(new URL("package.json", projectRoot), "utf8"),
   ]);
 
-  assert.match(page, /getSourceEdition\(\)/);
+  assert.match(page, /getAllSourceNews\(\)/);
   assert.match(page, /<NewsStream news=\{news\} hideHeader \/>/);
   assert.match(newsPage, /getAllSourceNews\(\)/);
   assert.match(newsPage, /sources=\{liveNewsSourceDirectory\}/);
@@ -144,8 +144,10 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(liveNews, /getSourceEdition/);
   assert.match(liveNews, /getAllSourceNews/);
   assert.match(liveNews, /liveNewsSourceDirectory/);
-  assert.match(liveNews, /maxStoriesPerSource = 10/);
-  assert.match(liveNews, /worldpulse-all-source-news-v1/);
+  assert.match(liveNews, /allSourceNewsWindowMs = 48/);
+  assert.match(liveNews, /publishedAt >= cutoff/);
+  assert.doesNotMatch(liveNews, /maxStoriesPerSource/);
+  assert.match(liveNews, /worldpulse-all-source-news-48h-v1/);
   assert.match(liveNews, /feedConcurrency = 26/);
   assert.match(liveNews, /unstable_cache/);
   assert.match(liveNews, /worldpulse-source-edition-v1/);
