@@ -50,6 +50,7 @@ const sourceNames: Record<string, string> = {
 };
 
 const newsWindowMs = 2 * 60 * 60 * 1000;
+const allSourceNewsWindowMs = 48 * 60 * 60 * 1000;
 
 function googleNewsFeedUrl(sourceUrl: string): string {
   const domain = new URL(sourceUrl).hostname.replace(/^www\./, "");
@@ -78,7 +79,6 @@ const translationEndpoint =
 const feedConcurrency = 26;
 const translationConcurrency = 12;
 const translationBatchCharacters = 5000;
-const maxStoriesPerSource = 10;
 
 function clean(value: string): string {
   return value
@@ -394,6 +394,7 @@ export async function getLatestInternationalNews(limit?: number) {
 async function buildAllSourceNews(): Promise<LiveNewsItem[]> {
   const responses = await fetchAllFeeds();
   const now = Date.now();
+  const cutoff = now - allSourceNewsWindowMs;
   const unique = new Map<string, LiveNewsItem>();
 
   responses.forEach((response) => {
@@ -404,14 +405,17 @@ async function buildAllSourceNews(): Promise<LiveNewsItem[]> {
     response.value
       .filter((item) => {
         const publishedAt = new Date(item.publishedAt).getTime();
-        return Number.isFinite(publishedAt) && publishedAt <= now;
+        return (
+          Number.isFinite(publishedAt) &&
+          publishedAt >= cutoff &&
+          publishedAt <= now
+        );
       })
       .sort(
         (left, right) =>
           new Date(right.publishedAt).getTime() -
           new Date(left.publishedAt).getTime(),
       )
-      .slice(0, maxStoriesPerSource)
       .forEach((item) => {
         const key = item.url.toLocaleLowerCase();
         if (!unique.has(key)) {
@@ -431,7 +435,7 @@ async function buildAllSourceNews(): Promise<LiveNewsItem[]> {
 
 export const getAllSourceNews = unstable_cache(
   buildAllSourceNews,
-  ["worldpulse-all-source-news-v1"],
+  ["worldpulse-all-source-news-48h-v1"],
   { revalidate: 1800, tags: ["all-source-news"] },
 );
 
