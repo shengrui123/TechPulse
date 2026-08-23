@@ -85,6 +85,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   );
   assert.match(newsStoryPage, /news-article-page/);
   assert.match(newsStoryPage, /news-article-image/);
+  assert.doesNotMatch(newsStoryPage, /news-article-deck/);
   assert.match(newsStoryPage, /阅读完整原文/);
   assert.match(newsStoryPage, /完整报道、后续更新及图片版权信息/);
   assert.match(newsStoryData, /encodeNewsStory/);

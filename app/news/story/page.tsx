@@ -103,9 +103,6 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
               {story.sourceName} · {formatNewsDate(story.publishedAt)}
             </p>
             <h1>{story.title}</h1>
-            {story.summary && (
-              <p className="news-article-deck">{story.summary}</p>
-            )}
           </header>
 
           <figure className="news-article-image">
