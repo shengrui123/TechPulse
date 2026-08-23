@@ -31,6 +31,9 @@ export const sourceGroups: SourceGroup[] = [
         region: "全球",
         focus: "突发、政治、经济与市场",
         url: "https://www.reuters.com/",
+        rssUrl:
+          "https://feedfoundry-rss.vercel.app/feeds/938754f9bd588c147a53.xml",
+        contentPolicy: "complete",
       },
       {
         name: "Associated Press",

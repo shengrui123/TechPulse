@@ -192,10 +192,10 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(liveNews, /field\(xml, "lastBuildDate"\)/);
   assert.match(liveNews, /feedPublishedAt/);
   assert.doesNotMatch(liveNews, /maxStoriesPerSource/);
-  assert.match(liveNews, /worldpulse-all-source-news-48h-v6/);
+  assert.match(liveNews, /worldpulse-all-source-news-48h-v7/);
   assert.match(liveNews, /feedConcurrency = 26/);
   assert.match(liveNews, /unstable_cache/);
-  assert.match(liveNews, /worldpulse-source-edition-v6/);
+  assert.match(liveNews, /worldpulse-source-edition-v7/);
   assert.match(loading, /route-loading-bar/);
   assert.match(loading, /route-loading-mark/);
   assert.doesNotMatch(loading, /worldpulse-logo\.png/);
@@ -273,11 +273,16 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   const rssUrls = [...sourceData.matchAll(/rssUrl:\s*\n?\s*"([^"]+)"/g)].map(
     (match) => match[1],
   );
-  assert.equal(rssUrls.length, 6);
+  assert.equal(rssUrls.length, 7);
   assert.ok(rssUrls.every((url) => url.startsWith("https://")));
   assert.ok(
     rssUrls.includes(
       "https://feedfoundry-rss.vercel.app/feeds/445fc7e3c09155599ac6.xml",
+    ),
+  );
+  assert.ok(
+    rssUrls.includes(
+      "https://feedfoundry-rss.vercel.app/feeds/938754f9bd588c147a53.xml",
     ),
   );
   assert.ok(rssUrls.includes("https://theinitium.com/rss/"));
