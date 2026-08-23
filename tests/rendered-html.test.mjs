@@ -124,6 +124,12 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(newsArticleContent, /articleBody/);
   assert.match(newsArticleContent, /originalParagraphs/);
   assert.match(newsArticleContent, /paragraphsFromMarkdown/);
+  assert.match(newsArticleContent, /reutersSyndicationUrl/);
+  assert.match(newsArticleContent, /reutersSyndicationUrlFromIndex/);
+  assert.match(newsArticleContent, /paragraphsFromReutersSyndication/);
+  assert.match(newsArticleContent, /https:\/\/www\.internazionale\.it\/ultime-notizie-reuters\//);
+  assert.match(newsArticleContent, /reuters-content-en/);
+  assert.match(newsArticleContent, /X-Target-Selector.*reuters-content-en/s);
   assert.match(newsArticleContent, /process\.env\.JINA_API_KEY/);
   assert.match(newsArticleContent, /https:\/\/r\.jina\.ai\//);
   assert.match(newsArticleContent, /X-Target-Selector/);

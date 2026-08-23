@@ -1,4 +1,5 @@
 import "server-only";
+import { get as httpsGet } from "node:https";
 import { isTrustedExternalNewsUrl } from "./google-news";
 import { contentPolicyForUrl, urlMatchesSource } from "./sources";
 
@@ -14,6 +15,102 @@ type ArticleExpectation = {
   source: string;
   originalTitle?: string;
 };
+
+function debugReutersContent(message: string, details?: unknown) {
+  if (process.env.DEBUG_REUTERS_CONTENT === "1") {
+    console.info(`[Reuters content] ${message}`, details ?? "");
+  }
+}
+
+type TrustedHtmlResponse = {
+  status: number;
+  url: string;
+  body: string;
+};
+
+function fetchTrustedSyndicationHtml(
+  target: string,
+  redirects = 0,
+): Promise<TrustedHtmlResponse> {
+  const url = new URL(target);
+  const isSyndicationPage =
+    url.hostname === "www.internazionale.it" &&
+    url.pathname.startsWith("/ultime-notizie-reuters/");
+  const isSyndicationIndex =
+    url.hostname === "www.internazionale.it" && url.pathname === "/";
+  const isSyndicationReader =
+    url.hostname === "r.jina.ai" &&
+    url.pathname.startsWith(
+      "/https://www.internazionale.it/ultime-notizie-reuters/",
+    );
+  if (
+    url.protocol !== "https:" ||
+    (!isSyndicationPage && !isSyndicationIndex && !isSyndicationReader) ||
+    redirects > 3
+  ) {
+    return Promise.resolve({ status: 0, url: target, body: "" });
+  }
+
+  return new Promise((resolve, reject) => {
+    const request = httpsGet(
+      url,
+      {
+        headers: {
+          Accept: isSyndicationReader
+            ? "text/markdown"
+            : "text/html,application/xhtml+xml",
+          "Accept-Language": "en-US,en;q=0.9",
+          "User-Agent": "Mozilla/5.0 WorldPulse Reuters syndication reader",
+          ...(isSyndicationReader
+            ? { "X-Target-Selector": ".reuters-content-en" }
+            : {}),
+        },
+      },
+      (response) => {
+        const status = response.statusCode ?? 0;
+        const location = response.headers.location;
+        if (status >= 300 && status < 400 && location) {
+          response.resume();
+          resolve(
+            fetchTrustedSyndicationHtml(
+              new URL(location, url).toString(),
+              redirects + 1,
+            ),
+          );
+          return;
+        }
+        if (status !== 200) {
+          response.resume();
+          resolve({ status, url: url.toString(), body: "" });
+          return;
+        }
+
+        const chunks: Buffer[] = [];
+        let size = 0;
+        response.on("data", (chunk: Buffer) => {
+          size += chunk.length;
+          if (size > 3_000_000) {
+            request.destroy(new Error("Syndication response is too large"));
+            return;
+          }
+          chunks.push(chunk);
+        });
+        response.on("end", () => {
+          resolve({
+            status,
+            url: url.toString(),
+            body: Buffer.concat(chunks).toString("utf8"),
+          });
+        });
+        response.on("error", reject);
+      },
+    );
+    request.setTimeout(isSyndicationReader ? 45000 : 15000, () =>
+      request.destroy(new Error("Syndication request timed out")),
+    );
+    request.on("error", reject);
+  });
+}
 
 const translationEndpoints = [
   {
@@ -337,6 +434,89 @@ function paragraphsFromMarkdown(markdown: string): {
   };
 }
 
+function reutersSyndicationUrl(originalUrl: string): string {
+  try {
+    const url = new URL(originalUrl);
+    if (!/^(?:www\.)?reuters\.com$/i.test(url.hostname)) {
+      return "";
+    }
+
+    const match = url.pathname.match(
+      /\/([^/]+)-(\d{4})-(\d{2})-(\d{2})\/?$/u,
+    );
+    if (!match) {
+      return "";
+    }
+
+    const [, slug, year, month, day] = match;
+    return `https://www.internazionale.it/ultime-notizie-reuters/${year}/${month}/${day}/${slug}`;
+  } catch {
+    return "";
+  }
+}
+
+function reutersSyndicationUrlFromIndex(
+  html: string,
+  expectedTitle: string,
+): string {
+  for (const match of html.matchAll(
+    /<a\b[^>]*href=["']([^"']*\/ultime-notizie-reuters\/[^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi,
+  )) {
+    const title = textFromHtml(match[2]);
+    if (!title || !titlesLikelyMatch(expectedTitle, title)) {
+      continue;
+    }
+
+    try {
+      const url = new URL(match[1], "https://www.internazionale.it");
+      if (
+        url.hostname === "www.internazionale.it" &&
+        url.pathname.startsWith("/ultime-notizie-reuters/")
+      ) {
+        return url.toString();
+      }
+    } catch {
+      // Ignore malformed links from the publisher index.
+    }
+  }
+  return "";
+}
+
+function paragraphsFromReutersSyndication(html: string): {
+  paragraphs: string[];
+  byline: string;
+  headline: string;
+} {
+  const englishBody = html.match(
+    /<div\b[^>]*class=["'][^"']*reuters-content-en[^"']*["'][^>]*>([\s\S]*?)<\/div>/i,
+  )?.[1];
+  if (!englishBody) {
+    return { paragraphs: [], byline: "", headline: "" };
+  }
+
+  const rawParagraphs = paragraphTags(englishBody);
+  const bylineParagraph = rawParagraphs.find((paragraph) =>
+    /^By\s+/i.test(paragraph),
+  );
+  const paragraphs = cleanParagraphs(
+    rawParagraphs.filter(
+      (paragraph) =>
+        paragraph !== bylineParagraph &&
+        !/^\(?Additional reporting by\b/i.test(paragraph) &&
+        !/^\(?Reporting by\b/i.test(paragraph) &&
+        !/^Writing by\b/i.test(paragraph) &&
+        !/^Editing by\b/i.test(paragraph),
+    ),
+  );
+  const objects = jsonLdObjects(html);
+
+  return {
+    paragraphs,
+    byline: bylineParagraph?.replace(/^By\s+/i, "").trim() || "Reuters",
+    headline: headlineFromHtml(html, objects),
+  };
+}
+
 function buildLongExcerpt(paragraphs: string[]): string[] {
   if (paragraphs.length <= 3) {
     return paragraphs;
@@ -474,6 +654,99 @@ async function fetchReaderArticleContent(
   }
 }
 
+async function fetchReutersSyndicationContent(
+  originalUrl: string,
+  expected: ArticleExpectation,
+  mode: ArticleContent["mode"],
+  emptyResult: ArticleContent,
+): Promise<ArticleContent> {
+  if (expected.source !== "Reuters") {
+    return emptyResult;
+  }
+
+  const syndicationUrl = reutersSyndicationUrl(originalUrl);
+  if (!syndicationUrl) {
+    debugReutersContent("Could not derive syndication URL", originalUrl);
+    return emptyResult;
+  }
+
+  try {
+    let directResponse = await fetchTrustedSyndicationHtml(syndicationUrl);
+    debugReutersContent("Direct syndication response", {
+      status: directResponse.status,
+      url: directResponse.url,
+    });
+
+    // Reuters sometimes changes the display headline after publishing, so its
+    // URL slug can differ slightly from Internazionale's licensed reprint slug.
+    // Resolve the exact URL from the publisher's latest-news homepage.
+    if (directResponse.status !== 200 && expected.originalTitle) {
+      const indexResponse = await fetchTrustedSyndicationHtml(
+        "https://www.internazionale.it/",
+      );
+      const indexedUrl =
+        indexResponse.status === 200
+          ? reutersSyndicationUrlFromIndex(
+              indexResponse.body,
+              expected.originalTitle,
+            )
+          : "";
+      debugReutersContent("Syndication index lookup", {
+        status: indexResponse.status,
+        indexedUrl,
+      });
+      if (indexedUrl) {
+        directResponse = await fetchTrustedSyndicationHtml(indexedUrl);
+      }
+    }
+
+    const readerResponse =
+      directResponse.status === 200
+        ? null
+        : await fetchTrustedSyndicationHtml(
+            `https://r.jina.ai/${directResponse.url || syndicationUrl}`,
+          );
+    if (readerResponse) {
+      debugReutersContent("Syndication reader response", {
+        status: readerResponse.status,
+        url: readerResponse.url,
+      });
+    }
+    const extracted =
+      directResponse.status === 200
+        ? paragraphsFromReutersSyndication(directResponse.body)
+        : readerResponse?.status === 200
+          ? paragraphsFromMarkdown(readerResponse.body)
+          : { paragraphs: [], byline: "", headline: "" };
+    debugReutersContent("Syndication extraction", {
+      headline: extracted.headline,
+      paragraphs: extracted.paragraphs.length,
+    });
+    if (
+      expected.originalTitle &&
+      extracted.headline &&
+      !titlesLikelyMatch(expected.originalTitle, extracted.headline)
+    ) {
+      return emptyResult;
+    }
+    const allowedParagraphs =
+      mode === "full" || mode === "complete"
+        ? extracted.paragraphs
+        : buildLongExcerpt(extracted.paragraphs);
+
+    return {
+      paragraphs: await translateParagraphs(allowedParagraphs),
+      originalParagraphs: allowedParagraphs,
+      byline: extracted.byline,
+      mode,
+      matched: allowedParagraphs.length > 0,
+    };
+  } catch (error) {
+    debugReutersContent("Syndication request failed", error);
+    return emptyResult;
+  }
+}
+
 export async function fetchArticleContent(
   originalUrl: string,
   expected: ArticleExpectation,
@@ -493,8 +766,17 @@ export async function fetchArticleContent(
     return emptyResult;
   }
 
-  const readerFallback = () =>
-    fetchReaderArticleContent(originalUrl, expected, mode, emptyResult);
+  const sourceFallback = async () => {
+    const syndicated = await fetchReutersSyndicationContent(
+      originalUrl,
+      expected,
+      mode,
+      emptyResult,
+    );
+    return syndicated.matched
+      ? syndicated
+      : fetchReaderArticleContent(originalUrl, expected, mode, emptyResult);
+  };
 
   try {
     const response = await fetch(originalUrl, {
@@ -506,13 +788,13 @@ export async function fetchArticleContent(
       signal: AbortSignal.timeout(12000),
     });
     if (!response.ok) {
-      return readerFallback();
+      return sourceFallback();
     }
     if (
       !isTrustedExternalNewsUrl(response.url) ||
       !urlMatchesSource(response.url, expected.source)
     ) {
-      return readerFallback();
+      return sourceFallback();
     }
 
     const extracted = paragraphsFromHtml(await response.text());
@@ -521,7 +803,7 @@ export async function fetchArticleContent(
       extracted.headline &&
       !titlesLikelyMatch(expected.originalTitle, extracted.headline)
     ) {
-      return readerFallback();
+      return sourceFallback();
     }
     const allowedParagraphs =
       mode === "full" || mode === "complete"
@@ -535,8 +817,8 @@ export async function fetchArticleContent(
       mode,
       matched: allowedParagraphs.length > 0,
     };
-    return result.matched ? result : readerFallback();
+    return result.matched ? result : sourceFallback();
   } catch {
-    return readerFallback();
+    return sourceFallback();
   }
 }
