@@ -135,6 +135,10 @@ function parseFeed(
   source: string,
   sourceName: string,
 ): LiveNewsItem[] {
+  const feedPublishedAt =
+    field(xml, "lastBuildDate") ||
+    field(xml, "pubDate") ||
+    field(xml, "updated");
   const items =
     xml.match(/<item(?:\s[^>]*)?>[\s\S]*?<\/item>/gi) ??
     xml.match(/<entry(?:\s[^>]*)?>[\s\S]*?<\/entry>/gi) ??
@@ -147,7 +151,8 @@ function parseFeed(
         field(item, "pubDate") ||
         field(item, "published") ||
         field(item, "updated") ||
-        field(item, "dc:date");
+        field(item, "dc:date") ||
+        feedPublishedAt;
       const summary =
         field(item, "content:encoded") ||
         field(item, "content") ||
@@ -515,7 +520,7 @@ async function buildAllSourceNews(): Promise<LiveNewsItem[]> {
 
 export const getAllSourceNews = unstable_cache(
   buildAllSourceNews,
-  ["worldpulse-all-source-news-48h-v4"],
+  ["worldpulse-all-source-news-48h-v5"],
   { revalidate: 1800, tags: ["all-source-news"] },
 );
 
@@ -550,7 +555,7 @@ async function buildSourceEdition(): Promise<LiveNewsItem[]> {
 
 export const getSourceEdition = unstable_cache(
   buildSourceEdition,
-  ["worldpulse-source-edition-v4"],
+  ["worldpulse-source-edition-v5"],
   { revalidate: 900, tags: ["source-edition"] },
 );
 
