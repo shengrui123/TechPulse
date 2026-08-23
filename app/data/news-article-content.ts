@@ -300,6 +300,43 @@ function paragraphsFromHtml(html: string): {
   };
 }
 
+function paragraphsFromMarkdown(markdown: string): {
+  paragraphs: string[];
+  byline: string;
+  headline: string;
+} {
+  const content = markdown.includes("Markdown Content:")
+    ? markdown.split("Markdown Content:").slice(1).join("Markdown Content:")
+    : markdown;
+  const headline =
+    markdown.match(/^Title:\s*(.+)$/im)?.[1]?.trim() ||
+    content.match(/^#\s+(.+)$/m)?.[1]?.trim() ||
+    "";
+  const byline =
+    content.match(/^By\s+([^\n]{2,120})$/im)?.[1]?.trim() || "Reuters";
+  const blocks = content
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/^>\s?/gm, "")
+    .replace(/[*_`~]/g, "")
+    .split(/\n\s*\n+/)
+    .map((block) => block.replace(/\s*\n\s*/g, " ").trim())
+    .filter(
+      (block) =>
+        !/^(title|url source|published time|markdown content):/i.test(block) &&
+        !/^(by reuters|reporting by|our standards:|purchase licensing rights)/i.test(
+          block,
+        ),
+    );
+
+  return {
+    paragraphs: cleanParagraphs(blocks),
+    byline,
+    headline,
+  };
+}
+
 function buildLongExcerpt(paragraphs: string[]): string[] {
   if (paragraphs.length <= 3) {
     return paragraphs;
@@ -386,45 +423,33 @@ async function translateParagraphs(paragraphs: string[]) {
   return result;
 }
 
-export async function fetchArticleContent(
+async function fetchReaderArticleContent(
   originalUrl: string,
   expected: ArticleExpectation,
+  mode: ArticleContent["mode"],
+  emptyResult: ArticleContent,
 ): Promise<ArticleContent> {
-  const mode = contentPolicyForUrl(originalUrl);
-  const emptyResult: ArticleContent = {
-    paragraphs: [],
-    originalParagraphs: [],
-    byline: "",
-    mode,
-    matched: false,
-  };
-  if (
-    !isTrustedExternalNewsUrl(originalUrl) ||
-    !urlMatchesSource(originalUrl, expected.source)
-  ) {
+  const apiKey = process.env.JINA_API_KEY?.trim();
+  if (!apiKey || expected.source !== "Reuters") {
     return emptyResult;
   }
 
   try {
-    const response = await fetch(originalUrl, {
+    const response = await fetch(`https://r.jina.ai/${originalUrl}`, {
       headers: {
-        Accept: "text/html,application/xhtml+xml",
-        "User-Agent": "Mozilla/5.0 WorldPulse article reader",
+        Accept: "text/markdown",
+        Authorization: `Bearer ${apiKey}`,
+        "X-Return-Format": "markdown",
+        "X-Target-Selector": "article",
       },
       cache: "no-store",
-      signal: AbortSignal.timeout(12000),
+      signal: AbortSignal.timeout(30000),
     });
     if (!response.ok) {
       return emptyResult;
     }
-    if (
-      !isTrustedExternalNewsUrl(response.url) ||
-      !urlMatchesSource(response.url, expected.source)
-    ) {
-      return emptyResult;
-    }
 
-    const extracted = paragraphsFromHtml(await response.text());
+    const extracted = paragraphsFromMarkdown(await response.text());
     if (
       expected.originalTitle &&
       extracted.headline &&
@@ -446,5 +471,72 @@ export async function fetchArticleContent(
     };
   } catch {
     return emptyResult;
+  }
+}
+
+export async function fetchArticleContent(
+  originalUrl: string,
+  expected: ArticleExpectation,
+): Promise<ArticleContent> {
+  const mode = contentPolicyForUrl(originalUrl);
+  const emptyResult: ArticleContent = {
+    paragraphs: [],
+    originalParagraphs: [],
+    byline: "",
+    mode,
+    matched: false,
+  };
+  if (
+    !isTrustedExternalNewsUrl(originalUrl) ||
+    !urlMatchesSource(originalUrl, expected.source)
+  ) {
+    return emptyResult;
+  }
+
+  const readerFallback = () =>
+    fetchReaderArticleContent(originalUrl, expected, mode, emptyResult);
+
+  try {
+    const response = await fetch(originalUrl, {
+      headers: {
+        Accept: "text/html,application/xhtml+xml",
+        "User-Agent": "Mozilla/5.0 WorldPulse article reader",
+      },
+      cache: "no-store",
+      signal: AbortSignal.timeout(12000),
+    });
+    if (!response.ok) {
+      return readerFallback();
+    }
+    if (
+      !isTrustedExternalNewsUrl(response.url) ||
+      !urlMatchesSource(response.url, expected.source)
+    ) {
+      return readerFallback();
+    }
+
+    const extracted = paragraphsFromHtml(await response.text());
+    if (
+      expected.originalTitle &&
+      extracted.headline &&
+      !titlesLikelyMatch(expected.originalTitle, extracted.headline)
+    ) {
+      return readerFallback();
+    }
+    const allowedParagraphs =
+      mode === "full" || mode === "complete"
+        ? extracted.paragraphs
+        : buildLongExcerpt(extracted.paragraphs);
+
+    const result = {
+      paragraphs: await translateParagraphs(allowedParagraphs),
+      originalParagraphs: allowedParagraphs,
+      byline: extracted.byline,
+      mode,
+      matched: allowedParagraphs.length > 0,
+    };
+    return result.matched ? result : readerFallback();
+  } catch {
+    return readerFallback();
   }
 }

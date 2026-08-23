@@ -123,6 +123,10 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.doesNotMatch(newsStoryPage, /简体中文/);
   assert.match(newsArticleContent, /articleBody/);
   assert.match(newsArticleContent, /originalParagraphs/);
+  assert.match(newsArticleContent, /paragraphsFromMarkdown/);
+  assert.match(newsArticleContent, /process\.env\.JINA_API_KEY/);
+  assert.match(newsArticleContent, /https:\/\/r\.jina\.ai\//);
+  assert.match(newsArticleContent, /X-Target-Selector/);
   assert.match(newsArticleContent, /application\\\/ld\\\+json/);
   assert.match(newsArticleContent, /semanticRegions/);
   assert.match(newsArticleContent, /readableParagraphs/);
