@@ -128,6 +128,12 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(liveNews, /ProPublica 调查新闻/);
   assert.match(liveNews, /translationBatches/);
   assert.match(liveNews, /translationBatchCharacters/);
+  assert.match(liveNews, /translateTargetsIndividually/);
+  assert.match(liveNews, /translationEndpoints/);
+  assert.match(liveNews, /clients5\.google\.com/);
+  assert.match(liveNews, /attempt < 2/);
+  assert.match(liveNews, /hasChinese/);
+  assert.match(liveNews, /for \(let pass = 0; pass < 3/);
   assert.match(liveNews, /fetchAllFeeds/);
   assert.match(liveNews, /getSourceEdition/);
   assert.match(liveNews, /feedConcurrency = 26/);

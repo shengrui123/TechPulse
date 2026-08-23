@@ -65,28 +65,49 @@ const feeds = trustedSources.map((source) => ({
   url: source.rssUrl ?? googleNewsFeedUrl(source.url),
 }));
 
-const translationEndpoint =
-  "https://translate.googleapis.com/translate_a/single";
+const translationEndpoints = [
+  {
+    url: "https://clients5.google.com/translate_a/t",
+    client: "dict-chrome-ex",
+  },
+  {
+    url: "https://translate.googleapis.com/translate_a/single",
+    client: "gtx",
+  },
+] as const;
 const feedConcurrency = 26;
 const translationConcurrency = 12;
 const translationBatchCharacters = 5000;
 
 function clean(value: string): string {
-  return value
-    .replace(/^<!\[CDATA\[|\]\]>$/g, "")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&#39;/g, "'")
-    .replace(/&apos;/g, "'")
-    .replace(/&quot;/g, '"')
-    .replace(/&#x([\da-f]+);/gi, (_, code: string) =>
-      String.fromCharCode(Number.parseInt(code, 16)),
-    )
-    .replace(/&#(\d+);/g, (_, code: string) =>
-      String.fromCharCode(Number(code)),
-    )
+  let decoded = value.replace(/^<!\[CDATA\[|\]\]>$/g, "");
+
+  // Google News frequently double-encodes publisher suffixes (for example,
+  // `&amp;nbsp;`). Decode a few passes so entities exposed by the first pass
+  // do not leak into the rendered title or summary.
+  for (let pass = 0; pass < 3; pass += 1) {
+    const next = decoded
+      .replace(/&nbsp;/gi, " ")
+      .replace(/&amp;/gi, "&")
+      .replace(/&lt;/gi, "<")
+      .replace(/&gt;/gi, ">")
+      .replace(/&#39;/gi, "'")
+      .replace(/&apos;/gi, "'")
+      .replace(/&quot;/gi, '"')
+      .replace(/&#x([\da-f]+);/gi, (_, code: string) =>
+        String.fromCharCode(Number.parseInt(code, 16)),
+      )
+      .replace(/&#(\d+);/g, (_, code: string) =>
+        String.fromCharCode(Number(code)),
+      );
+
+    if (next === decoded) {
+      break;
+    }
+    decoded = next;
+  }
+
+  return decoded
     .replace(/<[^>]*>/g, " ")
     .replace(/\s+/g, " ")
     .trim();
@@ -142,6 +163,12 @@ function translatedText(data: unknown): string {
     return "";
   }
 
+  // The lightweight clients5 endpoint returns [["译文", "source-lang"]],
+  // while the legacy endpoint returns an array of translation segments.
+  if (typeof data[0][0] === "string") {
+    return data[0][0].trim();
+  }
+
   return data[0]
     .map((segment: unknown) =>
       Array.isArray(segment) && typeof segment[0] === "string"
@@ -153,31 +180,33 @@ function translatedText(data: unknown): string {
 }
 
 async function requestTranslation(value: string): Promise<string> {
-  const url = new URL(translationEndpoint);
-  url.searchParams.set("client", "gtx");
-  url.searchParams.set("sl", "auto");
-  url.searchParams.set("tl", "zh-CN");
-  url.searchParams.set("dt", "t");
-  url.searchParams.set("q", value);
+  for (const endpoint of translationEndpoints) {
+    const url = new URL(endpoint.url);
+    url.searchParams.set("client", endpoint.client);
+    url.searchParams.set("sl", "auto");
+    url.searchParams.set("tl", "zh-CN");
+    url.searchParams.set("dt", "t");
+    url.searchParams.set("q", value);
 
-  for (let attempt = 0; attempt < 1; attempt += 1) {
-    try {
-      const response = await fetch(url, {
-        headers: { "User-Agent": "WorldPulse/1.0 news translator" },
-        next: { revalidate: 86400 },
-        signal: AbortSignal.timeout(6000),
-      });
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      try {
+        const response = await fetch(url, {
+          headers: { "User-Agent": "WorldPulse/1.0 news translator" },
+          next: { revalidate: 86400 },
+          signal: AbortSignal.timeout(8000),
+        });
 
-      if (!response.ok) {
-        continue;
+        if (!response.ok) {
+          continue;
+        }
+
+        const result = translatedText(await response.json());
+        if (result) {
+          return result;
+        }
+      } catch {
+        // Try the endpoint again, then continue to the compatible fallback.
       }
-
-      const result = translatedText(await response.json());
-      if (result) {
-        return result;
-      }
-    } catch {
-      // A failed batch falls back to the source text below.
     }
   }
 
@@ -198,7 +227,7 @@ function translationBatches(items: LiveNewsItem[]): TranslationTarget[][] {
   items.forEach((item, itemIndex) => {
     (["title", "summary"] as const).forEach((field) => {
       const value = item[field];
-      if (!value || /[\u3400-\u9fff]/u.test(value)) {
+      if (!value || hasChinese(value)) {
         return;
       }
 
@@ -231,7 +260,7 @@ async function translateBatch(
     .join("\n");
   const result = await requestTranslation(payload);
   if (!result) {
-    return batch.map((target) => target.value);
+    return translateTargetsIndividually(batch);
   }
 
   const matches = [
@@ -239,19 +268,62 @@ async function translateBatch(
   ];
 
   if (matches.length === batch.length) {
-    return matches.map((match, index) => {
+    const values = matches.map((match, index) => {
       const start = (match.index ?? 0) + match[0].length;
       const end = matches[index + 1]?.index ?? result.length;
       return result.slice(start, end).trim();
     });
+
+    const missed = batch
+      .map((target, index) => ({ target, index }))
+      .filter(({ target, index }) =>
+        !hasChinese(target.value) && !hasChinese(values[index]),
+      );
+
+    if (missed.length > 0) {
+      const replacements = await translateTargetsIndividually(
+        missed.map(({ target }) => target),
+      );
+      missed.forEach(({ index }, replacementIndex) => {
+        values[index] = replacements[replacementIndex];
+      });
+    }
+
+    return values;
   }
 
-  return Promise.all(
-    batch.map(async (target) => {
-      const translated = await requestTranslation(target.value);
-      return translated || target.value;
-    }),
+  return translateTargetsIndividually(batch);
+}
+
+function hasChinese(value: string): boolean {
+  return /[\u3400-\u9fff]/u.test(value);
+}
+
+async function translateTargetsIndividually(
+  targets: TranslationTarget[],
+): Promise<string[]> {
+  const results = targets.map((target) => target.value);
+  let nextTarget = 0;
+
+  async function worker() {
+    while (nextTarget < targets.length) {
+      const index = nextTarget;
+      nextTarget += 1;
+      const translated = await requestTranslation(targets[index].value);
+      if (translated) {
+        results[index] = translated;
+      }
+    }
+  }
+
+  await Promise.all(
+    Array.from(
+      { length: Math.min(translationConcurrency, targets.length) },
+      () => worker(),
+    ),
   );
+
+  return results;
 }
 
 async function translateNewsItems(items: LiveNewsItem[]) {
