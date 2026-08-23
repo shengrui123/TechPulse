@@ -2227,9 +2227,10 @@ body {
 
 .news-article-pullquote {
   border-left: 1px solid var(--ink);
-  color: var(--orange);
-  font-size: clamp(30px, 3vw, 46px);
+  color: #252422;
+  font-size: clamp(19px, 1.8vw, 26px);
   font-style: italic;
+  line-height: 1.75;
 }
 
 .news-article-note,
