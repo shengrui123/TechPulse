@@ -113,6 +113,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(newsStoryPage, /Google News RSS/);
   assert.match(newsStoryPage, /原媒体官方 RSS/);
   assert.match(newsStoryPage, /授权全文/);
+  assert.match(newsStoryPage, /完整公开正文/);
   assert.match(newsStoryPage, /新闻节选/);
   assert.match(newsStoryPage, /阅读完整原文/);
   assert.match(newsStoryPage, /不设段落或字数上限/);
@@ -125,6 +126,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(newsArticleContent, /readableParagraphs/);
   assert.match(newsArticleContent, /buildLongExcerpt/);
   assert.match(newsArticleContent, /mode === "full"/);
+  assert.match(newsArticleContent, /mode === "complete"/);
   assert.match(newsArticleContent, /\? extracted\.paragraphs/);
   assert.doesNotMatch(newsArticleContent, /selected\.length >= 7/);
   assert.doesNotMatch(newsArticleContent, /characters >= 2600/);
@@ -190,10 +192,10 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(liveNews, /field\(xml, "lastBuildDate"\)/);
   assert.match(liveNews, /feedPublishedAt/);
   assert.doesNotMatch(liveNews, /maxStoriesPerSource/);
-  assert.match(liveNews, /worldpulse-all-source-news-48h-v5/);
+  assert.match(liveNews, /worldpulse-all-source-news-48h-v6/);
   assert.match(liveNews, /feedConcurrency = 26/);
   assert.match(liveNews, /unstable_cache/);
-  assert.match(liveNews, /worldpulse-source-edition-v5/);
+  assert.match(liveNews, /worldpulse-source-edition-v6/);
   assert.match(loading, /route-loading-bar/);
   assert.match(loading, /route-loading-mark/);
   assert.doesNotMatch(loading, /worldpulse-logo\.png/);
@@ -271,7 +273,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   const rssUrls = [...sourceData.matchAll(/rssUrl:\s*\n?\s*"([^"]+)"/g)].map(
     (match) => match[1],
   );
-  assert.equal(rssUrls.length, 5);
+  assert.equal(rssUrls.length, 6);
   assert.ok(rssUrls.every((url) => url.startsWith("https://")));
   assert.ok(
     rssUrls.includes(
@@ -279,6 +281,9 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
     ),
   );
   assert.ok(rssUrls.includes("https://theinitium.com/rss/"));
+  assert.ok(
+    rssUrls.includes("https://www.aljazeera.com/xml/rss/all.xml"),
+  );
   assert.ok(
     rssUrls.includes(
       "https://public.twreporter.org/rss/twreporter-rss.xml",

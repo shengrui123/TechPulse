@@ -6,7 +6,7 @@ export type ArticleContent = {
   paragraphs: string[];
   originalParagraphs: string[];
   byline: string;
-  mode: "excerpt" | "full";
+  mode: "excerpt" | "full" | "complete";
   matched: boolean;
 };
 
@@ -433,7 +433,7 @@ export async function fetchArticleContent(
       return emptyResult;
     }
     const allowedParagraphs =
-      mode === "full"
+      mode === "full" || mode === "complete"
         ? extracted.paragraphs
         : buildLongExcerpt(extracted.paragraphs);
 

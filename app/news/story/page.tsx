@@ -182,6 +182,8 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
                     ? `本条目来自${rssSource}，并已核对原媒体来源；暂未取得可确认匹配的正文，因此完整显示 RSS 提供的摘要。完整报道及后续更新请以原媒体页面为准。`
                     : articleContent.mode === "full"
                     ? `本条目来自${rssSource}；原文核对通过且信源允许全文展示，正文不设段落或字数上限，经自动提取、中文翻译并按照杂志阅读方式排版。`
+                    : articleContent.mode === "complete"
+                    ? `本条目来自${rssSource}；原文核对通过，并完整展示原媒体公开页面中可取得的正文段落，同时保留原文与逐段中文翻译。完整报道、后续更新及图片版权信息请以原媒体页面为准。`
                     : `本条目来自${rssSource}；核对原文后自动提取并翻译原媒体公开页面的较长节选。节选长度随可取得正文增加，不再套用固定段落或字数上限；完整报道、后续更新及图片版权信息请以原媒体页面为准。`}
                 </p>
               </div>
@@ -209,6 +211,8 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
                   ? "Google News 摘要"
                   : articleContent.mode === "full"
                     ? "授权全文"
+                    : articleContent.mode === "complete"
+                      ? "完整公开正文"
                     : "较长新闻节选"}
               </strong>
             </aside>

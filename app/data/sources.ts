@@ -9,7 +9,7 @@ export type NewsSource = {
    * Only use "full" after the publisher has granted republication rights.
    * Sources without an explicit policy are displayed as attributed excerpts.
    */
-  contentPolicy?: "excerpt" | "full";
+  contentPolicy?: "excerpt" | "full" | "complete";
 };
 
 export type SourceGroup = {
@@ -105,6 +105,8 @@ export const sourceGroups: SourceGroup[] = [
         region: "中东 / 全球",
         focus: "中东、全球南方与国际现场",
         url: "https://www.aljazeera.com/",
+        rssUrl: "https://www.aljazeera.com/xml/rss/all.xml",
+        contentPolicy: "complete",
       },
       {
         name: "The Reporter",
@@ -268,7 +270,9 @@ export function urlMatchesSource(value: string, sourceName: string): boolean {
   }
 }
 
-export function contentPolicyForUrl(value: string): "excerpt" | "full" {
+export function contentPolicyForUrl(
+  value: string,
+): "excerpt" | "full" | "complete" {
   try {
     const hostname = normalizedHost(value);
     const source = trustedSources.find((item) => {
@@ -276,7 +280,7 @@ export function contentPolicyForUrl(value: string): "excerpt" | "full" {
       return hostname === sourceHost || hostname.endsWith(`.${sourceHost}`);
     });
 
-    return source?.contentPolicy === "full" ? "full" : "excerpt";
+    return source?.contentPolicy ?? "excerpt";
   } catch {
     return "excerpt";
   }
