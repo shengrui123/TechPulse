@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import NewsStream from "./components/NewsStream";
 import SiteFooter from "./components/SiteFooter";
 import SiteHeader from "./components/SiteHeader";
-import { getNewsByCategory } from "./data/live-news";
+import { getAllSourceNews } from "./data/live-news";
 
 export const metadata: Metadata = {
   title: "国际新闻 | WorldPulse",
@@ -13,15 +13,12 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
 export default async function Home() {
-  const news = await getNewsByCategory("world");
+  const news = await getAllSourceNews();
 
   return (
     <>
       <SiteHeader />
-      <NewsStream
-        news={news}
-        hideHeader
-      />
+      <NewsStream news={news} hideHeader />
       <SiteFooter />
     </>
   );

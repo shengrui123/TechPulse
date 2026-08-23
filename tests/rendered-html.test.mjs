@@ -8,6 +8,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   const [
     page,
     newsPage,
+    sourceNewsBrowser,
     categoryPage,
     newsStream,
     newsStoryPage,
@@ -28,6 +29,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   ] = await Promise.all([
     readFile(new URL("app/page.tsx", projectRoot), "utf8"),
     readFile(new URL("app/news/page.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/components/SourceNewsBrowser.tsx", projectRoot), "utf8"),
     readFile(new URL("app/news/[category]/page.tsx", projectRoot), "utf8"),
     readFile(new URL("app/components/NewsStream.tsx", projectRoot), "utf8"),
     readFile(new URL("app/news/story/page.tsx", projectRoot), "utf8"),
@@ -50,14 +52,24 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
     readFile(new URL("package.json", projectRoot), "utf8"),
   ]);
 
-  assert.match(page, /getSourceEdition\(\)/);
-  assert.match(page, /<NewsStream news=\{news\} showMore magazineEdition \/>/);
-  assert.match(newsPage, /getLatestInternationalNews\(\)/);
+  assert.match(page, /getAllSourceNews\(\)/);
+  assert.match(page, /<NewsStream news=\{news\} hideHeader \/>/);
+  assert.match(newsPage, /getAllSourceNews\(\)/);
+  assert.match(newsPage, /sources=\{liveNewsSourceDirectory\}/);
   assert.match(categoryPage, /getNewsByCategory/);
   assert.match(categoryPage, /isNewsCategory/);
   assert.match(categoryPage, /categoryLabels/);
   assert.match(newsPage, /heading="全部新闻"/);
-  assert.match(categoryPage, /heading=\{`\$\{label\}新闻`\}/);
+  assert.match(newsPage, /encodeNewsStory/);
+  assert.match(sourceNewsBrowser, /按媒体查看报道/);
+  assert.match(sourceNewsBrowser, /搜索媒体来源/);
+  assert.match(sourceNewsBrowser, /的全部报道/);
+  assert.match(sourceNewsBrowser, /sourceName/);
+  assert.match(sourceNewsBrowser, /matchedSources/);
+  assert.match(sourceNewsBrowser, /orderedSources/);
+  assert.match(sourceNewsBrowser, /activeSourceCount/);
+  assert.doesNotMatch(sourceNewsBrowser, /new Map<string/);
+  assert.match(categoryPage, /<NewsStream news=\{news\} hideHeader \/>/);
   assert.match(newsStream, /news-waterfall/);
   assert.match(newsStream, /最近的国际新闻/);
   assert.match(newsStream, /showMore/);
@@ -136,11 +148,17 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(liveNews, /for \(let pass = 0; pass < 3/);
   assert.match(liveNews, /fetchAllFeeds/);
   assert.match(liveNews, /getSourceEdition/);
+  assert.match(liveNews, /getAllSourceNews/);
+  assert.match(liveNews, /liveNewsSourceDirectory/);
+  assert.match(liveNews, /allSourceNewsWindowMs = 48/);
+  assert.match(liveNews, /publishedAt >= cutoff/);
+  assert.doesNotMatch(liveNews, /maxStoriesPerSource/);
+  assert.match(liveNews, /worldpulse-all-source-news-48h-v1/);
   assert.match(liveNews, /feedConcurrency = 26/);
   assert.match(liveNews, /unstable_cache/);
   assert.match(liveNews, /worldpulse-source-edition-v1/);
   assert.match(loading, /route-loading-bar/);
-  assert.match(loading, /正在编辑今日世界/);
+  assert.match(loading, /正在加载新闻/);
   assert.match(liveNews, /translate\.googleapis\.com/);
   assert.match(liveNews, /tl", "zh-CN"/);
   assert.match(newsStream, /trustedSources\.length/);
@@ -159,7 +177,10 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(header, /newsCategories/);
   assert.match(header, /`\/news\/\$\{id\}`/);
   assert.match(header, /信源标准/);
-  assert.match(header, /订阅全球晨报/);
+  assert.match(header, /nav-search-link/);
+  assert.match(header, /floating-search/);
+  assert.match(header, /\/news#source-search/);
+  assert.doesNotMatch(header, /THE DAILY EDITION · SHANGHAI/);
   assert.doesNotMatch(
     `${page}\n${articlePage}\n${header}`,
     /資訊來源|资讯来源|来源库|sources-band|source-row/,
@@ -211,6 +232,12 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   );
   assert.equal(rssUrls.length, 4);
   assert.ok(rssUrls.every((url) => url.startsWith("https://")));
+  assert.ok(rssUrls.includes("https://theinitium.com/rss/"));
+  assert.ok(
+    rssUrls.includes(
+      "https://public.twreporter.org/rss/twreporter-rss.xml",
+    ),
+  );
 
   const vercel = JSON.parse(vercelConfig);
   const pkg = JSON.parse(packageJson);
