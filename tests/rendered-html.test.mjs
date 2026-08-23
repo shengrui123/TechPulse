@@ -84,6 +84,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
     "news image should appear before the news title",
   );
   assert.match(newsStoryPage, /news-article-page/);
+  assert.match(newsStoryPage, /news-article-title-stack/);
   assert.match(newsStoryPage, /news-article-image/);
   assert.doesNotMatch(newsStoryPage, /news-article-deck/);
   assert.match(newsStoryPage, /阅读完整原文/);

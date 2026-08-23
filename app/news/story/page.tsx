@@ -110,15 +110,17 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
           </nav>
 
           <header className="news-article-header">
-            <p className="eyebrow">
-              {story.sourceName} · {formatNewsDate(story.publishedAt)}
-            </p>
-            <h1>{story.title}</h1>
-            {story.originalTitle && story.originalTitle !== story.title && (
-              <p className="news-article-original-title" lang="en">
-                {story.originalTitle}
+            <div className="news-article-title-stack">
+              {story.originalTitle && story.originalTitle !== story.title && (
+                <p className="news-article-original-title" lang="en">
+                  {story.originalTitle}
+                </p>
+              )}
+              <h1>{story.title}</h1>
+              <p className="eyebrow">
+                {story.sourceName} · {formatNewsDate(story.publishedAt)}
               </p>
-            )}
+            </div>
           </header>
 
           <figure className="news-article-image">
