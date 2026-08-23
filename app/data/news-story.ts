@@ -4,7 +4,13 @@ import { isSupportedNewsUrl } from "./google-news";
 
 export type NewsStory = Pick<
   LiveNewsItem,
-  "title" | "summary" | "source" | "sourceName" | "url" | "publishedAt"
+  | "title"
+  | "originalTitle"
+  | "summary"
+  | "source"
+  | "sourceName"
+  | "url"
+  | "publishedAt"
 >;
 
 function cleanStoryText(value: string): string {
@@ -38,6 +44,7 @@ function cleanStoryText(value: string): string {
 export function encodeNewsStory(item: LiveNewsItem): string {
   const story: NewsStory = {
     title: item.title,
+    originalTitle: item.originalTitle,
     summary: item.summary,
     source: item.source,
     sourceName: item.sourceName,
@@ -60,6 +67,9 @@ export function decodeNewsStory(value: string): NewsStory | null {
       story.title.length > 500 ||
       typeof story.summary !== "string" ||
       story.summary.length > 1000 ||
+      (story.originalTitle !== undefined &&
+        (typeof story.originalTitle !== "string" ||
+          story.originalTitle.length > 500)) ||
       typeof story.source !== "string" ||
       story.source.length > 100 ||
       typeof story.sourceName !== "string" ||
@@ -75,6 +85,9 @@ export function decodeNewsStory(value: string): NewsStory | null {
     return {
       ...(story as NewsStory),
       title: cleanStoryText(story.title),
+      originalTitle: story.originalTitle
+        ? cleanStoryText(story.originalTitle)
+        : undefined,
       summary: cleanStoryText(story.summary),
     };
   } catch {

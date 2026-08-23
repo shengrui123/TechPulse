@@ -1,15 +1,29 @@
 import "server-only";
 import { isTrustedExternalNewsUrl } from "./google-news";
-import { contentPolicyForUrl } from "./sources";
+import { contentPolicyForUrl, urlMatchesSource } from "./sources";
 
 export type ArticleContent = {
   paragraphs: string[];
   byline: string;
   mode: "excerpt" | "full";
+  matched: boolean;
 };
 
-const translationEndpoint =
-  "https://translate.googleapis.com/translate_a/single";
+type ArticleExpectation = {
+  source: string;
+  originalTitle?: string;
+};
+
+const translationEndpoints = [
+  {
+    url: "https://clients5.google.com/translate_a/t",
+    client: "dict-chrome-ex",
+  },
+  {
+    url: "https://translate.googleapis.com/translate_a/single",
+    client: "gtx",
+  },
+] as const;
 
 function decodeEntities(value: string): string {
   return value
@@ -177,9 +191,79 @@ function bylineFromJsonLd(objects: Record<string, unknown>[]): string {
   return "";
 }
 
+function headlineFromJsonLd(objects: Record<string, unknown>[]): string {
+  for (const object of objects) {
+    if (typeof object.headline === "string" && object.headline.trim()) {
+      return textFromHtml(object.headline);
+    }
+  }
+  return "";
+}
+
+function metaContent(html: string, key: string): string {
+  const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const keyFirst = html.match(
+    new RegExp(
+      `<meta[^>]+(?:property|name)=["']${escaped}["'][^>]+content=["']([^"']+)["'][^>]*>`,
+      "i",
+    ),
+  );
+  const contentFirst = html.match(
+    new RegExp(
+      `<meta[^>]+content=["']([^"']+)["'][^>]+(?:property|name)=["']${escaped}["'][^>]*>`,
+      "i",
+    ),
+  );
+  return textFromHtml(keyFirst?.[1] || contentFirst?.[1] || "");
+}
+
+function headlineFromHtml(
+  html: string,
+  objects: Record<string, unknown>[],
+): string {
+  return (
+    headlineFromJsonLd(objects) ||
+    metaContent(html, "og:title") ||
+    metaContent(html, "twitter:title") ||
+    textFromHtml(html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || "")
+  );
+}
+
+function normalizedTitle(value: string): string {
+  return value
+    .toLocaleLowerCase()
+    .replace(/\s+[-|–—]\s+[^-|–—]{2,80}$/u, "")
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function titlesLikelyMatch(expected: string, actual: string): boolean {
+  const left = normalizedTitle(expected);
+  const right = normalizedTitle(actual);
+  if (!left || !right) {
+    return true;
+  }
+  if (left === right || left.includes(right) || right.includes(left)) {
+    return true;
+  }
+
+  const leftTokens = new Set(left.split(" ").filter((token) => token.length > 2));
+  const rightTokens = new Set(
+    right.split(" ").filter((token) => token.length > 2),
+  );
+  const smaller = Math.min(leftTokens.size, rightTokens.size);
+  if (smaller === 0) {
+    return false;
+  }
+  const overlap = [...leftTokens].filter((token) => rightTokens.has(token)).length;
+  return overlap / smaller >= 0.5;
+}
+
 function paragraphsFromHtml(html: string): {
   paragraphs: string[];
   byline: string;
+  headline: string;
 } {
   const objects = jsonLdObjects(html);
   const articleBody = objects
@@ -208,7 +292,11 @@ function paragraphsFromHtml(html: string): {
         ? semanticParagraphs
         : fallbackParagraphs;
 
-  return { paragraphs, byline: bylineFromJsonLd(objects) };
+  return {
+    paragraphs,
+    byline: bylineFromJsonLd(objects),
+    headline: headlineFromHtml(html, objects),
+  };
 }
 
 function limitExcerpt(paragraphs: string[]): string[] {
@@ -235,6 +323,9 @@ function translatedText(data: unknown): string {
   if (!Array.isArray(data) || !Array.isArray(data[0])) {
     return "";
   }
+  if (typeof data[0][0] === "string") {
+    return data[0][0].trim();
+  }
   return data[0]
     .map((segment: unknown) =>
       Array.isArray(segment) && typeof segment[0] === "string"
@@ -250,24 +341,35 @@ async function translateToChinese(value: string): Promise<string> {
     return value;
   }
 
-  try {
-    const url = new URL(translationEndpoint);
-    url.searchParams.set("client", "gtx");
+  for (const endpoint of translationEndpoints) {
+    const url = new URL(endpoint.url);
+    url.searchParams.set("client", endpoint.client);
     url.searchParams.set("sl", "auto");
     url.searchParams.set("tl", "zh-CN");
     url.searchParams.set("dt", "t");
     url.searchParams.set("q", value);
-    const response = await fetch(url, {
-      headers: { "User-Agent": "WorldPulse/1.0 article translator" },
-      cache: "no-store",
-      signal: AbortSignal.timeout(8000),
-    });
-    return response.ok
-      ? translatedText(await response.json()) || value
-      : value;
-  } catch {
-    return value;
+
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      try {
+        const response = await fetch(url, {
+          headers: { "User-Agent": "WorldPulse/1.0 article translator" },
+          cache: "no-store",
+          signal: AbortSignal.timeout(8000),
+        });
+        if (!response.ok) {
+          continue;
+        }
+        const translated = translatedText(await response.json());
+        if (translated) {
+          return translated;
+        }
+      } catch {
+        // Try again, then continue to the compatible fallback endpoint.
+      }
+    }
   }
+
+  return value;
 }
 
 async function translateParagraphs(paragraphs: string[]) {
@@ -290,10 +392,20 @@ async function translateParagraphs(paragraphs: string[]) {
 
 export async function fetchArticleContent(
   originalUrl: string,
+  expected: ArticleExpectation,
 ): Promise<ArticleContent> {
   const mode = contentPolicyForUrl(originalUrl);
-  if (!isTrustedExternalNewsUrl(originalUrl)) {
-    return { paragraphs: [], byline: "", mode };
+  const emptyResult: ArticleContent = {
+    paragraphs: [],
+    byline: "",
+    mode,
+    matched: false,
+  };
+  if (
+    !isTrustedExternalNewsUrl(originalUrl) ||
+    !urlMatchesSource(originalUrl, expected.source)
+  ) {
+    return emptyResult;
   }
 
   try {
@@ -306,10 +418,23 @@ export async function fetchArticleContent(
       signal: AbortSignal.timeout(12000),
     });
     if (!response.ok) {
-      return { paragraphs: [], byline: "", mode };
+      return emptyResult;
+    }
+    if (
+      !isTrustedExternalNewsUrl(response.url) ||
+      !urlMatchesSource(response.url, expected.source)
+    ) {
+      return emptyResult;
     }
 
     const extracted = paragraphsFromHtml(await response.text());
+    if (
+      expected.originalTitle &&
+      extracted.headline &&
+      !titlesLikelyMatch(expected.originalTitle, extracted.headline)
+    ) {
+      return emptyResult;
+    }
     const allowedParagraphs =
       mode === "full"
         ? extracted.paragraphs.slice(0, 80)
@@ -319,8 +444,9 @@ export async function fetchArticleContent(
       paragraphs: await translateParagraphs(allowedParagraphs),
       byline: extracted.byline,
       mode,
+      matched: allowedParagraphs.length > 0,
     };
   } catch {
-    return { paragraphs: [], byline: "", mode };
+    return emptyResult;
   }
 }

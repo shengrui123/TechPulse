@@ -1503,12 +1503,24 @@ button {
   transform-origin: left;
 }
 
-.route-loading-logo {
-  width: clamp(220px, 38vw, 420px);
-  height: auto;
-  object-fit: contain;
-  filter: drop-shadow(0 22px 42px rgba(13, 48, 104, 0.15));
+.route-loading-mark {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  font-family: "Times New Roman", serif;
+  font-size: clamp(58px, 10vw, 110px);
+  font-style: italic;
+  line-height: 1;
+  letter-spacing: -0.08em;
   animation: editorial-breathe 1.5s ease-in-out infinite;
+}
+
+.route-loading-mark i {
+  display: block;
+  width: 44px;
+  height: 1px;
+  background: var(--orange);
+  transform: rotate(-45deg);
 }
 
 .route-loading p {
@@ -1581,7 +1593,7 @@ button {
 
 @media (prefers-reduced-motion: reduce) {
 .route-loading-bar,
-  .route-loading-logo,
+  .route-loading-mark,
   .route-loading-dots i {
     animation: none;
   }

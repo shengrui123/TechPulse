@@ -90,6 +90,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(newsStoryData, /encodeNewsStory/);
   assert.match(newsStoryData, /decodeNewsStory/);
   assert.match(newsStoryData, /cleanStoryText/);
+  assert.match(newsStoryData, /originalTitle/);
   assert.match(newsStoryData, /&nbsp;/);
   assert.match(newsStoryData, /isSupportedNewsUrl/);
   assert.match(googleNewsData, /resolveOriginalNewsUrl/);
@@ -97,6 +98,9 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(googleNewsData, /Fbv4je/);
   assert.match(newsStoryPage, /resolveOriginalNewsUrl/);
   assert.match(newsStoryPage, /fetchArticleContent/);
+  assert.match(newsStoryPage, /originalTitle: story\.originalTitle/);
+  assert.match(newsStoryPage, /articleContent\.matched/);
+  assert.match(newsStoryPage, /Google News 摘要/);
   assert.match(newsStoryPage, /授权全文/);
   assert.match(newsStoryPage, /新闻节选/);
   assert.doesNotMatch(newsStoryPage, /阅读语言/);
@@ -107,6 +111,10 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(newsArticleContent, /readableParagraphs/);
   assert.match(newsArticleContent, /limitExcerpt/);
   assert.match(newsArticleContent, /contentPolicyForUrl/);
+  assert.match(newsArticleContent, /urlMatchesSource/);
+  assert.match(newsArticleContent, /titlesLikelyMatch/);
+  assert.match(newsArticleContent, /headlineFromHtml/);
+  assert.match(newsArticleContent, /clients5\.google\.com/);
   assert.match(newsArticleContent, /translateToChinese/);
   assert.match(newsStoryPage, /paragraphizeSummary/);
   assert.match(newsStoryPage, /按自然段重新排版/);
@@ -143,6 +151,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(liveNews, /日经亚洲/);
   assert.match(liveNews, /ProPublica 调查新闻/);
   assert.match(liveNews, /translationBatches/);
+  assert.match(liveNews, /originalTitle/);
   assert.match(liveNews, /translationBatchCharacters/);
   assert.match(liveNews, /translateTargetsIndividually/);
   assert.match(liveNews, /translationEndpoints/);
@@ -157,15 +166,16 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(liveNews, /allSourceNewsWindowMs = 48/);
   assert.match(liveNews, /publishedAt >= cutoff/);
   assert.doesNotMatch(liveNews, /maxStoriesPerSource/);
-  assert.match(liveNews, /worldpulse-all-source-news-48h-v1/);
+  assert.match(liveNews, /worldpulse-all-source-news-48h-v2/);
   assert.match(liveNews, /feedConcurrency = 26/);
   assert.match(liveNews, /unstable_cache/);
-  assert.match(liveNews, /worldpulse-source-edition-v1/);
+  assert.match(liveNews, /worldpulse-source-edition-v2/);
   assert.match(loading, /route-loading-bar/);
-  assert.match(loading, /worldpulse-logo\.png/);
-  assert.match(loading, /route-loading-logo/);
-  assert.doesNotMatch(loading, /route-loading-mark/);
+  assert.match(loading, /route-loading-mark/);
+  assert.doesNotMatch(loading, /worldpulse-logo\.png/);
   assert.match(loading, /正在加载新闻/);
+  assert.match(layout, /worldpulse-logo\.png/);
+  assert.match(layout, /image\/png/);
   assert.match(liveNews, /translate\.googleapis\.com/);
   assert.match(liveNews, /tl", "zh-CN"/);
   assert.match(newsStream, /trustedSources\.length/);

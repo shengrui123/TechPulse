@@ -62,7 +62,10 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
   }
 
   const originalUrl = await resolveOriginalNewsUrl(story.url);
-  const articleContent = await fetchArticleContent(originalUrl);
+  const articleContent = await fetchArticleContent(originalUrl, {
+    source: story.source,
+    originalTitle: story.originalTitle,
+  });
   const summaryParagraphs = paragraphizeSummary(story.summary);
   const paragraphs =
     articleContent.paragraphs.length > 0
@@ -139,7 +142,9 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
               <div className="news-article-note">
                 <span>编辑说明</span>
                 <p>
-                  {articleContent.mode === "full"
+                  {!articleContent.matched
+                    ? "本页已核对 Google News 条目与原媒体来源，但暂未取得可确认匹配的正文，因此显示 Google News 摘要。完整报道及后续更新请以原媒体页面为准。"
+                    : articleContent.mode === "full"
                     ? "本信源已标记为允许全文展示，正文经自动提取、中文翻译并按照杂志阅读方式排版。"
                     : "本页自动提取并翻译原媒体公开页面的较长节选，并按自然段重新排版。完整报道、后续更新及图片版权信息请以原媒体页面为准。"}
                 </p>
@@ -164,7 +169,11 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
               </time>
               <span>内容范围</span>
               <strong>
-                {articleContent.mode === "full" ? "授权全文" : "新闻节选"}
+                {!articleContent.matched
+                  ? "Google News 摘要"
+                  : articleContent.mode === "full"
+                    ? "授权全文"
+                    : "新闻节选"}
               </strong>
             </aside>
           </div>

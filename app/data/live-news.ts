@@ -8,6 +8,7 @@ import {
 
 export type LiveNewsItem = {
   title: string;
+  originalTitle?: string;
   summary: string;
   source: string;
   sourceName: string;
@@ -152,8 +153,11 @@ function parseFeed(
         field(item, "summary") ||
         field(item, "media:description");
 
+      const title = field(item, "title");
+
       return {
-        title: field(item, "title"),
+        title,
+        originalTitle: title,
         summary: summary.length > 360 ? `${summary.slice(0, 357)}…` : summary,
         source,
         sourceName,
@@ -507,7 +511,7 @@ async function buildAllSourceNews(): Promise<LiveNewsItem[]> {
 
 export const getAllSourceNews = unstable_cache(
   buildAllSourceNews,
-  ["worldpulse-all-source-news-48h-v1"],
+  ["worldpulse-all-source-news-48h-v2"],
   { revalidate: 1800, tags: ["all-source-news"] },
 );
 
@@ -542,7 +546,7 @@ async function buildSourceEdition(): Promise<LiveNewsItem[]> {
 
 export const getSourceEdition = unstable_cache(
   buildSourceEdition,
-  ["worldpulse-source-edition-v1"],
+  ["worldpulse-source-edition-v2"],
   { revalidate: 900, tags: ["source-edition"] },
 );
 

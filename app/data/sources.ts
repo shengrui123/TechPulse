@@ -247,11 +247,30 @@ export const sourceGroups: SourceGroup[] = [
 
 export const trustedSources = sourceGroups.flatMap((group) => group.sources);
 
+function normalizedHost(value: string): string {
+  return new URL(value).hostname.replace(/^www\./, "");
+}
+
+export function urlMatchesSource(value: string, sourceName: string): boolean {
+  try {
+    const source = trustedSources.find((item) => item.name === sourceName);
+    if (!source) {
+      return false;
+    }
+
+    const hostname = normalizedHost(value);
+    const sourceHost = normalizedHost(source.url);
+    return hostname === sourceHost || hostname.endsWith(`.${sourceHost}`);
+  } catch {
+    return false;
+  }
+}
+
 export function contentPolicyForUrl(value: string): "excerpt" | "full" {
   try {
-    const hostname = new URL(value).hostname.replace(/^www\./, "");
+    const hostname = normalizedHost(value);
     const source = trustedSources.find((item) => {
-      const sourceHost = new URL(item.url).hostname.replace(/^www\./, "");
+      const sourceHost = normalizedHost(item.url);
       return hostname === sourceHost || hostname.endsWith(`.${sourceHost}`);
     });
 
