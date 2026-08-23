@@ -7,6 +7,34 @@ export type NewsStory = Pick<
   "title" | "summary" | "source" | "sourceName" | "url" | "publishedAt"
 >;
 
+function cleanStoryText(value: string): string {
+  let decoded = value;
+
+  for (let pass = 0; pass < 3; pass += 1) {
+    const next = decoded
+      .replace(/&nbsp;/gi, " ")
+      .replace(/&amp;/gi, "&")
+      .replace(/&lt;/gi, "<")
+      .replace(/&gt;/gi, ">")
+      .replace(/&#39;/gi, "'")
+      .replace(/&apos;/gi, "'")
+      .replace(/&quot;/gi, '"')
+      .replace(/&#x([\da-f]+);/gi, (_, code: string) =>
+        String.fromCharCode(Number.parseInt(code, 16)),
+      )
+      .replace(/&#(\d+);/g, (_, code: string) =>
+        String.fromCharCode(Number(code)),
+      );
+
+    if (next === decoded) {
+      break;
+    }
+    decoded = next;
+  }
+
+  return decoded.replace(/\s+/g, " ").trim();
+}
+
 export function encodeNewsStory(item: LiveNewsItem): string {
   const story: NewsStory = {
     title: item.title,
@@ -44,7 +72,11 @@ export function decodeNewsStory(value: string): NewsStory | null {
       return null;
     }
 
-    return story as NewsStory;
+    return {
+      ...(story as NewsStory),
+      title: cleanStoryText(story.title),
+      summary: cleanStoryText(story.summary),
+    };
   } catch {
     return null;
   }

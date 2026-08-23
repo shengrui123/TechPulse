@@ -162,8 +162,6 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
               <time dateTime={story.publishedAt}>
                 {formatNewsDate(story.publishedAt)}
               </time>
-              <span>阅读语言</span>
-              <strong>简体中文</strong>
               <span>内容范围</span>
               <strong>
                 {articleContent.mode === "full" ? "授权全文" : "新闻节选"}

@@ -978,16 +978,6 @@ button {
   line-height: 1.5;
 }
 
-.news-article-lead::first-letter {
-  float: left;
-  margin: 0.08em 0.12em 0 0;
-  color: var(--orange);
-  font-family: Georgia, "Songti SC", serif;
-  font-size: 4.8em;
-  font-weight: 700;
-  line-height: 0.76;
-}
-
 .news-article-layout {
   display: grid;
   grid-template-columns: minmax(0, 760px) minmax(180px, 1fr);
@@ -1513,24 +1503,12 @@ button {
   transform-origin: left;
 }
 
-.route-loading-mark {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  font-family: "Times New Roman", serif;
-  font-size: clamp(58px, 10vw, 110px);
-  font-style: italic;
-  line-height: 1;
-  letter-spacing: -0.08em;
+.route-loading-logo {
+  width: clamp(220px, 38vw, 420px);
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 22px 42px rgba(13, 48, 104, 0.15));
   animation: editorial-breathe 1.5s ease-in-out infinite;
-}
-
-.route-loading-mark i {
-  display: block;
-  width: 44px;
-  height: 1px;
-  background: var(--orange);
-  transform: rotate(-45deg);
 }
 
 .route-loading p {
@@ -1603,7 +1581,7 @@ button {
 
 @media (prefers-reduced-motion: reduce) {
 .route-loading-bar,
-  .route-loading-mark,
+  .route-loading-logo,
   .route-loading-dots i {
     animation: none;
   }
