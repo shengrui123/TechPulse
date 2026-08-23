@@ -10,6 +10,7 @@ export type LiveNewsItem = {
   title: string;
   originalTitle?: string;
   summary: string;
+  originalSummary?: string;
   source: string;
   sourceName: string;
   url: string;
@@ -168,6 +169,8 @@ function parseFeed(
         // Keep all useful text exposed by the RSS item. A generous ceiling
         // protects the story URL from publisher feeds that embed entire pages.
         summary: summary.length > 4000 ? `${summary.slice(0, 3999)}…` : summary,
+        originalSummary:
+          summary.length > 4000 ? `${summary.slice(0, 3999)}…` : summary,
         source,
         sourceName,
         url: atomLink?.[1] || field(item, "link") || field(item, "guid"),

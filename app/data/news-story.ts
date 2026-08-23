@@ -7,6 +7,7 @@ export type NewsStory = Pick<
   | "title"
   | "originalTitle"
   | "summary"
+  | "originalSummary"
   | "source"
   | "sourceName"
   | "url"
@@ -46,6 +47,7 @@ export function encodeNewsStory(item: LiveNewsItem): string {
     title: item.title,
     originalTitle: item.originalTitle,
     summary: item.summary,
+    originalSummary: item.originalSummary,
     source: item.source,
     sourceName: item.sourceName,
     url: item.url,
@@ -67,6 +69,9 @@ export function decodeNewsStory(value: string): NewsStory | null {
       story.title.length > 500 ||
       typeof story.summary !== "string" ||
       story.summary.length > 4200 ||
+      (story.originalSummary !== undefined &&
+        (typeof story.originalSummary !== "string" ||
+          story.originalSummary.length > 4200)) ||
       (story.originalTitle !== undefined &&
         (typeof story.originalTitle !== "string" ||
           story.originalTitle.length > 500)) ||
@@ -89,6 +94,9 @@ export function decodeNewsStory(value: string): NewsStory | null {
         ? cleanStoryText(story.originalTitle)
         : undefined,
       summary: cleanStoryText(story.summary),
+      originalSummary: story.originalSummary
+        ? cleanStoryText(story.originalSummary)
+        : undefined,
     };
   } catch {
     return null;

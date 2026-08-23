@@ -924,6 +924,17 @@ button {
   letter-spacing: -0.025em;
 }
 
+.news-article-original-title {
+  grid-column: 2;
+  grid-row: 2;
+  align-self: start;
+  margin: 0;
+  color: var(--muted);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 16px;
+  line-height: 1.55;
+}
+
 .news-article-image {
   margin: 0;
 }
@@ -1001,6 +1012,33 @@ button {
   margin-bottom: 34px;
   font-size: 25px;
   line-height: 1.72;
+}
+
+.news-article-bilingual-block {
+  margin: 0 0 36px;
+  padding: 0 0 30px;
+  border-bottom: 1px solid var(--line);
+}
+
+.news-article-bilingual-block p {
+  margin: 0;
+  overflow-wrap: anywhere;
+  text-wrap: pretty;
+}
+
+.news-article-original {
+  color: var(--muted);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 16px;
+  line-height: 1.85;
+}
+
+.news-article-translation {
+  margin-top: 14px !important;
+  color: var(--ink);
+  font-family: Georgia, "Songti SC", serif;
+  font-size: 18px;
+  line-height: 2;
 }
 
 .news-article-note {
@@ -1697,9 +1735,14 @@ button {
   }
 
   .news-article-header .eyebrow,
-  .news-article-header h1 {
+  .news-article-header h1,
+  .news-article-original-title {
     grid-column: 1;
     grid-row: auto;
+  }
+
+  .news-article-original-title {
+    font-size: 14px;
   }
 
   .news-article-header h1 {

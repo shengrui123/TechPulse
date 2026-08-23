@@ -101,6 +101,12 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(newsStoryPage, /fetchArticleContent/);
   assert.match(newsStoryPage, /originalTitle: story\.originalTitle/);
   assert.match(newsStoryPage, /articleContent\.matched/);
+  assert.match(newsStoryPage, /bilingualParagraphs/);
+  assert.match(newsStoryPage, /news-article-bilingual-block/);
+  assert.match(newsStoryPage, /news-article-original/);
+  assert.match(newsStoryPage, /news-article-translation/);
+  assert.match(newsStoryPage, /lang="en"/);
+  assert.match(newsStoryPage, /lang="zh-CN"/);
   assert.match(newsStoryPage, /Google News 摘要/);
   assert.match(newsStoryPage, /rssSourceLabel/);
   assert.match(newsStoryPage, /Google News RSS/);
@@ -112,6 +118,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.doesNotMatch(newsStoryPage, /阅读语言/);
   assert.doesNotMatch(newsStoryPage, /简体中文/);
   assert.match(newsArticleContent, /articleBody/);
+  assert.match(newsArticleContent, /originalParagraphs/);
   assert.match(newsArticleContent, /application\\\/ld\\\+json/);
   assert.match(newsArticleContent, /semanticRegions/);
   assert.match(newsArticleContent, /readableParagraphs/);

@@ -4,6 +4,7 @@ import { contentPolicyForUrl, urlMatchesSource } from "./sources";
 
 export type ArticleContent = {
   paragraphs: string[];
+  originalParagraphs: string[];
   byline: string;
   mode: "excerpt" | "full";
   matched: boolean;
@@ -392,6 +393,7 @@ export async function fetchArticleContent(
   const mode = contentPolicyForUrl(originalUrl);
   const emptyResult: ArticleContent = {
     paragraphs: [],
+    originalParagraphs: [],
     byline: "",
     mode,
     matched: false,
@@ -437,6 +439,7 @@ export async function fetchArticleContent(
 
     return {
       paragraphs: await translateParagraphs(allowedParagraphs),
+      originalParagraphs: allowedParagraphs,
       byline: extracted.byline,
       mode,
       matched: allowedParagraphs.length > 0,

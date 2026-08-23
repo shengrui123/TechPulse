@@ -78,10 +78,21 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
     originalTitle: story.originalTitle,
   });
   const summaryParagraphs = paragraphizeSummary(story.summary);
+  const originalSummaryParagraphs = paragraphizeSummary(
+    story.originalSummary || story.summary,
+  );
   const paragraphs =
     articleContent.paragraphs.length > 0
       ? articleContent.paragraphs
       : summaryParagraphs;
+  const originalParagraphs =
+    articleContent.originalParagraphs.length > 0
+      ? articleContent.originalParagraphs
+      : originalSummaryParagraphs;
+  const bilingualParagraphs = paragraphs.map((translated, index) => ({
+    original: originalParagraphs[index] || translated,
+    translated,
+  }));
   const readingMinutes = Math.max(
     1,
     Math.ceil(paragraphs.join("").length / 450),
@@ -103,6 +114,11 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
               {story.sourceName} · {formatNewsDate(story.publishedAt)}
             </p>
             <h1>{story.title}</h1>
+            {story.originalTitle && story.originalTitle !== story.title && (
+              <p className="news-article-original-title" lang="en">
+                {story.originalTitle}
+              </p>
+            )}
           </header>
 
           <figure className="news-article-image">
@@ -131,20 +147,30 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
                   记者 / 作者：{articleContent.byline}
                 </p>
               )}
-              <p className="news-article-lead">
-                {paragraphs[0] || "该来源暂未提供新闻摘要。"}
-              </p>
-              {paragraphs.slice(1).map((paragraph, index) =>
-                index === 2 ? (
-                  <blockquote
-                    className="news-article-pullquote"
-                    key={`${index}-${paragraph}`}
+              {bilingualParagraphs.length > 0 ? (
+                bilingualParagraphs.map(({ original, translated }, index) => (
+                  <section
+                    className="news-article-bilingual-block"
+                    key={`${index}-${original}`}
+                    aria-label={`双语正文第 ${index + 1} 段`}
                   >
-                    {paragraph}
-                  </blockquote>
-                ) : (
-                  <p key={`${index}-${paragraph}`}>{paragraph}</p>
-                ),
+                    <p className="news-article-original" lang="en">
+                      {original}
+                    </p>
+                    <p
+                      className={
+                        index === 0
+                          ? "news-article-translation news-article-lead"
+                          : "news-article-translation"
+                      }
+                      lang="zh-CN"
+                    >
+                      {translated}
+                    </p>
+                  </section>
+                ))
+              ) : (
+                <p className="news-article-lead">该来源暂未提供新闻摘要。</p>
               )}
 
               <div className="news-article-note">
