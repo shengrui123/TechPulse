@@ -56,8 +56,8 @@ const allSourceNewsWindowMs = 48 * 60 * 60 * 1000;
 function googleNewsFeedUrl(sourceUrl: string): string {
   const domain = new URL(sourceUrl).hostname.replace(/^www\./, "");
   const url = new URL("https://news.google.com/rss/search");
-  // Keep a seven-day reservoir so every publisher in the source directory can
-  // contribute recent reporting even when it does not expose a public RSS URL.
+  // Google News RSS is the single ingestion layer for every editorial source.
+  // The publisher page is resolved and verified later when a story is opened.
   url.searchParams.set("q", `site:${domain} when:7d`);
   url.searchParams.set("hl", "en-US");
   url.searchParams.set("gl", "US");
@@ -68,7 +68,7 @@ function googleNewsFeedUrl(sourceUrl: string): string {
 const feeds = trustedSources.map((source) => ({
   source: source.name,
   sourceName: sourceNames[source.name] ?? source.name,
-  url: source.rssUrl ?? googleNewsFeedUrl(source.url),
+  url: googleNewsFeedUrl(source.url),
 }));
 
 export const liveNewsSourceDirectory: LiveNewsSource[] = feeds.map(
@@ -149,6 +149,8 @@ function parseFeed(
         field(item, "updated") ||
         field(item, "dc:date");
       const summary =
+        field(item, "content:encoded") ||
+        field(item, "content") ||
         field(item, "description") ||
         field(item, "summary") ||
         field(item, "media:description");
@@ -158,7 +160,9 @@ function parseFeed(
       return {
         title,
         originalTitle: title,
-        summary: summary.length > 360 ? `${summary.slice(0, 357)}…` : summary,
+        // Keep all useful text exposed by the RSS item. A generous ceiling
+        // protects the story URL from publisher feeds that embed entire pages.
+        summary: summary.length > 4000 ? `${summary.slice(0, 3999)}…` : summary,
         source,
         sourceName,
         url: atomLink?.[1] || field(item, "link") || field(item, "guid"),
@@ -511,7 +515,7 @@ async function buildAllSourceNews(): Promise<LiveNewsItem[]> {
 
 export const getAllSourceNews = unstable_cache(
   buildAllSourceNews,
-  ["worldpulse-all-source-news-48h-v2"],
+  ["worldpulse-all-source-news-48h-v3"],
   { revalidate: 1800, tags: ["all-source-news"] },
 );
 
@@ -546,7 +550,7 @@ async function buildSourceEdition(): Promise<LiveNewsItem[]> {
 
 export const getSourceEdition = unstable_cache(
   buildSourceEdition,
-  ["worldpulse-source-edition-v2"],
+  ["worldpulse-source-edition-v3"],
   { revalidate: 900, tags: ["source-edition"] },
 );
 

@@ -66,7 +66,7 @@ export function decodeNewsStory(value: string): NewsStory | null {
       !story.title ||
       story.title.length > 500 ||
       typeof story.summary !== "string" ||
-      story.summary.length > 1000 ||
+      story.summary.length > 4200 ||
       (story.originalTitle !== undefined &&
         (typeof story.originalTitle !== "string" ||
           story.originalTitle.length > 500)) ||

@@ -143,10 +143,10 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
                 <span>编辑说明</span>
                 <p>
                   {!articleContent.matched
-                    ? "本页已核对 Google News 条目与原媒体来源，但暂未取得可确认匹配的正文，因此显示 Google News 摘要。完整报道及后续更新请以原媒体页面为准。"
+                    ? "本条目来自 Google News RSS，并已核对原媒体来源；暂未取得可确认匹配的正文，因此完整显示 RSS 提供的摘要。完整报道及后续更新请以原媒体页面为准。"
                     : articleContent.mode === "full"
-                    ? "本信源已标记为允许全文展示，正文经自动提取、中文翻译并按照杂志阅读方式排版。"
-                    : "本页自动提取并翻译原媒体公开页面的较长节选，并按自然段重新排版。完整报道、后续更新及图片版权信息请以原媒体页面为准。"}
+                    ? "本条目来自 Google News RSS；原文核对通过且信源允许全文展示，正文经自动提取、中文翻译并按照杂志阅读方式排版。"
+                    : "本条目来自 Google News RSS；核对原文后自动提取并翻译原媒体公开页面的较长节选，并按自然段重新排版。完整报道、后续更新及图片版权信息请以原媒体页面为准。"}
                 </p>
               </div>
 
