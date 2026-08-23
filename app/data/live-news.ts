@@ -56,8 +56,8 @@ const allSourceNewsWindowMs = 48 * 60 * 60 * 1000;
 function googleNewsFeedUrl(sourceUrl: string): string {
   const domain = new URL(sourceUrl).hostname.replace(/^www\./, "");
   const url = new URL("https://news.google.com/rss/search");
-  // Google News RSS is the single ingestion layer for every editorial source.
-  // The publisher page is resolved and verified later when a story is opened.
+  // Google News fills gaps only when a publisher has not supplied an official
+  // RSS endpoint in the source directory.
   url.searchParams.set("q", `site:${domain} when:7d`);
   url.searchParams.set("hl", "en-US");
   url.searchParams.set("gl", "US");
@@ -68,7 +68,7 @@ function googleNewsFeedUrl(sourceUrl: string): string {
 const feeds = trustedSources.map((source) => ({
   source: source.name,
   sourceName: sourceNames[source.name] ?? source.name,
-  url: googleNewsFeedUrl(source.url),
+  url: source.rssUrl ?? googleNewsFeedUrl(source.url),
 }));
 
 export const liveNewsSourceDirectory: LiveNewsSource[] = feeds.map(
@@ -515,7 +515,7 @@ async function buildAllSourceNews(): Promise<LiveNewsItem[]> {
 
 export const getAllSourceNews = unstable_cache(
   buildAllSourceNews,
-  ["worldpulse-all-source-news-48h-v3"],
+  ["worldpulse-all-source-news-48h-v4"],
   { revalidate: 1800, tags: ["all-source-news"] },
 );
 
@@ -550,7 +550,7 @@ async function buildSourceEdition(): Promise<LiveNewsItem[]> {
 
 export const getSourceEdition = unstable_cache(
   buildSourceEdition,
-  ["worldpulse-source-edition-v3"],
+  ["worldpulse-source-edition-v4"],
   { revalidate: 900, tags: ["source-edition"] },
 );
 

@@ -299,24 +299,19 @@ function paragraphsFromHtml(html: string): {
   };
 }
 
-function limitExcerpt(paragraphs: string[]): string[] {
-  const selected: string[] = [];
-  let characters = 0;
-
-  for (const paragraph of paragraphs) {
-    if (selected.length >= 7 || characters >= 2600) {
-      break;
-    }
-    const remaining = 2600 - characters;
-    selected.push(
-      paragraph.length > remaining
-        ? `${paragraph.slice(0, Math.max(0, remaining - 1)).trim()}…`
-        : paragraph,
-    );
-    characters += selected.at(-1)?.length ?? 0;
+function buildLongExcerpt(paragraphs: string[]): string[] {
+  if (paragraphs.length <= 3) {
+    return paragraphs;
   }
 
-  return selected;
+  // Scale an excerpt with the available article instead of applying a fixed
+  // paragraph or character ceiling. Leave at least one paragraph on the
+  // publisher page so an excerpt is not presented as the complete article.
+  const excerptLength = Math.min(
+    paragraphs.length - 1,
+    Math.max(10, Math.ceil(paragraphs.length * 0.65)),
+  );
+  return paragraphs.slice(0, excerptLength);
 }
 
 function translatedText(data: unknown): string {
@@ -437,8 +432,8 @@ export async function fetchArticleContent(
     }
     const allowedParagraphs =
       mode === "full"
-        ? extracted.paragraphs.slice(0, 80)
-        : limitExcerpt(extracted.paragraphs);
+        ? extracted.paragraphs
+        : buildLongExcerpt(extracted.paragraphs);
 
     return {
       paragraphs: await translateParagraphs(allowedParagraphs),

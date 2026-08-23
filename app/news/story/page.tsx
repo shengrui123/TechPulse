@@ -42,6 +42,16 @@ function paragraphizeSummary(summary: string): string[] {
   return paragraphs;
 }
 
+function rssSourceLabel(value: string): string {
+  try {
+    return new URL(value).hostname === "news.google.com"
+      ? "Google News RSS"
+      : "原媒体官方 RSS";
+  } catch {
+    return "RSS";
+  }
+}
+
 export async function generateMetadata({
   searchParams,
 }: StoryPageProps): Promise<Metadata> {
@@ -62,6 +72,7 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
   }
 
   const originalUrl = await resolveOriginalNewsUrl(story.url);
+  const rssSource = rssSourceLabel(story.url);
   const articleContent = await fetchArticleContent(originalUrl, {
     source: story.source,
     originalTitle: story.originalTitle,
@@ -143,10 +154,10 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
                 <span>编辑说明</span>
                 <p>
                   {!articleContent.matched
-                    ? "本条目来自 Google News RSS，并已核对原媒体来源；暂未取得可确认匹配的正文，因此完整显示 RSS 提供的摘要。完整报道及后续更新请以原媒体页面为准。"
+                    ? `本条目来自${rssSource}，并已核对原媒体来源；暂未取得可确认匹配的正文，因此完整显示 RSS 提供的摘要。完整报道及后续更新请以原媒体页面为准。`
                     : articleContent.mode === "full"
-                    ? "本条目来自 Google News RSS；原文核对通过且信源允许全文展示，正文经自动提取、中文翻译并按照杂志阅读方式排版。"
-                    : "本条目来自 Google News RSS；核对原文后自动提取并翻译原媒体公开页面的较长节选，并按自然段重新排版。完整报道、后续更新及图片版权信息请以原媒体页面为准。"}
+                    ? `本条目来自${rssSource}；原文核对通过且信源允许全文展示，正文不设段落或字数上限，经自动提取、中文翻译并按照杂志阅读方式排版。`
+                    : `本条目来自${rssSource}；核对原文后自动提取并翻译原媒体公开页面的较长节选。节选长度随可取得正文增加，不再套用固定段落或字数上限；完整报道、后续更新及图片版权信息请以原媒体页面为准。`}
                 </p>
               </div>
 
@@ -156,7 +167,7 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
                 target="_blank"
                 rel="noreferrer"
               >
-                查看原网页新闻 <span aria-hidden="true">↗</span>
+                阅读完整原文 <span aria-hidden="true">↗</span>
               </a>
             </div>
 
@@ -173,7 +184,7 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
                   ? "Google News 摘要"
                   : articleContent.mode === "full"
                     ? "授权全文"
-                    : "新闻节选"}
+                    : "较长新闻节选"}
               </strong>
             </aside>
           </div>
