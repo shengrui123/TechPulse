@@ -260,8 +260,13 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   const rssUrls = [...sourceData.matchAll(/rssUrl:\s*\n?\s*"([^"]+)"/g)].map(
     (match) => match[1],
   );
-  assert.equal(rssUrls.length, 4);
+  assert.equal(rssUrls.length, 5);
   assert.ok(rssUrls.every((url) => url.startsWith("https://")));
+  assert.ok(
+    rssUrls.includes(
+      "https://feedfoundry-rss.vercel.app/feeds/445fc7e3c09155599ac6.xml",
+    ),
+  );
   assert.ok(rssUrls.includes("https://theinitium.com/rss/"));
   assert.ok(
     rssUrls.includes(
