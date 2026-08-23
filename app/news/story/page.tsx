@@ -93,6 +93,10 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
     original: originalParagraphs[index] || translated,
     translated,
   }));
+  const emptyContentMessage =
+    story.source === "Reuters"
+      ? "Reuters RSS 仅提供标题、链接与发布时间，原文页面目前拒绝服务器读取。请使用下方按钮前往 Reuters 查看完整报道。"
+      : "该来源暂未提供新闻摘要。";
   const readingMinutes = Math.max(
     1,
     Math.ceil(paragraphs.join("").length / 450),
@@ -172,14 +176,16 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
                   </section>
                 ))
               ) : (
-                <p className="news-article-lead">该来源暂未提供新闻摘要。</p>
+                <p className="news-article-lead">{emptyContentMessage}</p>
               )}
 
               <div className="news-article-note">
                 <span>编辑说明</span>
                 <p>
                   {!articleContent.matched
-                    ? `本条目来自${rssSource}，并已核对原媒体来源；暂未取得可确认匹配的正文，因此完整显示 RSS 提供的摘要。完整报道及后续更新请以原媒体页面为准。`
+                    ? story.summary
+                      ? `本条目来自${rssSource}，并已核对原媒体来源；暂未取得可确认匹配的正文，因此完整显示 RSS 提供的摘要。完整报道及后续更新请以原媒体页面为准。`
+                      : `本条目来自${rssSource}，但 RSS 未提供摘要，原媒体页面也暂未返回可确认的正文。本站不会将空白内容标示为完整报道，请前往原媒体页面阅读。`
                     : articleContent.mode === "full"
                     ? `本条目来自${rssSource}；原文核对通过且信源允许全文展示，正文不设段落或字数上限，经自动提取、中文翻译并按照杂志阅读方式排版。`
                     : articleContent.mode === "complete"
@@ -208,7 +214,9 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
               <span>内容范围</span>
               <strong>
                 {!articleContent.matched
-                  ? "Google News 摘要"
+                  ? story.summary
+                    ? "RSS 摘要"
+                    : "仅标题与链接"
                   : articleContent.mode === "full"
                     ? "授权全文"
                     : articleContent.mode === "complete"

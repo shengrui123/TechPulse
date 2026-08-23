@@ -2221,7 +2221,7 @@ body {
 }
 
 .news-article-title-stack {
-  grid-column: 2;
+  grid-column: 1;
   display: flex;
   flex-direction: column;
   align-self: start;
@@ -2234,7 +2234,7 @@ body {
   max-width: none;
   margin: 18px 0 0;
   font-family: "Times New Roman", "Songti SC", serif;
-  font-size: clamp(22px, 2.1vw, 30px);
+  font-size: clamp(33px, 3.15vw, 45px);
   font-weight: 400;
   line-height: 1.35;
   letter-spacing: -0.02em;
@@ -2246,7 +2246,7 @@ body {
   order: 1;
   margin: 0;
   color: var(--ink);
-  font-size: clamp(24px, 2.5vw, 36px);
+  font-size: clamp(36px, 3.75vw, 54px);
   line-height: 1.25;
 }
 
@@ -2568,11 +2568,11 @@ body {
   }
 
   .news-article-header h1 {
-    font-size: clamp(21px, 5.5vw, 27px);
+    font-size: clamp(31px, 8vw, 40px);
   }
 
   .news-article-title-stack .news-article-original-title {
-    font-size: clamp(25px, 7vw, 34px);
+    font-size: clamp(36px, 10vw, 48px);
   }
 
   .news-article-image {

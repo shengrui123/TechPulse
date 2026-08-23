@@ -89,6 +89,8 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.doesNotMatch(newsStoryPage, /news-article-deck/);
   assert.match(newsStoryPage, /阅读完整原文/);
   assert.match(newsStoryPage, /完整报道、后续更新及图片版权信息/);
+  assert.match(newsStoryPage, /Reuters RSS 仅提供标题、链接与发布时间/);
+  assert.match(newsStoryPage, /仅标题与链接/);
   assert.match(newsStoryData, /encodeNewsStory/);
   assert.match(newsStoryData, /decodeNewsStory/);
   assert.match(newsStoryData, /cleanStoryText/);
@@ -108,7 +110,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(newsStoryPage, /news-article-translation/);
   assert.match(newsStoryPage, /lang="en"/);
   assert.match(newsStoryPage, /lang="zh-CN"/);
-  assert.match(newsStoryPage, /Google News 摘要/);
+  assert.match(newsStoryPage, /RSS 摘要/);
   assert.match(newsStoryPage, /rssSourceLabel/);
   assert.match(newsStoryPage, /Google News RSS/);
   assert.match(newsStoryPage, /原媒体官方 RSS/);
