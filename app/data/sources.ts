@@ -5,6 +5,7 @@ export type NewsSource = {
   focus: string;
   url: string;
   rssUrl?: string;
+  alternateHosts?: string[];
   /**
    * Only use "full" after the publisher has granted republication rights.
    * Sources without an explicit policy are displayed as attributed excerpts.
@@ -222,6 +223,7 @@ export const sourceGroups: SourceGroup[] = [
         region: "全球",
         focus: "市场、商业、经济与政策",
         url: "https://www.bloomberg.com/",
+        alternateHosts: ["news.bloomberglaw.com"],
         rssUrl:
           "https://news.google.com/rss/search?q=site%3Awww.bloomberg.com&hl=zh-CN&gl=CN&ceid=CN%3Azh-Hans",
       },
@@ -277,6 +279,10 @@ function normalizedHost(value: string): string {
   return new URL(value).hostname.replace(/^www\./, "");
 }
 
+function sourceHosts(source: NewsSource): string[] {
+  return [normalizedHost(source.url), ...(source.alternateHosts ?? [])];
+}
+
 export function urlMatchesSource(value: string, sourceName: string): boolean {
   try {
     const source = trustedSources.find((item) => item.name === sourceName);
@@ -285,8 +291,10 @@ export function urlMatchesSource(value: string, sourceName: string): boolean {
     }
 
     const hostname = normalizedHost(value);
-    const sourceHost = normalizedHost(source.url);
-    return hostname === sourceHost || hostname.endsWith(`.${sourceHost}`);
+    return sourceHosts(source).some(
+      (sourceHost) =>
+        hostname === sourceHost || hostname.endsWith(`.${sourceHost}`),
+    );
   } catch {
     return false;
   }
@@ -298,8 +306,10 @@ export function contentPolicyForUrl(
   try {
     const hostname = normalizedHost(value);
     const source = trustedSources.find((item) => {
-      const sourceHost = normalizedHost(item.url);
-      return hostname === sourceHost || hostname.endsWith(`.${sourceHost}`);
+      return sourceHosts(item).some(
+        (sourceHost) =>
+          hostname === sourceHost || hostname.endsWith(`.${sourceHost}`),
+      );
     });
 
     return source?.contentPolicy ?? "excerpt";

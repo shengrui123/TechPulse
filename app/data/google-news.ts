@@ -2,9 +2,10 @@ import "server-only";
 import { trustedSources } from "./sources";
 
 const trustedHosts = new Set(
-  trustedSources.map((source) =>
+  trustedSources.flatMap((source) => [
     new URL(source.url).hostname.replace(/^www\./, ""),
-  ),
+    ...(source.alternateHosts ?? []),
+  ]),
 );
 
 export function isTrustedExternalNewsUrl(value: string): boolean {

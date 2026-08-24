@@ -114,6 +114,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(newsStoryData, /&nbsp;/);
   assert.match(newsStoryData, /isSupportedNewsUrl/);
   assert.match(googleNewsData, /resolveOriginalNewsUrl/);
+  assert.match(googleNewsData, /source\.alternateHosts/);
   assert.match(googleNewsData, /isTrustedExternalNewsUrl/);
   assert.match(googleNewsData, /Fbv4je/);
   assert.match(newsStoryPage, /resolveOriginalNewsUrl/);
@@ -170,6 +171,8 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(newsArticleContent, /articleBody/);
   assert.match(newsArticleContent, /imageUrl: string/);
   assert.match(newsArticleContent, /articleImageFromHtml/);
+  assert.match(newsArticleContent, /bloombergIndustryParagraphs/);
+  assert.match(newsArticleContent, /news\.bloomberglaw\.com/);
   assert.match(newsArticleContent, /summary-img-substitute/);
   assert.match(newsArticleContent, /originalParagraphs/);
   assert.match(newsArticleContent, /paragraphsFromMarkdown/);
@@ -345,6 +348,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
     "The Economist",
     "United Daily News",
     "Lianhe Zaobao",
+    "news.bloomberglaw.com",
   ];
   trustedNames.forEach((name) => assert.match(sourceData, new RegExp(name)));
   assert.match(sourcesPage, /可信不是标签/);

@@ -286,6 +286,28 @@ function cleanParagraphs(rawParagraphs: string[]): string[] {
     });
 }
 
+function bloombergIndustryParagraphs(html: string): string[] {
+  const candidates: string[][] = [];
+  for (const match of html.matchAll(/"body":"((?:\\.|[^"\\])*)"/g)) {
+    try {
+      const embeddedHtml = JSON.parse(`"${match[1]}"`) as string;
+      const paragraphs = cleanParagraphs(paragraphTags(embeddedHtml));
+      if (paragraphs.length > 0) {
+        candidates.push(paragraphs);
+      }
+    } catch {
+      // Ignore unrelated or malformed serialized application state.
+    }
+  }
+  return (
+    candidates.sort(
+      (left, right) =>
+        right.reduce((sum, paragraph) => sum + paragraph.length, 0) -
+        left.reduce((sum, paragraph) => sum + paragraph.length, 0),
+    )[0] ?? []
+  );
+}
+
 function jsonLdObjects(html: string): Record<string, unknown>[] {
   const blocks = [
     ...html.matchAll(
@@ -432,8 +454,20 @@ function paragraphsFromHtml(html: string, pageUrl = ""): {
     );
   const semanticParagraphs = regionCandidates[0] ?? [];
   const fallbackParagraphs = cleanParagraphs(paragraphTags(html));
+  const isBloombergIndustryPage = (() => {
+    try {
+      return new URL(pageUrl).hostname === "news.bloomberglaw.com";
+    } catch {
+      return false;
+    }
+  })();
+  const bloombergParagraphs = isBloombergIndustryPage
+    ? bloombergIndustryParagraphs(html)
+    : [];
   const paragraphs =
-    jsonLdParagraphs.length >= 2
+    bloombergParagraphs.length > 0
+      ? bloombergParagraphs
+      : jsonLdParagraphs.length >= 2
       ? jsonLdParagraphs
       : semanticParagraphs.length >= 2
         ? semanticParagraphs
