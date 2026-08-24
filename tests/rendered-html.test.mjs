@@ -92,6 +92,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(newsStoryPage, /news-article-page/);
   assert.match(newsStoryPage, /news-article-title-stack/);
   assert.match(newsStoryPage, /news-article-image/);
+  assert.match(newsStoryPage, /articleContent\.imageUrl/);
   assert.doesNotMatch(newsStoryPage, /news-article-deck/);
   assert.match(newsStoryPage, /阅读完整原文/);
   assert.match(newsStoryPage, /完整报道、后续更新及图片版权信息/);
@@ -158,6 +159,9 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
     /\.sources-hero > p:last-child\s*\{[^}]*font-size:\s*15px;/s,
   );
   assert.match(newsArticleContent, /articleBody/);
+  assert.match(newsArticleContent, /imageUrl: string/);
+  assert.match(newsArticleContent, /articleImageFromHtml/);
+  assert.match(newsArticleContent, /summary-img-substitute/);
   assert.match(newsArticleContent, /originalParagraphs/);
   assert.match(newsArticleContent, /paragraphsFromMarkdown/);
   assert.match(newsArticleContent, /reutersSyndicationUrl/);
@@ -189,6 +193,13 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(newsArticleContent, /r\.jina\.ai/);
   assert.match(newsArticleContent, /fetchReutersSyndicationContent/);
   assert.match(newsArticleContent, /fetchReutersPartnerContent/);
+  assert.ok(
+    newsArticleContent.indexOf("const partner = await fetchReutersPartnerContent") <
+      newsArticleContent.indexOf(
+        "const syndicated = await fetchReutersSyndicationContent",
+      ),
+    "Reuters partner content and its article image should be preferred",
+  );
   assert.match(newsArticleContent, /resolveGoogleNewsUrlForHosts/);
   assert.match(newsArticleContent, /channelnewsasia\.com/);
   assert.match(newsArticleContent, /finance\.yahoo\.com/);

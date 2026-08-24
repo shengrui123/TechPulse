@@ -11,6 +11,7 @@ export type ArticleContent = {
   paragraphs: string[];
   originalParagraphs: string[];
   byline: string;
+  imageUrl: string;
   mode: "excerpt" | "full" | "complete";
   matched: boolean;
 };
@@ -162,6 +163,43 @@ function textFromHtml(value: string): string {
     .replace(/ *\n */g, "\n")
     .replace(/\n{2,}/g, "\n")
     .trim();
+}
+
+function articleImageFromHtml(html: string, pageUrl: string): string {
+  const candidates = [
+    html.match(
+      /<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i,
+    )?.[1],
+    html.match(
+      /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i,
+    )?.[1],
+    html.match(
+      /<meta[^>]+name=["']twitter:image(?::src)?["'][^>]+content=["']([^"']+)["']/i,
+    )?.[1],
+    html.match(
+      /<meta[^>]+content=["']([^"']+)["'][^>]+name=["']twitter:image(?::src)?["']/i,
+    )?.[1],
+  ];
+
+  for (const candidate of candidates) {
+    if (!candidate) {
+      continue;
+    }
+    try {
+      const imageUrl = new URL(decodeEntities(candidate), pageUrl);
+      if (
+        imageUrl.protocol === "https:" &&
+        !/(?:summary-img-substitute|default[-_](?:image|photo)|placeholder)/i.test(
+          imageUrl.pathname,
+        )
+      ) {
+        return imageUrl.toString();
+      }
+    } catch {
+      // Ignore malformed or unsafe metadata URLs.
+    }
+  }
+  return "";
 }
 
 const paragraphNoise =
@@ -368,10 +406,11 @@ function titlesLikelyMatch(expected: string, actual: string): boolean {
   return overlap / smaller >= 0.5;
 }
 
-function paragraphsFromHtml(html: string): {
+function paragraphsFromHtml(html: string, pageUrl = ""): {
   paragraphs: string[];
   byline: string;
   headline: string;
+  imageUrl: string;
 } {
   const objects = jsonLdObjects(html);
   const articleBody = objects
@@ -404,6 +443,7 @@ function paragraphsFromHtml(html: string): {
     paragraphs,
     byline: bylineFromJsonLd(objects),
     headline: headlineFromHtml(html, objects),
+    imageUrl: articleImageFromHtml(html, pageUrl),
   };
 }
 
@@ -656,6 +696,7 @@ async function fetchReaderArticleContent(
       paragraphs: await translateParagraphs(allowedParagraphs),
       originalParagraphs: allowedParagraphs,
       byline: extracted.byline,
+      imageUrl: "",
       mode,
       matched: allowedParagraphs.length > 0,
     };
@@ -752,7 +793,7 @@ async function fetchReutersPartnerContent(
       if (!/\bReuters\b/i.test(html)) {
         continue;
       }
-      const extracted = paragraphsFromHtml(html);
+      const extracted = paragraphsFromHtml(html, response.url);
       // The Google News result has already matched the original Reuters title.
       // Partners may update their display headline after syndication.
       const allowedParagraphs =
@@ -767,6 +808,7 @@ async function fetchReutersPartnerContent(
         paragraphs: await translateParagraphs(allowedParagraphs),
         originalParagraphs: allowedParagraphs,
         byline: "Reuters",
+        imageUrl: extracted.imageUrl,
         mode,
         matched: true,
       };
@@ -862,6 +904,7 @@ async function fetchReutersSyndicationContent(
       paragraphs: await translateParagraphs(allowedParagraphs),
       originalParagraphs: allowedParagraphs,
       byline: extracted.byline,
+      imageUrl: "",
       mode,
       matched: allowedParagraphs.length > 0,
     };
@@ -880,6 +923,7 @@ export async function fetchArticleContent(
     paragraphs: [],
     originalParagraphs: [],
     byline: "",
+    imageUrl: "",
     mode,
     matched: false,
   };
@@ -891,22 +935,22 @@ export async function fetchArticleContent(
   }
 
   const sourceFallback = async () => {
+    const partner = await fetchReutersPartnerContent(
+      expected,
+      mode,
+      emptyResult,
+    );
+    if (partner.matched) {
+      return partner;
+    }
     const syndicated = await fetchReutersSyndicationContent(
       originalUrl,
       expected,
       mode,
       emptyResult,
     );
-    if (syndicated.matched) {
-      return syndicated;
-    }
-    const partner = await fetchReutersPartnerContent(
-      expected,
-      mode,
-      emptyResult,
-    );
-    return partner.matched
-      ? partner
+    return syndicated.matched
+      ? syndicated
       : fetchReaderArticleContent(originalUrl, expected, mode, emptyResult);
   };
 
@@ -929,7 +973,7 @@ export async function fetchArticleContent(
       return sourceFallback();
     }
 
-    const extracted = paragraphsFromHtml(await response.text());
+    const extracted = paragraphsFromHtml(await response.text(), response.url);
     if (
       expected.originalTitle &&
       extracted.headline &&
@@ -946,6 +990,7 @@ export async function fetchArticleContent(
       paragraphs: await translateParagraphs(allowedParagraphs),
       originalParagraphs: allowedParagraphs,
       byline: extracted.byline,
+      imageUrl: extracted.imageUrl,
       mode,
       matched: allowedParagraphs.length > 0,
     };

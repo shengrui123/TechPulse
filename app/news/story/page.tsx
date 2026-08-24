@@ -136,7 +136,10 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
 
           <figure className="news-article-image">
             <Image
-              src={`/api/news-image?url=${encodeURIComponent(story.url)}&v=2`}
+              src={
+                articleContent.imageUrl ||
+                `/api/news-image?url=${encodeURIComponent(story.url)}&v=3`
+              }
               alt={`${story.title} 新闻图片`}
               width={1600}
               height={900}
