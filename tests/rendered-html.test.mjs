@@ -219,11 +219,14 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(liveNews, /publishedAt >= cutoff/);
   assert.match(liveNews, /field\(xml, "lastBuildDate"\)/);
   assert.match(liveNews, /feedPublishedAt/);
+  assert.match(liveNews, /isActualNewsArticle/);
+  assert.match(liveNews, /item\.source !== "Reuters"/);
+  assert.match(liveNews, /\[0-9\]\{4\}/);
   assert.doesNotMatch(liveNews, /maxStoriesPerSource/);
-  assert.match(liveNews, /worldpulse-all-source-news-24h-v8/);
+  assert.match(liveNews, /worldpulse-all-source-news-24h-v9/);
   assert.match(liveNews, /feedConcurrency = 26/);
   assert.match(liveNews, /unstable_cache/);
-  assert.match(liveNews, /worldpulse-source-edition-24h-v8/);
+  assert.match(liveNews, /worldpulse-source-edition-24h-v9/);
   assert.match(loading, /route-loading-bar/);
   assert.match(loading, /route-loading-mark/);
   assert.doesNotMatch(loading, /worldpulse-logo\.png/);

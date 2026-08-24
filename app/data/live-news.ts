@@ -132,6 +132,23 @@ function field(item: string, name: string): string {
   return match ? clean(match[1]) : "";
 }
 
+function isActualNewsArticle(item: LiveNewsItem): boolean {
+  if (item.source !== "Reuters") {
+    return true;
+  }
+
+  try {
+    const url = new URL(item.url);
+    const hostname = url.hostname.replace(/^www\./, "");
+    return (
+      hostname === "reuters.com" &&
+      /-[0-9]{4}-[0-9]{2}-[0-9]{2}\/?$/u.test(url.pathname)
+    );
+  } catch {
+    return false;
+  }
+}
+
 function parseFeed(
   xml: string,
   source: string,
@@ -180,7 +197,10 @@ function parseFeed(
     })
     .filter(
       (item: LiveNewsItem) =>
-        item.title && item.url.startsWith("http") && item.publishedAt,
+        item.title &&
+        item.url.startsWith("http") &&
+        item.publishedAt &&
+        isActualNewsArticle(item),
     );
 }
 
@@ -520,7 +540,7 @@ async function buildAllSourceNews(): Promise<LiveNewsItem[]> {
 
 export const getAllSourceNews = unstable_cache(
   buildAllSourceNews,
-  ["worldpulse-all-source-news-24h-v8"],
+  ["worldpulse-all-source-news-24h-v9"],
   { revalidate: 1800, tags: ["all-source-news"] },
 );
 
@@ -560,7 +580,7 @@ async function buildSourceEdition(): Promise<LiveNewsItem[]> {
 
 export const getSourceEdition = unstable_cache(
   buildSourceEdition,
-  ["worldpulse-source-edition-24h-v8"],
+  ["worldpulse-source-edition-24h-v9"],
   { revalidate: 900, tags: ["source-edition"] },
 );
 
