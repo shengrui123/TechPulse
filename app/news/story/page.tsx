@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import SiteFooter from "../../components/SiteFooter";
 import SiteHeader from "../../components/SiteHeader";
 import { resolveOriginalNewsUrl } from "../../data/google-news";
+import { isChineseText } from "../../data/language";
 import { fetchArticleContent } from "../../data/news-article-content";
 import { formatNewsDate } from "../../data/live-news";
 import { decodeNewsStory } from "../../data/news-story";
@@ -89,10 +90,14 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
     articleContent.originalParagraphs.length > 0
       ? articleContent.originalParagraphs
       : originalSummaryParagraphs;
-  const bilingualParagraphs = paragraphs.map((translated, index) => ({
-    original: originalParagraphs[index] || translated,
-    translated,
-  }));
+  const articleParagraphs = paragraphs.map((translated, index) => {
+    const original = originalParagraphs[index] || translated;
+    return {
+      original,
+      translated,
+      showOriginal: !isChineseText(original) && original !== translated,
+    };
+  });
   const emptyContentMessage =
     story.source === "Reuters"
       ? "Reuters RSS 仅提供标题、链接与发布时间，原文页面目前拒绝服务器读取。请使用下方按钮前往 Reuters 查看完整报道。"
@@ -115,11 +120,13 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
 
           <header className="news-article-header">
             <div className="news-article-title-stack">
-              {story.originalTitle && story.originalTitle !== story.title && (
-                <p className="news-article-original-title" lang="en">
-                  {story.originalTitle}
-                </p>
-              )}
+              {story.originalTitle &&
+                story.originalTitle !== story.title &&
+                !isChineseText(story.originalTitle) && (
+                  <p className="news-article-original-title" lang="en">
+                    {story.originalTitle}
+                  </p>
+                )}
               <h1>{story.title}</h1>
               <p className="eyebrow">
                 {story.sourceName} · {formatNewsDate(story.publishedAt)}
@@ -153,28 +160,32 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
                   记者 / 作者：{articleContent.byline}
                 </p>
               )}
-              {bilingualParagraphs.length > 0 ? (
-                bilingualParagraphs.map(({ original, translated }, index) => (
-                  <section
-                    className="news-article-bilingual-block"
-                    key={`${index}-${original}`}
-                    aria-label={`双语正文第 ${index + 1} 段`}
-                  >
-                    <p className="news-article-original" lang="en">
-                      {original}
-                    </p>
-                    <p
-                      className={
-                        index === 0
-                          ? "news-article-translation news-article-lead"
-                          : "news-article-translation"
-                      }
-                      lang="zh-CN"
+              {articleParagraphs.length > 0 ? (
+                articleParagraphs.map(
+                  ({ original, translated, showOriginal }, index) => (
+                    <section
+                      className="news-article-bilingual-block"
+                      key={`${index}-${original}`}
+                      aria-label={`${showOriginal ? "双语" : "中文"}正文第 ${index + 1} 段`}
                     >
-                      {translated}
-                    </p>
-                  </section>
-                ))
+                      {showOriginal && (
+                        <p className="news-article-original" lang="en">
+                          {original}
+                        </p>
+                      )}
+                      <p
+                        className={
+                          index === 0
+                            ? "news-article-translation news-article-lead"
+                            : "news-article-translation"
+                        }
+                        lang="zh-CN"
+                      >
+                        {translated}
+                      </p>
+                    </section>
+                  ),
+                )
               ) : (
                 <p className="news-article-lead">{emptyContentMessage}</p>
               )}

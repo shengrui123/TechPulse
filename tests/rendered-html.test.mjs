@@ -106,7 +106,9 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(newsStoryPage, /fetchArticleContent/);
   assert.match(newsStoryPage, /originalTitle: story\.originalTitle/);
   assert.match(newsStoryPage, /articleContent\.matched/);
-  assert.match(newsStoryPage, /bilingualParagraphs/);
+  assert.match(newsStoryPage, /articleParagraphs/);
+  assert.match(newsStoryPage, /showOriginal: !isChineseText\(original\)/);
+  assert.match(newsStoryPage, /\{showOriginal && \(/);
   assert.match(newsStoryPage, /news-article-bilingual-block/);
   assert.match(newsStoryPage, /news-article-original/);
   assert.match(newsStoryPage, /news-article-translation/);
