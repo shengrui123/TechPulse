@@ -140,7 +140,7 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
                 <span>编辑说明</span>
                 <p>
                   {articleContent.mode === "full"
-                    ? "本信源已标记为允许全文展示，正文经自动提取、中文翻译并按照杂志阅读方式排版。"
+                    ? "本信源提供完整正文，页面会自动提取并按原文语言或中文译文重新排版。"
                     : "本页自动提取并翻译原媒体公开页面的较长节选，并按自然段重新排版。完整报道、后续更新及图片版权信息请以原媒体页面为准。"}
                 </p>
               </div>
@@ -166,7 +166,7 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
               <strong>简体中文</strong>
               <span>内容范围</span>
               <strong>
-                {articleContent.mode === "full" ? "授权全文" : "新闻节选"}
+                {articleContent.mode === "full" ? "完整正文" : "新闻节选"}
               </strong>
             </aside>
           </div>

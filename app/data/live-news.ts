@@ -1,5 +1,6 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
+import { isChineseText } from "./language";
 import { trustedSources } from "./sources";
 import {
   matchesNewsCategory,
@@ -207,7 +208,7 @@ function translationBatches(items: LiveNewsItem[]): TranslationTarget[][] {
   items.forEach((item, itemIndex) => {
     (["title", "summary"] as const).forEach((field) => {
       const value = item[field];
-      if (!value || /[\u3400-\u9fff]/u.test(value)) {
+      if (!value || isChineseText(value)) {
         return;
       }
 
@@ -435,7 +436,7 @@ async function buildAllSourceNews(): Promise<LiveNewsItem[]> {
 
 export const getAllSourceNews = unstable_cache(
   buildAllSourceNews,
-  ["worldpulse-all-source-news-48h-v1"],
+  ["worldpulse-all-source-news-48h-v2"],
   { revalidate: 1800, tags: ["all-source-news"] },
 );
 
@@ -470,7 +471,7 @@ async function buildSourceEdition(): Promise<LiveNewsItem[]> {
 
 export const getSourceEdition = unstable_cache(
   buildSourceEdition,
-  ["worldpulse-source-edition-v1"],
+  ["worldpulse-source-edition-v2"],
   { revalidate: 900, tags: ["source-edition"] },
 );
 

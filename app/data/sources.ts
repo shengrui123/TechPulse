@@ -6,8 +6,8 @@ export type NewsSource = {
   url: string;
   rssUrl?: string;
   /**
-   * Only use "full" after the publisher has granted republication rights.
-   * Sources without an explicit policy are displayed as attributed excerpts.
+   * Sources explicitly configured for complete extraction use "full";
+   * all others are displayed as attributed excerpts.
    */
   contentPolicy?: "excerpt" | "full";
 };
@@ -31,6 +31,9 @@ export const sourceGroups: SourceGroup[] = [
         region: "全球",
         focus: "突发、政治、经济与市场",
         url: "https://www.reuters.com/",
+        rssUrl:
+          "https://feedfoundry-rss.vercel.app/feeds/938754f9bd588c147a53.xml",
+        contentPolicy: "full",
       },
       {
         name: "Associated Press",

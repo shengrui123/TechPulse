@@ -14,6 +14,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
     newsStoryPage,
     newsStoryData,
     newsArticleContent,
+    languageData,
     googleNewsData,
     newsImageRoute,
     liveNews,
@@ -38,6 +39,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
       new URL("app/data/news-article-content.ts", projectRoot),
       "utf8",
     ),
+    readFile(new URL("app/data/language.ts", projectRoot), "utf8"),
     readFile(new URL("app/data/google-news.ts", projectRoot), "utf8"),
     readFile(new URL("app/api/news-image/route.ts", projectRoot), "utf8"),
     readFile(new URL("app/data/live-news.ts", projectRoot), "utf8"),
@@ -95,7 +97,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(googleNewsData, /Fbv4je/);
   assert.match(newsStoryPage, /resolveOriginalNewsUrl/);
   assert.match(newsStoryPage, /fetchArticleContent/);
-  assert.match(newsStoryPage, /授权全文/);
+  assert.match(newsStoryPage, /完整正文/);
   assert.match(newsStoryPage, /新闻节选/);
   assert.match(newsArticleContent, /articleBody/);
   assert.match(newsArticleContent, /application\\\/ld\\\+json/);
@@ -104,6 +106,11 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(newsArticleContent, /limitExcerpt/);
   assert.match(newsArticleContent, /contentPolicyForUrl/);
   assert.match(newsArticleContent, /translateToChinese/);
+  assert.match(newsArticleContent, /fetchReutersReaderContent/);
+  assert.match(newsArticleContent, /r\.jina\.ai/);
+  assert.match(newsArticleContent, /extracted\.paragraphs\.length === 0/);
+  assert.match(newsArticleContent, /isChineseText/);
+  assert.match(languageData, /hanCharacters/);
   assert.match(newsStoryPage, /paragraphizeSummary/);
   assert.match(newsStoryPage, /按自然段重新排版/);
   assert.match(newsImageRoute, /resolveOriginalNewsUrl/);
@@ -147,10 +154,11 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(liveNews, /allSourceNewsWindowMs = 48/);
   assert.match(liveNews, /publishedAt >= cutoff/);
   assert.doesNotMatch(liveNews, /maxStoriesPerSource/);
-  assert.match(liveNews, /worldpulse-all-source-news-48h-v1/);
+  assert.match(liveNews, /worldpulse-all-source-news-48h-v2/);
   assert.match(liveNews, /feedConcurrency = 26/);
   assert.match(liveNews, /unstable_cache/);
-  assert.match(liveNews, /worldpulse-source-edition-v1/);
+  assert.match(liveNews, /worldpulse-source-edition-v2/);
+  assert.match(liveNews, /isChineseText/);
   assert.match(loading, /route-loading-bar/);
   assert.match(loading, /正在加载新闻/);
   assert.match(liveNews, /translate\.googleapis\.com/);
@@ -224,9 +232,14 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   const rssUrls = [...sourceData.matchAll(/rssUrl:\s*\n?\s*"([^"]+)"/g)].map(
     (match) => match[1],
   );
-  assert.equal(rssUrls.length, 4);
+  assert.equal(rssUrls.length, 5);
   assert.ok(rssUrls.every((url) => url.startsWith("https://")));
   assert.ok(rssUrls.includes("https://theinitium.com/rss/"));
+  assert.ok(
+    rssUrls.includes(
+      "https://feedfoundry-rss.vercel.app/feeds/938754f9bd588c147a53.xml",
+    ),
+  );
   assert.ok(
     rssUrls.includes(
       "https://public.twreporter.org/rss/twreporter-rss.xml",

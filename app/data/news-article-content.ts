@@ -1,5 +1,6 @@
 import "server-only";
 import { isTrustedExternalNewsUrl } from "./google-news";
+import { isChineseText } from "./language";
 import { contentPolicyForUrl } from "./sources";
 
 export type ArticleContent = {
@@ -246,7 +247,7 @@ function translatedText(data: unknown): string {
 }
 
 async function translateToChinese(value: string): Promise<string> {
-  if (!value || /[\u3400-\u9fff]/u.test(value)) {
+  if (!value || isChineseText(value)) {
     return value;
   }
 
@@ -267,6 +268,54 @@ async function translateToChinese(value: string): Promise<string> {
       : value;
   } catch {
     return value;
+  }
+}
+
+function isReutersUrl(value: string): boolean {
+  try {
+    const hostname = new URL(value).hostname.replace(/^www\./, "");
+    return hostname === "reuters.com" || hostname.endsWith(".reuters.com");
+  } catch {
+    return false;
+  }
+}
+
+function paragraphsFromReaderMarkdown(markdown: string): {
+  paragraphs: string[];
+  byline: string;
+} {
+  const content = markdown.split(/^Markdown Content:\s*$/im).at(-1) ?? markdown;
+  const paragraphs = cleanParagraphs(
+    content
+      .replace(/^!\[[^\]]*\]\([^\n)]+\)\s*$/gm, "")
+      .replace(/^#{1,6}\s+/gm, "")
+      .replace(/\[([^\]]+)\]\([^\n)]+\)/g, "$1")
+      .split(/\n{2,}/)
+      .flatMap((block) => readableParagraphs(block)),
+  );
+
+  const byline =
+    content.match(/^(?:By|Reporting by)\s+(.+)$/im)?.[1]?.trim() ?? "";
+  return { paragraphs, byline };
+}
+
+async function fetchReutersReaderContent(originalUrl: string) {
+  try {
+    const readerUrl = `https://r.jina.ai/${originalUrl}`;
+    const response = await fetch(readerUrl, {
+      headers: {
+        Accept: "text/plain,text/markdown",
+        "User-Agent": "WorldPulse/1.0 article reader",
+      },
+      cache: "no-store",
+      signal: AbortSignal.timeout(20000),
+    });
+    if (!response.ok) {
+      return { paragraphs: [], byline: "" };
+    }
+    return paragraphsFromReaderMarkdown(await response.text());
+  } catch {
+    return { paragraphs: [], byline: "" };
   }
 }
 
@@ -305,14 +354,15 @@ export async function fetchArticleContent(
       cache: "no-store",
       signal: AbortSignal.timeout(12000),
     });
-    if (!response.ok) {
-      return { paragraphs: [], byline: "", mode };
+    let extracted = response.ok
+      ? paragraphsFromHtml(await response.text())
+      : { paragraphs: [], byline: "" };
+    if (isReutersUrl(originalUrl) && extracted.paragraphs.length === 0) {
+      extracted = await fetchReutersReaderContent(originalUrl);
     }
-
-    const extracted = paragraphsFromHtml(await response.text());
     const allowedParagraphs =
       mode === "full"
-        ? extracted.paragraphs.slice(0, 80)
+        ? extracted.paragraphs
         : limitExcerpt(extracted.paragraphs);
 
     return {
@@ -321,6 +371,15 @@ export async function fetchArticleContent(
       mode,
     };
   } catch {
-    return { paragraphs: [], byline: "", mode };
+    if (!isReutersUrl(originalUrl)) {
+      return { paragraphs: [], byline: "", mode };
+    }
+
+    const extracted = await fetchReutersReaderContent(originalUrl);
+    return {
+      paragraphs: await translateParagraphs(extracted.paragraphs),
+      byline: extracted.byline,
+      mode,
+    };
   }
 }
