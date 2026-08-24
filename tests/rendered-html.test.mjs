@@ -149,6 +149,14 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
     globalStyles,
     /\.principle-grid p\s*\{[^}]*color:\s*var\(--muted\);/s,
   );
+  assert.match(
+    globalStyles,
+    /\.sources-hero h1\s*\{[^}]*font-size:\s*clamp\(48px, 5\.5vw, 82px\);/s,
+  );
+  assert.match(
+    globalStyles,
+    /\.sources-hero > p:last-child\s*\{[^}]*font-size:\s*15px;/s,
+  );
   assert.match(newsArticleContent, /articleBody/);
   assert.match(newsArticleContent, /originalParagraphs/);
   assert.match(newsArticleContent, /paragraphsFromMarkdown/);
