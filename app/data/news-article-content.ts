@@ -1,6 +1,7 @@
 import "server-only";
 import { get as httpsGet } from "node:https";
 import { isTrustedExternalNewsUrl } from "./google-news";
+import { isChineseText } from "./language";
 import { contentPolicyForUrl, urlMatchesSource } from "./sources";
 
 export type ArticleContent = {
@@ -550,7 +551,7 @@ function translatedText(data: unknown): string {
 }
 
 async function translateToChinese(value: string): Promise<string> {
-  if (!value || /[\u3400-\u9fff]/u.test(value)) {
+  if (!value || isChineseText(value)) {
     return value;
   }
 

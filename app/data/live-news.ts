@@ -1,5 +1,6 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
+import { isChineseText } from "./language";
 import { trustedSources } from "./sources";
 import {
   matchesNewsCategory,
@@ -252,7 +253,7 @@ function translationBatches(items: LiveNewsItem[]): TranslationTarget[][] {
   items.forEach((item, itemIndex) => {
     (["title", "summary"] as const).forEach((field) => {
       const value = item[field];
-      if (!value || hasChinese(value)) {
+      if (!value || isChineseText(value)) {
         return;
       }
 
@@ -302,7 +303,7 @@ async function translateBatch(
     const missed = batch
       .map((target, index) => ({ target, index }))
       .filter(({ target, index }) =>
-        !hasChinese(target.value) && !hasChinese(values[index]),
+        !isChineseText(target.value) && !isChineseText(values[index]),
       );
 
     if (missed.length > 0) {
@@ -318,10 +319,6 @@ async function translateBatch(
   }
 
   return translateTargetsIndividually(batch);
-}
-
-function hasChinese(value: string): boolean {
-  return /[\u3400-\u9fff]/u.test(value);
 }
 
 async function translateTargetsIndividually(

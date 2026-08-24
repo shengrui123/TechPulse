@@ -14,6 +14,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
     newsStoryPage,
     newsStoryData,
     newsArticleContent,
+    languageData,
     googleNewsData,
     newsImageRoute,
     liveNews,
@@ -38,6 +39,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
       new URL("app/data/news-article-content.ts", projectRoot),
       "utf8",
     ),
+    readFile(new URL("app/data/language.ts", projectRoot), "utf8"),
     readFile(new URL("app/data/google-news.ts", projectRoot), "utf8"),
     readFile(new URL("app/api/news-image/route.ts", projectRoot), "utf8"),
     readFile(new URL("app/data/live-news.ts", projectRoot), "utf8"),
@@ -149,6 +151,10 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(newsArticleContent, /headlineFromHtml/);
   assert.match(newsArticleContent, /clients5\.google\.com/);
   assert.match(newsArticleContent, /translateToChinese/);
+  assert.match(newsArticleContent, /r\.jina\.ai/);
+  assert.match(newsArticleContent, /fetchReutersSyndicationContent/);
+  assert.match(newsArticleContent, /isChineseText/);
+  assert.match(languageData, /hanCharacters/);
   assert.match(newsStoryPage, /paragraphizeSummary/);
   assert.match(newsStoryPage, /较长节选/);
   assert.match(newsImageRoute, /resolveOriginalNewsUrl/);
@@ -193,7 +199,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(liveNews, /translationEndpoints/);
   assert.match(liveNews, /clients5\.google\.com/);
   assert.match(liveNews, /attempt < 2/);
-  assert.match(liveNews, /hasChinese/);
+  assert.match(liveNews, /isChineseText/);
   assert.match(liveNews, /for \(let pass = 0; pass < 3/);
   assert.match(liveNews, /fetchAllFeeds/);
   assert.match(liveNews, /getSourceEdition/);
@@ -300,6 +306,11 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.ok(rssUrls.includes("https://theinitium.com/rss/"));
   assert.ok(
     rssUrls.includes("https://www.aljazeera.com/xml/rss/all.xml"),
+  );
+  assert.ok(
+    rssUrls.includes(
+      "https://feedfoundry-rss.vercel.app/feeds/938754f9bd588c147a53.xml",
+    ),
   );
   assert.ok(
     rssUrls.includes(
