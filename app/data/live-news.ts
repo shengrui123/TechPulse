@@ -409,7 +409,7 @@ async function fetchFeed(
       const response = await fetch(feed.url, {
         headers: { "User-Agent": "WorldPulse/1.0 news reader" },
         next: { revalidate: 1800 },
-        signal: AbortSignal.timeout(5000),
+        signal: AbortSignal.timeout(15000),
       });
 
       if (!response.ok) {
@@ -542,7 +542,7 @@ async function buildAllSourceNews(): Promise<LiveNewsItem[]> {
 
 export const getAllSourceNews = unstable_cache(
   buildAllSourceNews,
-  ["worldpulse-all-source-news-24h-v9"],
+  ["worldpulse-all-source-news-24h-v10"],
   { revalidate: 1800, tags: ["all-source-news"] },
 );
 
@@ -582,7 +582,7 @@ async function buildSourceEdition(): Promise<LiveNewsItem[]> {
 
 export const getSourceEdition = unstable_cache(
   buildSourceEdition,
-  ["worldpulse-source-edition-24h-v9"],
+  ["worldpulse-source-edition-24h-v10"],
   { revalidate: 900, tags: ["source-edition"] },
 );
 

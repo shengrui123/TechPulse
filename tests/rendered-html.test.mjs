@@ -232,6 +232,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(liveNews, /summary\.length > 4000/);
   assert.match(liveNews, /source\.rssUrl \?\? googleNewsFeedUrl/);
   assert.match(liveNews, /newsWindowMs = 24/);
+  assert.match(liveNews, /AbortSignal\.timeout\(15000\)/);
   assert.match(liveNews, /路透社/);
   assert.match(liveNews, /美联社/);
   assert.match(liveNews, /法新社/);
@@ -279,10 +280,10 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(liveNews, /item\.source !== "Reuters"/);
   assert.match(liveNews, /\[0-9\]\{4\}/);
   assert.doesNotMatch(liveNews, /maxStoriesPerSource/);
-  assert.match(liveNews, /worldpulse-all-source-news-24h-v9/);
+  assert.match(liveNews, /worldpulse-all-source-news-24h-v10/);
   assert.match(liveNews, /feedConcurrency = 26/);
   assert.match(liveNews, /unstable_cache/);
-  assert.match(liveNews, /worldpulse-source-edition-24h-v9/);
+  assert.match(liveNews, /worldpulse-source-edition-24h-v10/);
   assert.match(loading, /route-loading-bar/);
   assert.match(loading, /route-loading-mark/);
   assert.doesNotMatch(loading, /worldpulse-logo\.png/);
