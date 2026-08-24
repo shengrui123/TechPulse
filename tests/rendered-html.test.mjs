@@ -75,6 +75,14 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.doesNotMatch(sourceNewsBrowser, /new Map<string/);
   assert.match(categoryPage, /<NewsStream news=\{news\} hideHeader \/>/);
   assert.match(newsStream, /news-waterfall/);
+  assert.match(
+    newsStream,
+    /new Date\(right\.publishedAt\)\.getTime\(\)\s*-\s*new Date\(left\.publishedAt\)\.getTime\(\)/,
+  );
+  assert.match(
+    sourceNewsBrowser,
+    /new Date\(right\.publishedAt\)\.getTime\(\)\s*-\s*new Date\(left\.publishedAt\)\.getTime\(\)/,
+  );
   assert.match(newsStream, /最近的国际新闻/);
   assert.match(newsStream, /showMore/);
   assert.match(newsStream, /href="\/news"/);
@@ -167,6 +175,10 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(
     globalStyles,
     /\.sources-hero > p:last-child\s*\{[^}]*font-size:\s*15px;/s,
+  );
+  assert.match(
+    globalStyles,
+    /\.news-waterfall\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\);/s,
   );
   assert.match(newsArticleContent, /articleBody/);
   assert.match(newsArticleContent, /imageUrl: string/);

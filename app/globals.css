@@ -740,8 +740,14 @@ button {
 }
 
 .news-waterfall {
-  columns: 3;
-  column-gap: 28px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+  columns: initial;
+}
+
+.news-waterfall .news-card {
+  margin: 0;
 }
 
 .news-editorial-grid {
@@ -1287,7 +1293,7 @@ button {
   }
 
   .news-waterfall {
-    columns: 2;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .news-editorial-grid {
@@ -1372,7 +1378,7 @@ button {
   }
 
   .news-waterfall {
-    column-gap: 22px;
+    gap: 22px;
   }
 
   .analysis-item {
@@ -1701,7 +1707,7 @@ button {
   }
 
   .news-waterfall {
-    columns: 1;
+    grid-template-columns: 1fr;
   }
 
   .news-editorial-grid {
