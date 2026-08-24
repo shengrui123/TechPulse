@@ -820,6 +820,81 @@ async function fetchReutersPartnerContent(
   return emptyResult;
 }
 
+export async function fetchReutersPartnerImage(
+  originalTitle: string,
+): Promise<string> {
+  if (!originalTitle.trim()) {
+    return "";
+  }
+
+  try {
+    const searchUrl = new URL("https://news.google.com/rss/search");
+    const siteQuery = reutersPartnerHosts
+      .map((host) => `site:${host}`)
+      .join(" OR ");
+    searchUrl.searchParams.set("q", `"${originalTitle}" (${siteQuery})`);
+    searchUrl.searchParams.set("hl", "en-US");
+    searchUrl.searchParams.set("gl", "US");
+    searchUrl.searchParams.set("ceid", "US:en");
+
+    const searchResponse = await fetch(searchUrl, {
+      headers: { "User-Agent": "Mozilla/5.0 WorldPulse Reuters image finder" },
+      next: { revalidate: 86400 },
+      signal: AbortSignal.timeout(12000),
+    });
+    if (!searchResponse.ok) {
+      return "";
+    }
+
+    const items = [
+      ...(await searchResponse.text()).matchAll(/<item>([\s\S]*?)<\/item>/gi),
+    ]
+      .map((match) => ({
+        title: textFromHtml(rssValue(match[1], "title")),
+        url: rssValue(match[1], "link"),
+      }))
+      .filter(
+        (item) => item.url && titlesLikelyMatch(originalTitle, item.title),
+      )
+      .slice(0, 6);
+
+    for (const item of items) {
+      const partnerUrl = await resolveGoogleNewsUrlForHosts(
+        item.url,
+        reutersPartnerHosts,
+      );
+      if (!isReutersPartnerUrl(partnerUrl)) {
+        continue;
+      }
+
+      const response = await fetch(partnerUrl, {
+        headers: {
+          Accept: "text/html,application/xhtml+xml",
+          "User-Agent": "Mozilla/5.0 WorldPulse Reuters partner image reader",
+        },
+        next: { revalidate: 86400 },
+        signal: AbortSignal.timeout(12000),
+      });
+      if (!response.ok || !isReutersPartnerUrl(response.url)) {
+        continue;
+      }
+
+      const html = await response.text();
+      if (!/\bReuters\b/i.test(html)) {
+        continue;
+      }
+      const imageUrl = articleImageFromHtml(html, response.url);
+      if (imageUrl) {
+        return imageUrl;
+      }
+    }
+  } catch (error) {
+    debugReutersContent("Partner image fallback failed", error);
+  }
+
+  return "";
+}
+
 async function fetchReutersSyndicationContent(
   originalUrl: string,
   expected: ArticleExpectation,

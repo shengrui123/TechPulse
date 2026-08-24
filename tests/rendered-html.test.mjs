@@ -83,6 +83,15 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.doesNotMatch(newsStream, /news-card-index/);
   assert.doesNotMatch(sourceNewsBrowser, /news-card-index/);
   assert.match(newsStream, /\/api\/news-image\?url=/);
+  assert.match(newsStream, /source=\$\{encodeURIComponent\(item\.source\)\}/);
+  assert.match(
+    newsStream,
+    /title=\$\{encodeURIComponent\(item\.originalTitle \|\| item\.title\)\}/,
+  );
+  assert.match(
+    sourceNewsBrowser,
+    /title=\$\{encodeURIComponent\(item\.originalTitle \|\| item\.title\)\}/,
+  );
   assert.match(newsStream, /\/news\/story\?story=/);
   assert.ok(
     newsStream.indexOf("news-card-image") <
@@ -193,6 +202,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(newsArticleContent, /r\.jina\.ai/);
   assert.match(newsArticleContent, /fetchReutersSyndicationContent/);
   assert.match(newsArticleContent, /fetchReutersPartnerContent/);
+  assert.match(newsArticleContent, /fetchReutersPartnerImage/);
   assert.ok(
     newsArticleContent.indexOf("const partner = await fetchReutersPartnerContent") <
       newsArticleContent.indexOf(
@@ -210,6 +220,8 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(newsStoryPage, /较长节选/);
   assert.match(newsImageRoute, /resolveOriginalNewsUrl/);
   assert.match(newsImageRoute, /og:image/);
+  assert.match(newsImageRoute, /fetchReutersPartnerImage/);
+  assert.match(newsImageRoute, /source === "Reuters" && title/);
   assert.match(newsImageRoute, /world-brief\.png/);
   assert.match(liveNews, /trustedSources\.map/);
   assert.match(liveNews, /site:\$\{domain\} when:7d/);

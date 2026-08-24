@@ -90,7 +90,7 @@ export default function NewsStream({
                   </div>
                   <figure className="news-card-image">
                     <Image
-                      src={`/api/news-image?url=${encodeURIComponent(item.url)}&v=2`}
+                      src={`/api/news-image?url=${encodeURIComponent(item.url)}&source=${encodeURIComponent(item.source)}&title=${encodeURIComponent(item.originalTitle || item.title)}&v=4`}
                       alt={`${item.title} 新闻图片`}
                       width={800}
                       height={450}

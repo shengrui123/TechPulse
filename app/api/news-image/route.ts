@@ -3,11 +3,21 @@ import {
   isTrustedExternalNewsUrl,
   resolveOriginalNewsUrl,
 } from "../../data/google-news";
+import { fetchReutersPartnerImage } from "../../data/news-article-content";
 
 export const revalidate = 86400;
 
 function fallbackResponse(request: NextRequest) {
   return NextResponse.redirect(new URL("/world-brief.png", request.url), 307);
+}
+
+function imageResponse(imageUrl: string) {
+  const redirect = NextResponse.redirect(imageUrl, 307);
+  redirect.headers.set(
+    "Cache-Control",
+    "public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800",
+  );
+  return redirect;
 }
 
 function imageFromHtml(html: string): string {
@@ -38,12 +48,21 @@ function imageFromHtml(html: string): string {
 
 export async function GET(request: NextRequest) {
   const newsUrl = request.nextUrl.searchParams.get("url");
+  const source = request.nextUrl.searchParams.get("source") ?? "";
+  const title = request.nextUrl.searchParams.get("title") ?? "";
 
   if (!newsUrl) {
     return fallbackResponse(request);
   }
 
   try {
+    if (source === "Reuters" && title) {
+      const partnerImage = await fetchReutersPartnerImage(title);
+      if (partnerImage) {
+        return imageResponse(partnerImage);
+      }
+    }
+
     const originalUrl = await resolveOriginalNewsUrl(newsUrl);
     if (!isTrustedExternalNewsUrl(originalUrl)) {
       return fallbackResponse(request);
@@ -69,12 +88,7 @@ export async function GET(request: NextRequest) {
       return fallbackResponse(request);
     }
 
-    const redirect = NextResponse.redirect(imageUrl, 307);
-    redirect.headers.set(
-      "Cache-Control",
-      "public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800",
-    );
-    return redirect;
+    return imageResponse(imageUrl);
   } catch {
     return fallbackResponse(request);
   }
