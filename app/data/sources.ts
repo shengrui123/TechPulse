@@ -222,6 +222,8 @@ export const sourceGroups: SourceGroup[] = [
         region: "全球",
         focus: "市场、商业、经济与政策",
         url: "https://www.bloomberg.com/",
+        rssUrl:
+          "https://news.google.com/rss/search?q=site%3Awww.bloomberg.com&hl=zh-CN&gl=CN&ceid=CN%3Azh-Hans",
       },
       {
         name: "Financial Times",

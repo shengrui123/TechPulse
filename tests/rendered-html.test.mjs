@@ -359,7 +359,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   const rssUrls = [...sourceData.matchAll(/rssUrl:\s*\n?\s*"([^"]+)"/g)].map(
     (match) => match[1],
   );
-  assert.equal(rssUrls.length, 9);
+  assert.equal(rssUrls.length, 10);
   assert.ok(rssUrls.every((url) => url.startsWith("https://")));
   assert.ok(
     rssUrls.includes(
@@ -376,6 +376,11 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.ok(
     rssUrls.includes(
       "https://news.google.com/rss/search?q=site%3Awww.zaobao.com.sg&hl=zh-CN&gl=CN&ceid=CN%3Azh-Hans",
+    ),
+  );
+  assert.ok(
+    rssUrls.includes(
+      "https://news.google.com/rss/search?q=site%3Awww.bloomberg.com&hl=zh-CN&gl=CN&ceid=CN%3Azh-Hans",
     ),
   );
   assert.ok(
