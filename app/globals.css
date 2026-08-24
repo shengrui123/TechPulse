@@ -984,7 +984,7 @@ button {
 
 .news-article-byline {
   padding-bottom: 18px;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 0;
   color: var(--orange);
   font-family: Arial, sans-serif;
   font-size: 11px !important;
@@ -1009,7 +1009,7 @@ button {
 .news-article-bilingual-block {
   margin: 0 0 36px;
   padding: 0 0 30px;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 0;
 }
 
 .news-article-bilingual-block p {
@@ -1790,9 +1790,7 @@ button {
 }
 
 body {
-  background:
-    linear-gradient(rgba(12, 12, 12, 0.025) 1px, transparent 1px) 0 0 / 100% 96px,
-    var(--paper);
+  background: var(--paper);
   font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", sans-serif;
   -webkit-font-smoothing: antialiased;
 }

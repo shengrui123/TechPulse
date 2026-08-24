@@ -25,6 +25,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
     sourceData,
     loading,
     layout,
+    globalStyles,
     vercelConfig,
     packageJson,
   ] = await Promise.all([
@@ -50,6 +51,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
     readFile(new URL("app/data/sources.ts", projectRoot), "utf8"),
     readFile(new URL("app/loading.tsx", projectRoot), "utf8"),
     readFile(new URL("app/layout.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/globals.css", projectRoot), "utf8"),
     readFile(new URL("vercel.json", projectRoot), "utf8"),
     readFile(new URL("package.json", projectRoot), "utf8"),
   ]);
@@ -127,6 +129,18 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(newsStoryPage, /不设段落或字数上限/);
   assert.doesNotMatch(newsStoryPage, /阅读语言/);
   assert.doesNotMatch(newsStoryPage, /简体中文/);
+  assert.match(
+    globalStyles,
+    /\.news-article-byline\s*\{[^}]*border-bottom:\s*0;/s,
+  );
+  assert.match(
+    globalStyles,
+    /\.news-article-bilingual-block\s*\{[^}]*border-bottom:\s*0;/s,
+  );
+  assert.doesNotMatch(
+    globalStyles,
+    /linear-gradient\(rgba\(12, 12, 12, 0\.025\) 1px/,
+  );
   assert.match(newsArticleContent, /articleBody/);
   assert.match(newsArticleContent, /originalParagraphs/);
   assert.match(newsArticleContent, /paragraphsFromMarkdown/);
