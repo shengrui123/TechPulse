@@ -1,6 +1,9 @@
 import "server-only";
 import { get as httpsGet } from "node:https";
-import { isTrustedExternalNewsUrl } from "./google-news";
+import {
+  isTrustedExternalNewsUrl,
+  resolveGoogleNewsUrlForHosts,
+} from "./google-news";
 import { isChineseText } from "./language";
 import { contentPolicyForUrl, urlMatchesSource } from "./sources";
 
@@ -124,6 +127,12 @@ const translationEndpoints = [
   },
 ] as const;
 
+const reutersPartnerHosts = [
+  "channelnewsasia.com",
+  "finance.yahoo.com",
+  "investing.com",
+] as const;
+
 function decodeEntities(value: string): string {
   return value
     .replace(/&nbsp;/gi, " ")
@@ -214,7 +223,7 @@ function semanticRegions(html: string): string[] {
 
   // Common article-body wrappers on publishers that do not use <article>.
   const bodyPattern =
-    /<(?:div|section)\b[^>]*(?:itemprop=["']articleBody["']|class=["'][^"']*(?:article-body|article-content|story-body|post-content|entry-content)[^"']*["'])[^>]*>([\s\S]*?)<\/(?:div|section)>/gi;
+    /<(?:div|section)\b[^>]*(?:itemprop=["']articleBody["']|class=["'][^"']*(?:article-body|article-content|story-body|post-content|entry-content|text-long)[^"']*["'])[^>]*>([\s\S]*?)<\/(?:div|section)>/gi;
   for (const match of html.matchAll(bodyPattern)) {
     regions.push(match[1]);
   }
@@ -655,6 +664,120 @@ async function fetchReaderArticleContent(
   }
 }
 
+function rssValue(item: string, tag: string): string {
+  const escapedTag = tag.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = item.match(
+    new RegExp(`<${escapedTag}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${escapedTag}>`, "i"),
+  );
+  return decodeEntities(match?.[1] ?? "").trim();
+}
+
+function isReutersPartnerUrl(value: string): boolean {
+  try {
+    const parsed = new URL(value);
+    const hostname = parsed.hostname.replace(/^www\./, "");
+    return (
+      parsed.protocol === "https:" &&
+      reutersPartnerHosts.some(
+        (partnerHost) =>
+          hostname === partnerHost || hostname.endsWith(`.${partnerHost}`),
+      )
+    );
+  } catch {
+    return false;
+  }
+}
+
+async function fetchReutersPartnerContent(
+  expected: ArticleExpectation,
+  mode: ArticleContent["mode"],
+  emptyResult: ArticleContent,
+): Promise<ArticleContent> {
+  if (expected.source !== "Reuters" || !expected.originalTitle) {
+    return emptyResult;
+  }
+
+  try {
+    const searchUrl = new URL("https://news.google.com/rss/search");
+    const siteQuery = reutersPartnerHosts
+      .map((host) => `site:${host}`)
+      .join(" OR ");
+    searchUrl.searchParams.set("q", `"${expected.originalTitle}" (${siteQuery})`);
+    searchUrl.searchParams.set("hl", "en-US");
+    searchUrl.searchParams.set("gl", "US");
+    searchUrl.searchParams.set("ceid", "US:en");
+
+    const searchResponse = await fetch(searchUrl, {
+      headers: { "User-Agent": "Mozilla/5.0 WorldPulse Reuters partner finder" },
+      cache: "no-store",
+      signal: AbortSignal.timeout(12000),
+    });
+    if (!searchResponse.ok) {
+      return emptyResult;
+    }
+
+    const items = [...(await searchResponse.text()).matchAll(/<item>([\s\S]*?)<\/item>/gi)]
+      .map((match) => ({
+        title: textFromHtml(rssValue(match[1], "title")),
+        url: rssValue(match[1], "link"),
+      }))
+      .filter(
+        (item) =>
+          item.url && titlesLikelyMatch(expected.originalTitle ?? "", item.title),
+      )
+      .slice(0, 6);
+
+    for (const item of items) {
+      const partnerUrl = await resolveGoogleNewsUrlForHosts(
+        item.url,
+        reutersPartnerHosts,
+      );
+      if (!isReutersPartnerUrl(partnerUrl)) {
+        continue;
+      }
+
+      const response = await fetch(partnerUrl, {
+        headers: {
+          Accept: "text/html,application/xhtml+xml",
+          "User-Agent": "Mozilla/5.0 WorldPulse Reuters partner reader",
+        },
+        cache: "no-store",
+        signal: AbortSignal.timeout(12000),
+      });
+      if (!response.ok || !isReutersPartnerUrl(response.url)) {
+        continue;
+      }
+
+      const html = await response.text();
+      if (!/\bReuters\b/i.test(html)) {
+        continue;
+      }
+      const extracted = paragraphsFromHtml(html);
+      // The Google News result has already matched the original Reuters title.
+      // Partners may update their display headline after syndication.
+      const allowedParagraphs =
+        mode === "full" || mode === "complete"
+          ? extracted.paragraphs
+          : buildLongExcerpt(extracted.paragraphs);
+      if (allowedParagraphs.length === 0) {
+        continue;
+      }
+
+      return {
+        paragraphs: await translateParagraphs(allowedParagraphs),
+        originalParagraphs: allowedParagraphs,
+        byline: "Reuters",
+        mode,
+        matched: true,
+      };
+    }
+  } catch (error) {
+    debugReutersContent("Partner fallback failed", error);
+  }
+
+  return emptyResult;
+}
+
 async function fetchReutersSyndicationContent(
   originalUrl: string,
   expected: ArticleExpectation,
@@ -774,8 +897,16 @@ export async function fetchArticleContent(
       mode,
       emptyResult,
     );
-    return syndicated.matched
-      ? syndicated
+    if (syndicated.matched) {
+      return syndicated;
+    }
+    const partner = await fetchReutersPartnerContent(
+      expected,
+      mode,
+      emptyResult,
+    );
+    return partner.matched
+      ? partner
       : fetchReaderArticleContent(originalUrl, expected, mode, emptyResult);
   };
 

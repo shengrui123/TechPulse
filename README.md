@@ -50,5 +50,7 @@ Reuters 会拒绝普通服务器请求。直连 Reuters 返回非成功状态、
 转载英文正文；若双方的标题更新导致 slug 不同，系统会从 Internazionale 首页解析实际
 转载链接。部署节点无法直连转载页时，则由 Jina Reader 读取同一个 Internazionale 公开
 页面。转载页标题必须与 RSS 原题匹配，之后才会按段落展示英文原文与中文翻译。若
-转载页暂未收录该报道，可选的 `JINA_API_KEY` 会作为最后备援。系统不会让匿名 Reader
-直接访问 Reuters，也不会把空白内容标成全文。
+转载页暂未收录该报道时，系统会按 Reuters 原题搜索 CNA、Yahoo Finance 与 Investing.com
+的 Reuters 署名转载；只有白名单域名、标题匹配且页面明确标注 Reuters 的正文才会采用。
+可选的 `JINA_API_KEY` 会作为最后备援。系统不会让匿名 Reader 直接访问 Reuters，也不会
+把空白内容标成全文。

@@ -141,6 +141,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(newsArticleContent, /X-Target-Selector/);
   assert.match(newsArticleContent, /application\\\/ld\\\+json/);
   assert.match(newsArticleContent, /semanticRegions/);
+  assert.match(newsArticleContent, /text-long/);
   assert.match(newsArticleContent, /readableParagraphs/);
   assert.match(newsArticleContent, /buildLongExcerpt/);
   assert.match(newsArticleContent, /mode === "full"/);
@@ -157,6 +158,11 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(newsArticleContent, /translateToChinese/);
   assert.match(newsArticleContent, /r\.jina\.ai/);
   assert.match(newsArticleContent, /fetchReutersSyndicationContent/);
+  assert.match(newsArticleContent, /fetchReutersPartnerContent/);
+  assert.match(newsArticleContent, /resolveGoogleNewsUrlForHosts/);
+  assert.match(newsArticleContent, /channelnewsasia\.com/);
+  assert.match(newsArticleContent, /finance\.yahoo\.com/);
+  assert.match(newsArticleContent, /investing\.com/);
   assert.match(newsArticleContent, /isChineseText/);
   assert.match(languageData, /hanCharacters/);
   assert.match(newsStoryPage, /paragraphizeSummary/);

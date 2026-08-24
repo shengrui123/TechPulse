@@ -44,7 +44,10 @@ function articleAttributes(html: string) {
   };
 }
 
-async function decodeGoogleNewsUrl(newsUrl: string): Promise<string> {
+async function decodeGoogleNewsUrl(
+  newsUrl: string,
+  isAllowedUrl: (value: string) => boolean = isTrustedExternalNewsUrl,
+): Promise<string> {
   const parsed = new URL(newsUrl);
   const articleId = parsed.pathname.split("/").filter(Boolean).at(-1);
   if (!articleId) {
@@ -149,12 +152,46 @@ async function decodeGoogleNewsUrl(newsUrl: string): Promise<string> {
   if (
     !Array.isArray(decoded) ||
     typeof decoded[1] !== "string" ||
-    !isTrustedExternalNewsUrl(decoded[1])
+    !isAllowedUrl(decoded[1])
   ) {
     return newsUrl;
   }
 
   return decoded[1];
+}
+
+export async function resolveGoogleNewsUrlForHosts(
+  newsUrl: string,
+  allowedHosts: readonly string[],
+): Promise<string> {
+  const isAllowedUrl = (value: string) => {
+    try {
+      const parsed = new URL(value);
+      const hostname = parsed.hostname.replace(/^www\./, "");
+      return (
+        parsed.protocol === "https:" &&
+        allowedHosts.some(
+          (allowedHost) =>
+            hostname === allowedHost || hostname.endsWith(`.${allowedHost}`),
+        )
+      );
+    } catch {
+      return false;
+    }
+  };
+
+  if (isAllowedUrl(newsUrl)) {
+    return newsUrl;
+  }
+  try {
+    const parsed = new URL(newsUrl);
+    if (parsed.protocol !== "https:" || parsed.hostname !== "news.google.com") {
+      return newsUrl;
+    }
+    return await decodeGoogleNewsUrl(newsUrl, isAllowedUrl);
+  } catch {
+    return newsUrl;
+  }
 }
 
 export async function resolveOriginalNewsUrl(
