@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { newsCategories } from "../data/news-categories";
 
@@ -15,7 +15,13 @@ const navigation = [
 export default function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchFloating, setSearchFloating] = useState(false);
+  const [importanceSort, setImportanceSort] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+  const showSortToggle =
+    pathname === "/" ||
+    pathname === "/news" ||
+    (pathname.startsWith("/news/") && pathname !== "/news/story");
 
   useEffect(() => {
     function updateSearchPosition() {
@@ -31,6 +37,40 @@ export default function SiteHeader() {
       window.removeEventListener("resize", updateSearchPosition);
     };
   }, []);
+
+  useEffect(() => {
+    function syncSortMode() {
+      setImportanceSort(
+        new URL(window.location.href).searchParams.get("sort") ===
+          "importance",
+      );
+    }
+
+    syncSortMode();
+    window.addEventListener("popstate", syncSortMode);
+    return () => window.removeEventListener("popstate", syncSortMode);
+  }, [pathname]);
+
+  function hrefWithSort(href: string) {
+    if (!importanceSort || href === "/sources") return href;
+    return `${href}${href.includes("?") ? "&" : "?"}sort=importance`;
+  }
+
+  function toggleSortMode() {
+    const url = new URL(window.location.href);
+    const nextImportanceSort = !importanceSort;
+    if (nextImportanceSort) {
+      url.searchParams.set("sort", "importance");
+    } else {
+      url.searchParams.delete("sort");
+    }
+    setImportanceSort(nextImportanceSort);
+    router.push(`${url.pathname}${url.search}${url.hash}`);
+  }
+
+  const searchHref = importanceSort
+    ? "/news?sort=importance#source-search"
+    : "/news#source-search";
 
   function isActive(href: string) {
     if (href === "/") {
@@ -73,16 +113,30 @@ export default function SiteHeader() {
           {navigation.map(([label, href]) => (
             <Link
               className={isActive(href) ? "is-active" : ""}
-              href={href}
+              href={hrefWithSort(href)}
               key={label}
               aria-current={isActive(href) ? "page" : undefined}
             >
               {label}
             </Link>
           ))}
+          {showSortToggle && (
+            <button
+              className={`nav-sort-toggle ${importanceSort ? "is-importance" : ""} ${searchFloating ? "is-hidden" : ""}`}
+              type="button"
+              aria-label={
+                importanceSort ? "切换为按时间排序" : "切换为按重要度排序"
+              }
+              aria-pressed={importanceSort}
+              onClick={toggleSortMode}
+            >
+              <i aria-hidden="true">↕</i>
+              {importanceSort ? "重要度" : "时间"}
+            </button>
+          )}
           <Link
             className={`nav-search-link ${searchFloating ? "is-hidden" : ""}`}
-            href="/news#source-search"
+            href={searchHref}
             aria-label="搜索媒体来源"
           >
             <span aria-hidden="true">⌕</span>
@@ -100,7 +154,7 @@ export default function SiteHeader() {
           {navigation.map(([label, href]) => (
             <Link
               className={isActive(href) ? "is-active" : ""}
-              href={href}
+              href={hrefWithSort(href)}
               key={label}
               aria-current={isActive(href) ? "page" : undefined}
               onClick={() => setMenuOpen(false)}
@@ -108,8 +162,18 @@ export default function SiteHeader() {
               {label}
             </Link>
           ))}
+          {showSortToggle && (
+            <button
+              className="mobile-sort-toggle"
+              type="button"
+              aria-pressed={importanceSort}
+              onClick={toggleSortMode}
+            >
+              排序：{importanceSort ? "重要度" : "时间"}
+            </button>
+          )}
           <Link
-            href="/news#source-search"
+            href={searchHref}
             onClick={() => setMenuOpen(false)}
           >
             搜索媒体来源
@@ -118,12 +182,26 @@ export default function SiteHeader() {
       </nav>
       <Link
         className={`floating-search ${searchFloating ? "is-visible" : ""}`}
-        href="/news#source-search"
+        href={searchHref}
         aria-label="搜索媒体来源"
       >
         <span aria-hidden="true">⌕</span>
         <small>SEARCH</small>
       </Link>
+      {showSortToggle && (
+        <button
+          className={`floating-sort ${searchFloating ? "is-visible" : ""} ${importanceSort ? "is-importance" : ""}`}
+          type="button"
+          aria-label={
+            importanceSort ? "切换为按时间排序" : "切换为按重要度排序"
+          }
+          aria-pressed={importanceSort}
+          onClick={toggleSortMode}
+        >
+          <span aria-hidden="true">↕</span>
+          <small>{importanceSort ? "RANK" : "TIME"}</small>
+        </button>
+      )}
     </>
   );
 }

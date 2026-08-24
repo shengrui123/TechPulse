@@ -4,6 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { useDeferredValue, useMemo, useState } from "react";
 import type { LiveNewsItem, LiveNewsSource } from "../data/live-news";
+import {
+  sortNewsItems,
+  type NewsSortMode,
+} from "../data/news-sort";
 
 export type SearchableNewsItem = LiveNewsItem & {
   storyHref: string;
@@ -13,6 +17,7 @@ type SourceNewsBrowserProps = {
   news: SearchableNewsItem[];
   sources: LiveNewsSource[];
   heading?: string;
+  sortMode?: NewsSortMode;
 };
 
 function normalize(value: string) {
@@ -34,6 +39,7 @@ export default function SourceNewsBrowser({
   news,
   sources,
   heading = "全部新闻",
+  sortMode = "time",
 }: SourceNewsBrowserProps) {
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query);
@@ -41,12 +47,8 @@ export default function SourceNewsBrowser({
 
   const orderedNews = useMemo(
     () =>
-      [...news].sort(
-        (left, right) =>
-          new Date(right.publishedAt).getTime() -
-          new Date(left.publishedAt).getTime(),
-      ),
-    [news],
+      sortNewsItems(news, sortMode),
+    [news, sortMode],
   );
 
   const orderedSources = useMemo(

@@ -14,6 +14,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
     newsStoryPage,
     newsStoryData,
     newsArticleContent,
+    newsSortData,
     languageData,
     googleNewsData,
     newsImageRoute,
@@ -40,6 +41,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
       new URL("app/data/news-article-content.ts", projectRoot),
       "utf8",
     ),
+    readFile(new URL("app/data/news-sort.ts", projectRoot), "utf8"),
     readFile(new URL("app/data/language.ts", projectRoot), "utf8"),
     readFile(new URL("app/data/google-news.ts", projectRoot), "utf8"),
     readFile(new URL("app/api/news-image/route.ts", projectRoot), "utf8"),
@@ -57,7 +59,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   ]);
 
   assert.match(page, /getAllSourceNews\(\)/);
-  assert.match(page, /<NewsStream news=\{news\} hideHeader \/>/);
+  assert.match(page, /sortMode=\{newsSortMode\(sort\)\}/);
   assert.match(newsPage, /getAllSourceNews\(\)/);
   assert.match(newsPage, /sources=\{liveNewsSourceDirectory\}/);
   assert.match(categoryPage, /getNewsByCategory/);
@@ -73,16 +75,14 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(sourceNewsBrowser, /orderedSources/);
   assert.match(sourceNewsBrowser, /activeSourceCount/);
   assert.doesNotMatch(sourceNewsBrowser, /new Map<string/);
-  assert.match(categoryPage, /<NewsStream news=\{news\} hideHeader \/>/);
+  assert.match(categoryPage, /sortMode=\{newsSortMode\(sort\)\}/);
   assert.match(newsStream, /news-waterfall/);
-  assert.match(
-    newsStream,
-    /new Date\(right\.publishedAt\)\.getTime\(\)\s*-\s*new Date\(left\.publishedAt\)\.getTime\(\)/,
-  );
-  assert.match(
-    sourceNewsBrowser,
-    /new Date\(right\.publishedAt\)\.getTime\(\)\s*-\s*new Date\(left\.publishedAt\)\.getTime\(\)/,
-  );
+  assert.match(newsStream, /sortNewsItems\(news, sortMode\)/);
+  assert.match(sourceNewsBrowser, /sortNewsItems\(news, sortMode\)/);
+  assert.match(newsPage, /sortMode=\{newsSortMode\(sort\)\}/);
+  assert.match(newsSortData, /NewsSortMode = "time" \| "importance"/);
+  assert.match(newsSortData, /newsImportanceScore/);
+  assert.match(newsSortData, /criticalSignals/);
   assert.match(newsStream, /最近的国际新闻/);
   assert.match(newsStream, /showMore/);
   assert.match(newsStream, /href="\/news"/);
@@ -179,6 +179,11 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(
     globalStyles,
     /\.news-waterfall\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\);/s,
+  );
+  assert.match(globalStyles, /\.nav-sort-toggle\s*\{/);
+  assert.match(
+    globalStyles,
+    /\.floating-sort\s*\{[^}]*position:\s*fixed;[^}]*right:\s*28px;[^}]*bottom:\s*168px;/s,
   );
   assert.match(newsArticleContent, /articleBody/);
   assert.match(newsArticleContent, /imageUrl: string/);
@@ -321,6 +326,10 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(header, /`\/news\/\$\{id\}`/);
   assert.match(header, /信源标准/);
   assert.match(header, /nav-search-link/);
+  assert.match(header, /nav-sort-toggle/);
+  assert.match(header, /floating-sort/);
+  assert.match(header, /sort=importance/);
+  assert.match(header, /window\.scrollY > window\.innerHeight/);
   assert.match(header, /floating-search/);
   assert.match(header, /\/news#source-search/);
   assert.doesNotMatch(header, /THE DAILY EDITION · SHANGHAI/);

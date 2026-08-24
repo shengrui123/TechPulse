@@ -8,9 +8,11 @@ import {
   isNewsCategory,
 } from "../../data/news-categories";
 import { getNewsByCategory } from "../../data/live-news";
+import { newsSortMode } from "../../data/news-sort";
 
 type CategoryPageProps = {
   params: Promise<{ category: string }>;
+  searchParams: Promise<{ sort?: string }>;
 };
 
 export const dynamic = "force-dynamic";
@@ -31,8 +33,12 @@ export async function generateMetadata({
   };
 }
 
-export default async function CategoryPage({ params }: CategoryPageProps) {
+export default async function CategoryPage({
+  params,
+  searchParams,
+}: CategoryPageProps) {
   const { category } = await params;
+  const { sort } = await searchParams;
   if (!isNewsCategory(category)) {
     notFound();
   }
@@ -42,7 +48,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   return (
     <>
       <SiteHeader />
-      <NewsStream news={news} hideHeader />
+      <NewsStream news={news} hideHeader sortMode={newsSortMode(sort)} />
       <SiteFooter />
     </>
   );

@@ -7,6 +7,7 @@ import {
   liveNewsSourceDirectory,
 } from "../data/live-news";
 import { encodeNewsStory } from "../data/news-story";
+import { newsSortMode } from "../data/news-sort";
 
 export const metadata: Metadata = {
   title: "全部国际新闻 | WorldPulse",
@@ -16,7 +17,12 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
-export default async function NewsPage() {
+type NewsPageProps = {
+  searchParams: Promise<{ sort?: string }>;
+};
+
+export default async function NewsPage({ searchParams }: NewsPageProps) {
+  const { sort } = await searchParams;
   const news = await getAllSourceNews();
   const searchableNews = news.map((item) => ({
     ...item,
@@ -30,6 +36,7 @@ export default async function NewsPage() {
         news={searchableNews}
         sources={liveNewsSourceDirectory}
         heading="全部新闻"
+        sortMode={newsSortMode(sort)}
       />
       <SiteFooter />
     </>

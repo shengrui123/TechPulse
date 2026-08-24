@@ -4,6 +4,7 @@ import {
   formatNewsDate,
   type LiveNewsItem,
 } from "../data/live-news";
+import { sortNewsItems, type NewsSortMode } from "../data/news-sort";
 import { encodeNewsStory } from "../data/news-story";
 import { trustedSources } from "../data/sources";
 
@@ -14,6 +15,7 @@ type NewsStreamProps = {
   heading?: string;
   description?: string;
   hideHeader?: boolean;
+  sortMode?: NewsSortMode;
 };
 
 export default function NewsStream({
@@ -23,12 +25,9 @@ export default function NewsStream({
   heading,
   description,
   hideHeader = false,
+  sortMode = "time",
 }: NewsStreamProps) {
-  const orderedNews = [...news].sort(
-    (left, right) =>
-      new Date(right.publishedAt).getTime() -
-      new Date(left.publishedAt).getTime(),
-  );
+  const orderedNews = sortNewsItems(news, sortMode);
   const activeSourceCount = new Set(
     orderedNews.map((item) => item.source),
   ).size;

@@ -3,6 +3,7 @@ import NewsStream from "./components/NewsStream";
 import SiteFooter from "./components/SiteFooter";
 import SiteHeader from "./components/SiteHeader";
 import { getAllSourceNews } from "./data/live-news";
+import { newsSortMode } from "./data/news-sort";
 
 export const metadata: Metadata = {
   title: "国际新闻 | WorldPulse",
@@ -12,13 +13,18 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
-export default async function Home() {
+type HomeProps = {
+  searchParams: Promise<{ sort?: string }>;
+};
+
+export default async function Home({ searchParams }: HomeProps) {
+  const { sort } = await searchParams;
   const news = await getAllSourceNews();
 
   return (
     <>
       <SiteHeader />
-      <NewsStream news={news} hideHeader />
+      <NewsStream news={news} hideHeader sortMode={newsSortMode(sort)} />
       <SiteFooter />
     </>
   );
