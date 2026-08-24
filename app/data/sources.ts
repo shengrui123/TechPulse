@@ -192,6 +192,14 @@ export const sourceGroups: SourceGroup[] = [
         url: "https://theinitium.com/",
         rssUrl: "https://theinitium.com/rss/",
       },
+      {
+        name: "United Daily News",
+        shortName: "聯合新聞網",
+        region: "台湾 / 华语世界",
+        focus: "台湾、两岸、国际、财经与社会新闻",
+        url: "https://udn.com/news/index",
+        rssUrl: "https://udn.com/news/rssfeed/",
+      },
     ],
   },
   {

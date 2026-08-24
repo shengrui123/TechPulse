@@ -44,6 +44,7 @@ const sourceNames: Record<string, string> = {
   "The Hindu": "印度教徒报",
   "Channel NewsAsia": "亚洲新闻台",
   "Initium Media": "端传媒",
+  "United Daily News": "联合新闻网",
   Bloomberg: "彭博社",
   "Financial Times": "金融时报",
   "The Wall Street Journal": "华尔街日报",
