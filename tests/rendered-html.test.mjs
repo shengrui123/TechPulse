@@ -344,6 +344,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
     "Financial Times",
     "The Economist",
     "United Daily News",
+    "Lianhe Zaobao",
   ];
   trustedNames.forEach((name) => assert.match(sourceData, new RegExp(name)));
   assert.match(sourcesPage, /可信不是标签/);
@@ -352,13 +353,13 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   const directoryUrls = [
     ...sourceData.matchAll(/url: "([^"]+)"/g),
   ].map((match) => match[1]);
-  assert.equal(directoryUrls.length, 27);
+  assert.equal(directoryUrls.length, 28);
   assert.ok(directoryUrls.every((url) => url.startsWith("https://")));
 
   const rssUrls = [...sourceData.matchAll(/rssUrl:\s*\n?\s*"([^"]+)"/g)].map(
     (match) => match[1],
   );
-  assert.equal(rssUrls.length, 8);
+  assert.equal(rssUrls.length, 9);
   assert.ok(rssUrls.every((url) => url.startsWith("https://")));
   assert.ok(
     rssUrls.includes(
@@ -372,6 +373,11 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   );
   assert.ok(rssUrls.includes("https://theinitium.com/rss/"));
   assert.ok(rssUrls.includes("https://udn.com/news/rssfeed/"));
+  assert.ok(
+    rssUrls.includes(
+      "https://news.google.com/rss/search?q=site%3Awww.zaobao.com.sg&hl=zh-CN&gl=CN&ceid=CN%3Azh-Hans",
+    ),
+  );
   assert.ok(
     rssUrls.includes("https://www.aljazeera.com/xml/rss/all.xml"),
   );

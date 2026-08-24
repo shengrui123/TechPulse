@@ -200,6 +200,15 @@ export const sourceGroups: SourceGroup[] = [
         url: "https://udn.com/news/index",
         rssUrl: "https://udn.com/news/rssfeed/",
       },
+      {
+        name: "Lianhe Zaobao",
+        shortName: "聯合早報",
+        region: "新加坡 / 华语世界",
+        focus: "新加坡、中国、东南亚与国际新闻",
+        url: "https://www.zaobao.com.sg/",
+        rssUrl:
+          "https://news.google.com/rss/search?q=site%3Awww.zaobao.com.sg&hl=zh-CN&gl=CN&ceid=CN%3Azh-Hans",
+      },
     ],
   },
   {
