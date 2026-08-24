@@ -52,8 +52,8 @@ const sourceNames: Record<string, string> = {
   ProPublica: "ProPublica 调查新闻",
 };
 
-const newsWindowMs = 2 * 60 * 60 * 1000;
-const allSourceNewsWindowMs = 48 * 60 * 60 * 1000;
+const newsWindowMs = 24 * 60 * 60 * 1000;
+const allSourceNewsWindowMs = newsWindowMs;
 
 function googleNewsFeedUrl(sourceUrl: string): string {
   const domain = new URL(sourceUrl).hostname.replace(/^www\./, "");
@@ -520,13 +520,14 @@ async function buildAllSourceNews(): Promise<LiveNewsItem[]> {
 
 export const getAllSourceNews = unstable_cache(
   buildAllSourceNews,
-  ["worldpulse-all-source-news-48h-v7"],
+  ["worldpulse-all-source-news-24h-v8"],
   { revalidate: 1800, tags: ["all-source-news"] },
 );
 
 async function buildSourceEdition(): Promise<LiveNewsItem[]> {
   const responses = await fetchAllFeeds();
   const now = Date.now();
+  const cutoff = now - newsWindowMs;
   const onePerSource: LiveNewsItem[] = [];
 
   responses.forEach((response) => {
@@ -537,7 +538,11 @@ async function buildSourceEdition(): Promise<LiveNewsItem[]> {
     const latest = response.value
       .filter((item) => {
         const publishedAt = new Date(item.publishedAt).getTime();
-        return Number.isFinite(publishedAt) && publishedAt <= now;
+        return (
+          Number.isFinite(publishedAt) &&
+          publishedAt >= cutoff &&
+          publishedAt <= now
+        );
       })
       .sort(
         (left, right) =>
@@ -555,7 +560,7 @@ async function buildSourceEdition(): Promise<LiveNewsItem[]> {
 
 export const getSourceEdition = unstable_cache(
   buildSourceEdition,
-  ["worldpulse-source-edition-v7"],
+  ["worldpulse-source-edition-24h-v8"],
   { revalidate: 900, tags: ["source-edition"] },
 );
 

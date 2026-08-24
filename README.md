@@ -41,7 +41,7 @@ pnpm build
 `app/data/sources.ts` 对相应信源设置 `contentPolicy: "full"`；未明确配置
 的信源始终按 `excerpt` 处理。
 
-新闻列表覆盖全部信源最近 2 小时的文章，RSS/Google News 订阅结果每 30 分钟刷新。
+新闻列表覆盖全部信源最近 24 小时的文章，RSS/Google News 订阅结果每 30 分钟刷新。
 正文仅在用户打开详情页时于内存中处理；响应完成后不保留本地正文文件，因此无需等待
 5 分钟清理，本地留存时间为零。
 

@@ -51,7 +51,7 @@ export default function NewsStream({
               {description ??
                 (magazineEdition
                   ? `从“信源标准”收录的 ${trustedSources.length} 家媒体各选一篇最新报道，以中文编辑、视觉分层与沉浸式长文版式重新呈现。`
-                  : `汇总“信源标准”收录的 ${trustedSources.length} 家媒体最近 2 小时的报道，所有新闻均提供中文标题与中文摘要。`)}
+                  : `汇总“信源标准”收录的 ${trustedSources.length} 家媒体最近 24 小时的报道，所有新闻均提供中文标题与中文摘要。`)}
             </p>
           </div>
           <div className="news-hero-meta">

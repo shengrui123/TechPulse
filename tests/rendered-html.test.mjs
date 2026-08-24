@@ -167,7 +167,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(liveNews, /content:encoded/);
   assert.match(liveNews, /summary\.length > 4000/);
   assert.match(liveNews, /source\.rssUrl \?\? googleNewsFeedUrl/);
-  assert.match(liveNews, /newsWindowMs = 2/);
+  assert.match(liveNews, /newsWindowMs = 24/);
   assert.match(liveNews, /路透社/);
   assert.match(liveNews, /美联社/);
   assert.match(liveNews, /法新社/);
@@ -207,15 +207,15 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(liveNews, /getSourceEdition/);
   assert.match(liveNews, /getAllSourceNews/);
   assert.match(liveNews, /liveNewsSourceDirectory/);
-  assert.match(liveNews, /allSourceNewsWindowMs = 48/);
+  assert.match(liveNews, /allSourceNewsWindowMs = newsWindowMs/);
   assert.match(liveNews, /publishedAt >= cutoff/);
   assert.match(liveNews, /field\(xml, "lastBuildDate"\)/);
   assert.match(liveNews, /feedPublishedAt/);
   assert.doesNotMatch(liveNews, /maxStoriesPerSource/);
-  assert.match(liveNews, /worldpulse-all-source-news-48h-v7/);
+  assert.match(liveNews, /worldpulse-all-source-news-24h-v8/);
   assert.match(liveNews, /feedConcurrency = 26/);
   assert.match(liveNews, /unstable_cache/);
-  assert.match(liveNews, /worldpulse-source-edition-v7/);
+  assert.match(liveNews, /worldpulse-source-edition-24h-v8/);
   assert.match(loading, /route-loading-bar/);
   assert.match(loading, /route-loading-mark/);
   assert.doesNotMatch(loading, /worldpulse-logo\.png/);
@@ -226,7 +226,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(liveNews, /tl", "zh-CN"/);
   assert.match(newsStream, /trustedSources\.length/);
   assert.match(newsStream, /activeSourceCount/);
-  assert.match(newsStream, /最近 2/);
+  assert.match(newsStream, /最近 24/);
   assert.match(newsPage, /maxDuration = 300/);
   assert.match(page, /maxDuration = 300/);
   assert.match(liveNews, /sorted\.slice\(0, limit\)/);
