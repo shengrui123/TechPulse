@@ -206,9 +206,6 @@ export default function SourceNewsBrowser({
                       unoptimized
                     />
                   </figure>
-                  <span className="news-card-index">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
                   <h2>{item.title}</h2>
                   {item.summary && <p>{item.summary}</p>}
                   <strong>阅读新闻 →</strong>

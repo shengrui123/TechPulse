@@ -78,6 +78,8 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(newsStream, /href="\/news"/);
   assert.match(newsStream, /查看更多/);
   assert.match(newsStream, /news-card-image/);
+  assert.doesNotMatch(newsStream, /news-card-index/);
+  assert.doesNotMatch(sourceNewsBrowser, /news-card-index/);
   assert.match(newsStream, /\/api\/news-image\?url=/);
   assert.match(newsStream, /\/news\/story\?story=/);
   assert.ok(
