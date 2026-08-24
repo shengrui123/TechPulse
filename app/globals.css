@@ -2112,8 +2112,8 @@ body {
 
 .source-principles {
   border-color: var(--ink);
-  background: var(--ink);
-  color: var(--white);
+  background: transparent;
+  color: var(--ink);
 }
 
 .principle-grid article,
@@ -2137,7 +2137,7 @@ body {
 }
 
 .principle-grid p {
-  color: #aaa;
+  color: var(--muted);
   font-size: 11px;
 }
 

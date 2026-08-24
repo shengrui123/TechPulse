@@ -141,6 +141,14 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
     globalStyles,
     /linear-gradient\(rgba\(12, 12, 12, 0\.025\) 1px/,
   );
+  assert.match(
+    globalStyles,
+    /\.source-principles\s*\{[^}]*background:\s*transparent;[^}]*color:\s*var\(--ink\);/s,
+  );
+  assert.match(
+    globalStyles,
+    /\.principle-grid p\s*\{[^}]*color:\s*var\(--muted\);/s,
+  );
   assert.match(newsArticleContent, /articleBody/);
   assert.match(newsArticleContent, /originalParagraphs/);
   assert.match(newsArticleContent, /paragraphsFromMarkdown/);
