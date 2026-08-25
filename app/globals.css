@@ -2212,14 +2212,19 @@ body {
 }
 
 .news-article-header {
+  display: block;
+  width: min(88%, 1040px);
+  margin-right: auto;
+  margin-left: auto;
   padding: 75px 0 60px;
   border-top: 1px solid var(--ink);
-  grid-template-columns: minmax(0, 1fr) minmax(300px, 0.44fr);
 }
 
 .news-article-title-stack {
-  grid-column: 1;
   display: flex;
+  width: min(100%, 760px);
+  margin-right: auto;
+  margin-left: auto;
   flex-direction: column;
   align-self: start;
 }

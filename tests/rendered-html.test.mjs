@@ -197,6 +197,14 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(globalStyles, /html\[data-theme="dark"\]/);
   assert.match(
     globalStyles,
+    /\.news-article-header\s*\{[^}]*display:\s*block;[^}]*width:\s*min\(88%, 1040px\);[^}]*margin-right:\s*auto;[^}]*margin-left:\s*auto;/s,
+  );
+  assert.match(
+    globalStyles,
+    /\.news-article-title-stack\s*\{[^}]*width:\s*min\(100%, 760px\);[^}]*margin-right:\s*auto;[^}]*margin-left:\s*auto;/s,
+  );
+  assert.match(
+    globalStyles,
     /\.floating-sort\s*\{[^}]*position:\s*fixed;[^}]*right:\s*28px;[^}]*bottom:\s*168px;/s,
   );
   assert.match(newsArticleContent, /articleBody/);
