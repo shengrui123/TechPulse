@@ -198,6 +198,14 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
     globalStyles,
     /\.nav-theme-toggle \+ \.nav-search-link\s*\{[^}]*margin-left:\s*0;/s,
   );
+  assert.match(
+    globalStyles,
+    /\.nav-sort-toggle\.is-hidden\s*\{[^}]*display:\s*none;/s,
+  );
+  assert.match(
+    globalStyles,
+    /\.nav-search-link\.is-hidden\s*\{[^}]*display:\s*none;/s,
+  );
   assert.match(globalStyles, /html\[data-theme="dark"\]/);
   assert.match(
     globalStyles,

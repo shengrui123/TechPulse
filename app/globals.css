@@ -2866,8 +2866,7 @@ body {
 }
 
 .nav-sort-toggle.is-hidden {
-  opacity: 0;
-  pointer-events: none;
+  display: none;
 }
 
 .nav-inner .nav-search-link::after {
@@ -2887,8 +2886,7 @@ body {
 }
 
 .nav-search-link.is-hidden {
-  opacity: 0;
-  pointer-events: none;
+  display: none;
 }
 
 .floating-search {
