@@ -2831,6 +2831,10 @@ body {
   margin-left: 0;
 }
 
+.nav-theme-toggle + .nav-search-link {
+  margin-left: 0;
+}
+
 .nav-theme-toggle i {
   color: var(--orange);
   font-size: 15px;
