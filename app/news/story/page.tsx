@@ -154,6 +154,33 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
 
           <div className="news-article-layout">
             <div className="news-article-copy">
+              <aside className="news-article-aside" aria-label="新闻信息">
+                <div>
+                  <span>来源</span>
+                  <strong>{story.sourceName}</strong>
+                </div>
+                <div>
+                  <span>发布时间</span>
+                  <time dateTime={story.publishedAt}>
+                    {formatNewsDate(story.publishedAt)}
+                  </time>
+                </div>
+                <div>
+                  <span>内容范围</span>
+                  <strong>
+                    {!articleContent.matched
+                      ? story.summary
+                        ? "RSS 摘要"
+                        : "仅标题与链接"
+                      : articleContent.mode === "full"
+                        ? "授权全文"
+                        : articleContent.mode === "complete"
+                          ? "完整公开正文"
+                          : "较长新闻节选"}
+                  </strong>
+                </div>
+              </aside>
+
               <div className="article-reading-line">
                 <span>WORLD PULSE / 国际</span>
                 <span>预计阅读 {readingMinutes} 分钟</span>
@@ -217,27 +244,6 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
                 阅读完整原文 <span aria-hidden="true">↗</span>
               </a>
             </div>
-
-            <aside className="news-article-aside">
-              <span>来源</span>
-              <strong>{story.sourceName}</strong>
-              <span>发布时间</span>
-              <time dateTime={story.publishedAt}>
-                {formatNewsDate(story.publishedAt)}
-              </time>
-              <span>内容范围</span>
-              <strong>
-                {!articleContent.matched
-                  ? story.summary
-                    ? "RSS 摘要"
-                    : "仅标题与链接"
-                  : articleContent.mode === "full"
-                    ? "授权全文"
-                    : articleContent.mode === "complete"
-                      ? "完整公开正文"
-                    : "较长新闻节选"}
-              </strong>
-            </aside>
           </div>
         </article>
       </main>

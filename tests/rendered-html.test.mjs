@@ -133,6 +133,12 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(newsStoryPage, /showOriginal: !isChineseText\(original\)/);
   assert.match(newsStoryPage, /\{showOriginal && \(/);
   assert.match(newsStoryPage, /news-article-bilingual-block/);
+  assert.match(newsStoryPage, /aria-label="新闻信息"/);
+  assert.ok(
+    newsStoryPage.indexOf('className="news-article-aside"') <
+      newsStoryPage.indexOf('className="article-reading-line"'),
+    "news metadata should appear horizontally above the article body",
+  );
   assert.match(newsStoryPage, /news-article-original/);
   assert.match(newsStoryPage, /news-article-translation/);
   assert.match(newsStoryPage, /lang="en"/);
