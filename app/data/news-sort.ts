@@ -3,7 +3,7 @@ import type { LiveNewsItem } from "./live-news";
 export type NewsSortMode = "time" | "importance";
 
 export function newsSortMode(value: string | undefined): NewsSortMode {
-  return value === "importance" ? "importance" : "time";
+  return value === "time" ? "time" : "importance";
 }
 
 const criticalSignals =

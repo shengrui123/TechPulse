@@ -15,7 +15,8 @@ const navigation = [
 export default function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchFloating, setSearchFloating] = useState(false);
-  const [importanceSort, setImportanceSort] = useState(false);
+  const [importanceSort, setImportanceSort] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const showSortToggle =
@@ -39,10 +40,16 @@ export default function SiteHeader() {
   }, []);
 
   useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      setDarkMode(document.documentElement.dataset.theme === "dark");
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+
+  useEffect(() => {
     function syncSortMode() {
       setImportanceSort(
-        new URL(window.location.href).searchParams.get("sort") ===
-          "importance",
+        new URL(window.location.href).searchParams.get("sort") !== "time",
       );
     }
 
@@ -52,25 +59,36 @@ export default function SiteHeader() {
   }, [pathname]);
 
   function hrefWithSort(href: string) {
-    if (!importanceSort || href === "/sources") return href;
-    return `${href}${href.includes("?") ? "&" : "?"}sort=importance`;
+    if (importanceSort || href === "/sources") return href;
+    return `${href}${href.includes("?") ? "&" : "?"}sort=time`;
   }
 
   function toggleSortMode() {
     const url = new URL(window.location.href);
     const nextImportanceSort = !importanceSort;
     if (nextImportanceSort) {
-      url.searchParams.set("sort", "importance");
-    } else {
       url.searchParams.delete("sort");
+    } else {
+      url.searchParams.set("sort", "time");
     }
     setImportanceSort(nextImportanceSort);
     router.push(`${url.pathname}${url.search}${url.hash}`);
   }
 
+  function toggleTheme() {
+    const nextTheme = darkMode ? "light" : "dark";
+    document.documentElement.dataset.theme = nextTheme;
+    try {
+      localStorage.setItem("worldpulse-theme", nextTheme);
+    } catch {
+      // Theme switching still works if browser storage is unavailable.
+    }
+    setDarkMode(nextTheme === "dark");
+  }
+
   const searchHref = importanceSort
-    ? "/news?sort=importance#source-search"
-    : "/news#source-search";
+    ? "/news#source-search"
+    : "/news?sort=time#source-search";
 
   function isActive(href: string) {
     if (href === "/") {
@@ -120,6 +138,16 @@ export default function SiteHeader() {
               {label}
             </Link>
           ))}
+          <button
+            className={`nav-theme-toggle ${darkMode ? "is-dark" : ""}`}
+            type="button"
+            aria-label={darkMode ? "切换为浅色模式" : "切换为暗色模式"}
+            aria-pressed={darkMode}
+            onClick={toggleTheme}
+          >
+            <i aria-hidden="true">{darkMode ? "☀" : "◐"}</i>
+            {darkMode ? "浅色" : "暗色"}
+          </button>
           {showSortToggle && (
             <button
               className={`nav-sort-toggle ${importanceSort ? "is-importance" : ""} ${searchFloating ? "is-hidden" : ""}`}
@@ -172,6 +200,15 @@ export default function SiteHeader() {
               排序：{importanceSort ? "重要度" : "时间"}
             </button>
           )}
+          <button
+            className="mobile-theme-toggle"
+            type="button"
+            aria-label={darkMode ? "切换为浅色模式" : "切换为暗色模式"}
+            aria-pressed={darkMode}
+            onClick={toggleTheme}
+          >
+            显示：{darkMode ? "浅色" : "暗色"}
+          </button>
           <Link
             href={searchHref}
             onClick={() => setMenuOpen(false)}

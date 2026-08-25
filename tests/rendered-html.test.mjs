@@ -81,6 +81,12 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(sourceNewsBrowser, /sortNewsItems\(news, sortMode\)/);
   assert.match(newsPage, /sortMode=\{newsSortMode\(sort\)\}/);
   assert.match(newsSortData, /NewsSortMode = "time" \| "importance"/);
+  assert.match(
+    newsSortData,
+    /value === "time" \? "time" : "importance"/,
+  );
+  assert.match(newsStream, /sortMode = "importance"/);
+  assert.match(sourceNewsBrowser, /sortMode = "importance"/);
   assert.match(newsSortData, /newsImportanceScore/);
   assert.match(newsSortData, /criticalSignals/);
   assert.match(newsStream, /最近的国际新闻/);
@@ -187,6 +193,8 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
     /\.news-waterfall\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\);/s,
   );
   assert.match(globalStyles, /\.nav-sort-toggle\s*\{/);
+  assert.match(globalStyles, /\.nav-theme-toggle\s*\{/);
+  assert.match(globalStyles, /html\[data-theme="dark"\]/);
   assert.match(
     globalStyles,
     /\.floating-sort\s*\{[^}]*position:\s*fixed;[^}]*right:\s*28px;[^}]*bottom:\s*168px;/s,
@@ -333,8 +341,13 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(header, /信源标准/);
   assert.match(header, /nav-search-link/);
   assert.match(header, /nav-sort-toggle/);
+  assert.match(header, /nav-theme-toggle/);
+  assert.match(header, /worldpulse-theme/);
+  assert.match(header, /切换为暗色模式/);
   assert.match(header, /floating-sort/);
-  assert.match(header, /sort=importance/);
+  assert.match(header, /sort=time/);
+  assert.match(layout, /themeBootScript/);
+  assert.match(layout, /prefers-color-scheme: dark/);
   assert.match(header, /window\.scrollY > window\.innerHeight/);
   assert.match(header, /floating-search/);
   assert.match(header, /\/news#source-search/);

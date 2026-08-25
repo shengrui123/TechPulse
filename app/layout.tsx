@@ -3,6 +3,15 @@ import { headers } from "next/headers";
 import BackToTop from "./components/BackToTop";
 import "./globals.css";
 
+const themeBootScript = `
+let savedTheme;
+try { savedTheme = localStorage.getItem("worldpulse-theme"); } catch {}
+const theme = savedTheme === "dark" || savedTheme === "light"
+  ? savedTheme
+  : matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+document.documentElement.dataset.theme = theme;
+`;
+
 export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers();
   const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host");
@@ -49,7 +58,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-Hans" data-scroll-behavior="smooth">
+    <html lang="zh-Hans" data-scroll-behavior="smooth" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
+      </head>
       <body>
         {children}
         <BackToTop />

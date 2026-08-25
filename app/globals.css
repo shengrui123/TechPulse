@@ -2804,6 +2804,41 @@ body {
     background 160ms ease;
 }
 
+.nav-theme-toggle {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 7px;
+  margin-left: auto;
+  padding: 8px 12px;
+  border: 1px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  transition:
+    color 160ms ease,
+    background 160ms ease;
+}
+
+.nav-theme-toggle + .nav-sort-toggle {
+  margin-left: 0;
+}
+
+.nav-theme-toggle i {
+  color: var(--orange);
+  font-size: 15px;
+  font-style: normal;
+  line-height: 1;
+}
+
+.nav-theme-toggle:hover,
+.nav-theme-toggle.is-dark {
+  background: var(--ink);
+  color: var(--white);
+}
+
 .nav-sort-toggle + .nav-search-link {
   margin-left: 0;
 }
@@ -2949,7 +2984,8 @@ body {
   letter-spacing: 0.08em;
 }
 
-.mobile-sort-toggle {
+.mobile-sort-toggle,
+.mobile-theme-toggle {
   padding: 17px 8px;
   border: 0;
   border-bottom: 1px solid #424242;
@@ -3165,8 +3201,72 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .nav-search-link,
   .nav-sort-toggle,
+  .nav-theme-toggle,
   .floating-search,
   .floating-sort {
     transition: none;
   }
+
+  body,
+  .site-header,
+  .desktop-nav,
+  .news-card,
+  .news-article-note,
+  .article-note,
+  .site-footer {
+    transition: none;
+  }
+}
+
+/* Persisted dark appearance. Kept last so every editorial surface inherits it. */
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #121210;
+  --ink: #f1eee7;
+  --muted: #aaa69d;
+  --line: #3b3934;
+  --orange: #d97986;
+  --orange-dark: #f09aa5;
+  --yellow: #dec17d;
+  --white: #151513;
+}
+
+html[data-theme="dark"] .site-header {
+  background: rgba(18, 18, 16, 0.96);
+}
+
+html[data-theme="dark"] .desktop-nav {
+  background: rgba(18, 18, 16, 0.94);
+}
+
+html[data-theme="dark"] .route-loading {
+  background: rgba(18, 18, 16, 0.98);
+}
+
+html[data-theme="dark"] .news-card-image,
+html[data-theme="dark"] .news-article-image img {
+  background: #292824;
+}
+
+html[data-theme="dark"] .news-article-copy > p,
+html[data-theme="dark"] .article-body > p,
+html[data-theme="dark"] .news-article-pullquote {
+  color: var(--ink);
+}
+
+html[data-theme="dark"] .news-search-empty > span {
+  color: var(--muted);
+}
+
+body,
+.site-header,
+.desktop-nav,
+.news-card,
+.news-article-note,
+.article-note,
+.site-footer {
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    border-color 180ms ease;
 }

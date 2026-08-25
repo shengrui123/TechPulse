@@ -39,7 +39,7 @@ export default function SourceNewsBrowser({
   news,
   sources,
   heading = "全部新闻",
-  sortMode = "time",
+  sortMode = "importance",
 }: SourceNewsBrowserProps) {
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query);

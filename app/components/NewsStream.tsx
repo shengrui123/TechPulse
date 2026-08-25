@@ -25,7 +25,7 @@ export default function NewsStream({
   heading,
   description,
   hideHeader = false,
-  sortMode = "time",
+  sortMode = "importance",
 }: NewsStreamProps) {
   const orderedNews = sortNewsItems(news, sortMode);
   const activeSourceCount = new Set(
