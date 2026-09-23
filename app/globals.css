@@ -3702,3 +3702,65 @@ html[data-theme="dark"] .site-footer { background: #141416; }
   html[data-theme="dark"] .site-header,
   html[data-theme="dark"] .desktop-nav { background: rgba(28,28,30,.92); }
 }
+
+/* Reading view and consistent category icons */
+.nav-inner a::before { display: none !important; content: none !important; }
+.nav-inner a .nav-icon { width: 20px; height: 20px; flex: 0 0 20px; color: var(--muted); }
+.nav-inner a.is-active .nav-icon { color: currentColor; }
+.mobile-nav a { display: flex; align-items: center; gap: 12px; }
+.mobile-nav .nav-icon { width: 20px; height: 20px; flex: 0 0 20px; }
+
+@media (min-width: 761px) {
+  .nav-inner a:not(.nav-search-link) {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+  }
+}
+
+body:has(.news-article-page) { padding-left: 0; padding-bottom: 0; }
+.story-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 45;
+  height: 62px;
+  background: rgba(255,255,255,.88);
+  border-bottom: 1px solid rgba(0,0,0,.09);
+  backdrop-filter: saturate(180%) blur(24px);
+}
+.story-topbar-inner { position: relative; height: 100%; display: flex; align-items: center; }
+.story-back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 9px 12px 9px 6px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--orange);
+  font-family: var(--app-sans);
+  font-size: 15px;
+  font-weight: 600;
+}
+.story-back-button:hover { background: rgba(229,46,82,.08); }
+.story-back-button:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+.story-topbar-brand {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--ink);
+  font-family: var(--app-display);
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -.05em;
+}
+.story-topbar-brand span { color: var(--orange); }
+html[data-theme="dark"] .story-topbar { background: rgba(28,28,30,.88); border-color: rgba(255,255,255,.12); }
+
+@media (max-width: 760px) {
+  .nav-inner a:not(.nav-search-link) { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px 2px 3px; }
+  .nav-inner a .nav-icon { width: 19px; height: 19px; }
+  .story-topbar { height: 56px; }
+  .story-topbar-brand { font-size: 16px; }
+}
