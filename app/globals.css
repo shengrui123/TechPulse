@@ -3814,6 +3814,20 @@ main > .source-search.is-open {
   font-size: 12px;
   font-weight: 700;
 }
+.source-filter-list button { color: var(--ink); }
+.source-filter-list button:hover,
+.source-filter-list button.is-active {
+  background: #c51f4a;
+  color: #fff;
+}
+html[data-theme="dark"] .source-filter-list button:hover,
+html[data-theme="dark"] .source-filter-list button.is-active {
+  background: #ff375f;
+  color: #1c1c1e;
+}
+html[data-theme="dark"] .source-filter-list button:not(.is-active):not(:hover) {
+  color: var(--ink);
+}
 @media (max-width: 760px) {
   main > .source-search.is-open { grid-template-columns: 1fr; gap: 20px; }
 }
