@@ -2,10 +2,7 @@ import type { Metadata } from "next";
 import SourceNewsBrowser from "../components/SourceNewsBrowser";
 import SiteFooter from "../components/SiteFooter";
 import SiteHeader from "../components/SiteHeader";
-import {
-  getAllSourceNews,
-  liveNewsSourceDirectory,
-} from "../data/live-news";
+import { getAllSourceNews } from "../data/live-news";
 import { encodeNewsStory } from "../data/news-story";
 import { newsSortMode } from "../data/news-sort";
 
@@ -34,8 +31,6 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
       <SiteHeader />
       <SourceNewsBrowser
         news={searchableNews}
-        sources={liveNewsSourceDirectory}
-        heading="全部新闻"
         sortMode={newsSortMode(sort)}
       />
       <SiteFooter />
