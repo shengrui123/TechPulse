@@ -131,6 +131,10 @@ export default function SiteHeader() {
     setDarkMode(nextTheme === "dark");
   }
 
+  const searchHref = importanceSort
+    ? "/news#source-search"
+    : "/news?sort=time#source-search";
+
   function isActive(href: string) {
     if (href === "/") {
       return pathname === "/";
@@ -217,6 +221,15 @@ export default function SiteHeader() {
               {importanceSort ? "重要度" : "时间"}
             </button>
           )}
+          <Link
+            className={`nav-search-link ${searchFloating ? "is-hidden" : ""}`}
+            href={searchHref}
+            aria-label="搜索媒体来源"
+            onClick={() => window.dispatchEvent(new Event("worldpulse-search-open"))}
+          >
+            <span aria-hidden="true">⌕</span>
+            搜索
+          </Link>
         </div>
       </nav>
       <nav
@@ -257,8 +270,23 @@ export default function SiteHeader() {
           >
             显示：{darkMode ? "浅色" : "暗色"}
           </button>
+          <Link href={searchHref} onClick={() => {
+            setMenuOpen(false);
+            window.dispatchEvent(new Event("worldpulse-search-open"));
+          }}>
+            搜索媒体来源
+          </Link>
         </div>
       </nav>
+      <Link
+        className={`floating-search ${searchFloating ? "is-visible" : ""}`}
+        href={searchHref}
+        aria-label="搜索媒体来源"
+        onClick={() => window.dispatchEvent(new Event("worldpulse-search-open"))}
+      >
+        <span aria-hidden="true">⌕</span>
+        <small>SEARCH</small>
+      </Link>
       {showSortToggle && (
         <button
           className={`floating-sort ${searchFloating ? "is-visible" : ""} ${importanceSort ? "is-importance" : ""}`}

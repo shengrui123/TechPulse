@@ -3438,11 +3438,13 @@ body {
 
 main { min-height: 70vh; background: var(--paper); }
 
-main > .news-stream:first-child {
+main > .news-stream:first-child,
+main > .source-search + .news-stream {
   padding-top: 36px;
 }
 
-main > .news-stream:first-child::before {
+main > .news-stream:first-child::before,
+main > .source-search + .news-stream::before {
   display: block;
   margin-bottom: 22px;
   padding-bottom: 13px;
@@ -3675,8 +3677,10 @@ html[data-theme="dark"] .site-footer { background: #141416; }
   .mobile-sort-toggle,
   .mobile-theme-toggle { min-height: 50px; padding: 14px 10px; border-color: #3a3a3c; font-family: var(--app-sans); font-size: 16px; }
 
-  main > .news-stream:first-child { padding-top: 20px; }
-  main > .news-stream:first-child::before { margin-bottom: 16px; font-size: 25px; }
+  main > .news-stream:first-child,
+  main > .source-search + .news-stream { padding-top: 20px; }
+  main > .news-stream:first-child::before,
+  main > .source-search + .news-stream::before { margin-bottom: 16px; font-size: 25px; }
   .news-hero { display: block; padding-top: 30px; padding-bottom: 12px; }
   .news-hero h1 { margin-top: 8px; font-size: 38px; }
   .news-hero-meta { align-items: flex-start; margin-top: 18px; }
@@ -3791,4 +3795,25 @@ html[data-theme="dark"] .story-topbar { background: rgba(28,28,30,.88); border-c
   .nav-inner a .nav-icon { width: 19px; height: 19px; }
   .story-topbar { height: 56px; }
   .story-topbar-brand { font-size: 16px; }
+}
+
+/* Keep the publisher search available on demand without occupying the feed. */
+main > .source-search { display: none; }
+main > .source-search.is-open {
+  display: grid;
+  grid-template-columns: minmax(180px, .65fr) minmax(0, 1.35fr);
+  gap: 24px;
+  margin-top: 18px;
+  padding: 22px;
+}
+.source-search.is-open .source-filter-list { max-height: 156px; overflow-y: auto; }
+.source-search-close {
+  display: inline-block;
+  margin-top: 18px;
+  color: var(--orange);
+  font-size: 12px;
+  font-weight: 700;
+}
+@media (max-width: 760px) {
+  main > .source-search.is-open { grid-template-columns: 1fr; gap: 20px; }
 }
