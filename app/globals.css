@@ -2859,7 +2859,14 @@ body {
 .mobile-theme-toggle select option { background: var(--white); color: var(--ink); }
 
 .nav-theme-toggle:focus-within { outline: 2px solid var(--orange); outline-offset: 2px; }
-.nav-theme-toggle > span { margin-left: auto; color: var(--muted); }
+.nav-theme-chevron {
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  margin-left: auto;
+  color: var(--muted);
+  pointer-events: none;
+}
 .mobile-theme-toggle select { margin-left: 6px; background: var(--white); color: var(--ink); }
 
 .nav-theme-toggle:hover,

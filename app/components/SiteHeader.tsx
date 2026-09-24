@@ -250,7 +250,9 @@ export default function SiteHeader() {
               <option value="light">浅色</option>
               <option value="dark">深色</option>
             </select>
-            <span aria-hidden="true">⌄</span>
+            <svg className="nav-theme-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="m3.5 8.5 8.5 8.5 8.5-8.5" />
+            </svg>
           </label>
           {showSortToggle && (
             <button
