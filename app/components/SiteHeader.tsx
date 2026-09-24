@@ -15,6 +15,7 @@ const navigation = [
 ];
 
 type NavigationIcon = (typeof navigation)[number][2];
+type ThemePreference = "system" | "light" | "dark";
 
 function CategoryIcon({ name }: { name: NavigationIcon }) {
   const paths: Record<NavigationIcon, ReactNode> = {
@@ -39,6 +40,7 @@ export default function SiteHeader() {
   const [searchFloating, setSearchFloating] = useState(false);
   const [importanceSort, setImportanceSort] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
+  const [themePreference, setThemePreference] = useState<ThemePreference>("system");
   const pathname = usePathname();
   const router = useRouter();
   const showSortToggle =
@@ -62,10 +64,27 @@ export default function SiteHeader() {
   }, []);
 
   useEffect(() => {
+    const root = document.documentElement;
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const saved = root.dataset.themePreference;
+    const preference: ThemePreference = saved === "light" || saved === "dark" ? saved : "system";
     const frame = window.requestAnimationFrame(() => {
-      setDarkMode(document.documentElement.dataset.theme === "dark");
+      setThemePreference(preference);
+      setDarkMode(root.dataset.theme === "dark");
     });
-    return () => window.cancelAnimationFrame(frame);
+
+    function followSystem() {
+      if (root.dataset.themePreference !== "system") return;
+      const nextTheme = media.matches ? "dark" : "light";
+      root.dataset.theme = nextTheme;
+      setDarkMode(nextTheme === "dark");
+    }
+
+    media.addEventListener("change", followSystem);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      media.removeEventListener("change", followSystem);
+    };
   }, []);
 
   useEffect(() => {
@@ -120,14 +139,18 @@ export default function SiteHeader() {
     router.push(`${url.pathname}${url.search}${url.hash}`);
   }
 
-  function toggleTheme() {
-    const nextTheme = darkMode ? "light" : "dark";
+  function changeTheme(preference: ThemePreference) {
+    const nextTheme = preference === "system"
+      ? window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+      : preference;
+    document.documentElement.dataset.themePreference = preference;
     document.documentElement.dataset.theme = nextTheme;
     try {
-      localStorage.setItem("worldpulse-theme", nextTheme);
+      localStorage.setItem("worldpulse-theme", preference);
     } catch {
       // Theme switching still works if browser storage is unavailable.
     }
+    setThemePreference(preference);
     setDarkMode(nextTheme === "dark");
   }
 
@@ -197,16 +220,21 @@ export default function SiteHeader() {
               {label}
             </Link>
           ))}
-          <button
+          <label
             className={`nav-theme-toggle ${darkMode ? "is-dark" : ""}`}
-            type="button"
-            aria-label={darkMode ? "切换为浅色模式" : "切换为暗色模式"}
-            aria-pressed={darkMode}
-            onClick={toggleTheme}
           >
-            <i aria-hidden="true">{darkMode ? "☀" : "◐"}</i>
-            {darkMode ? "浅色" : "暗色"}
-          </button>
+            <i aria-hidden="true">{themePreference === "system" ? "◐" : themePreference === "dark" ? "☾" : "☀"}</i>
+            <select
+              aria-label="外观模式"
+              value={themePreference}
+              onChange={(event) => changeTheme(event.target.value as ThemePreference)}
+            >
+              <option value="system">跟随系统</option>
+              <option value="light">浅色</option>
+              <option value="dark">深色</option>
+            </select>
+            <span aria-hidden="true">⌄</span>
+          </label>
           {showSortToggle && (
             <button
               className={`nav-sort-toggle ${importanceSort ? "is-importance" : ""} ${searchFloating ? "is-hidden" : ""}`}
@@ -261,15 +289,18 @@ export default function SiteHeader() {
               排序：{importanceSort ? "重要度" : "时间"}
             </button>
           )}
-          <button
-            className="mobile-theme-toggle"
-            type="button"
-            aria-label={darkMode ? "切换为浅色模式" : "切换为暗色模式"}
-            aria-pressed={darkMode}
-            onClick={toggleTheme}
-          >
-            显示：{darkMode ? "浅色" : "暗色"}
-          </button>
+          <label className="mobile-theme-toggle">
+            显示：
+            <select
+              aria-label="外观模式"
+              value={themePreference}
+              onChange={(event) => changeTheme(event.target.value as ThemePreference)}
+            >
+              <option value="system">跟随系统</option>
+              <option value="light">浅色</option>
+              <option value="dark">深色</option>
+            </select>
+          </label>
           <Link href={searchHref} onClick={() => {
             setMenuOpen(false);
             window.dispatchEvent(new Event("worldpulse-search-open"));

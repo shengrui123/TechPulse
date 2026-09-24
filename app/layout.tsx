@@ -6,10 +6,11 @@ import "./globals.css";
 const themeBootScript = `
 let savedTheme;
 try { savedTheme = localStorage.getItem("worldpulse-theme"); } catch {}
-const theme = savedTheme === "dark" || savedTheme === "light"
-  ? savedTheme
-  : matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-document.documentElement.dataset.theme = theme;
+const preference = savedTheme === "dark" || savedTheme === "light" ? savedTheme : "system";
+document.documentElement.dataset.themePreference = preference;
+document.documentElement.dataset.theme = preference === "system"
+  ? matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+  : preference;
 `;
 
 export async function generateMetadata(): Promise<Metadata> {

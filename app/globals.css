@@ -2842,6 +2842,25 @@ body {
   line-height: 1;
 }
 
+.nav-theme-toggle select {
+  flex: 1;
+  min-width: 0;
+  appearance: none;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.nav-theme-toggle select option,
+.mobile-theme-toggle select option { background: var(--white); color: var(--ink); }
+
+.nav-theme-toggle:focus-within { outline: 2px solid var(--orange); outline-offset: 2px; }
+.nav-theme-toggle > span { margin-left: auto; color: var(--muted); }
+.mobile-theme-toggle select { margin-left: 6px; background: var(--white); color: var(--ink); }
+
 .nav-theme-toggle:hover,
 .nav-theme-toggle.is-dark {
   background: var(--ink);
