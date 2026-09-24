@@ -2835,11 +2835,12 @@ body {
   margin-left: 0;
 }
 
-.nav-theme-toggle i {
+.nav-utility-icon {
+  display: block;
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
   color: var(--orange);
-  font-size: 15px;
-  font-style: normal;
-  line-height: 1;
 }
 
 .nav-theme-toggle select {
@@ -2871,13 +2872,6 @@ body {
   margin-left: 0;
 }
 
-.nav-sort-toggle i {
-  color: var(--orange);
-  font-size: 15px;
-  font-style: normal;
-  line-height: 1;
-}
-
 .nav-sort-toggle:hover,
 .nav-sort-toggle.is-importance {
   background: var(--ink);
@@ -2890,13 +2884,6 @@ body {
 
 .nav-inner .nav-search-link::after {
   display: none;
-}
-
-.nav-search-link > span {
-  color: var(--orange);
-  font-size: 17px;
-  line-height: 0;
-  transform: rotate(-20deg);
 }
 
 .nav-search-link:hover {
@@ -2943,15 +2930,14 @@ body {
   color: var(--white);
 }
 
-.floating-search > span {
+.floating-search .nav-utility-icon,
+.floating-sort .nav-utility-icon {
   justify-self: center;
-  color: var(--orange);
-  font-size: 22px;
-  line-height: 0.8;
-  transform: rotate(-20deg);
+  width: 22px;
+  height: 22px;
 }
 
-.floating-search:hover > span {
+.floating-search:hover .nav-utility-icon {
   color: var(--white);
 }
 
@@ -2999,10 +2985,7 @@ body {
   color: var(--white);
 }
 
-.floating-sort span {
-  font-size: 20px;
-  line-height: 0.8;
-}
+.floating-sort .nav-utility-icon { color: currentColor; }
 
 .floating-sort small {
   font-size: 7px;
@@ -3452,7 +3435,7 @@ body {
   .nav-search-link:hover { background: rgba(0, 0, 0, 0.06); color: var(--ink) !important; }
 
   .nav-search-link { padding-left: 13px; }
-  .nav-search-link > span { margin: 0; color: var(--orange); }
+  .nav-search-link > .nav-utility-icon { margin: 0; color: var(--orange); }
 }
 
 main { min-height: 70vh; background: var(--paper); }
@@ -3756,17 +3739,10 @@ html[data-theme="dark"] .site-footer { background: #141416; }
     font-weight: 600;
   }
 
-  .nav-inner .nav-theme-toggle i,
-  .nav-inner .nav-sort-toggle i,
-  .nav-inner .nav-search-link > span {
-    display: grid;
+  .nav-inner .nav-utility-icon {
     flex: 0 0 20px;
     width: 20px;
     height: 20px;
-    place-items: center;
-    font-size: 18px;
-    line-height: 1;
-    transform: none;
   }
 }
 

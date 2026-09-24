@@ -16,6 +16,23 @@ const navigation = [
 
 type NavigationIcon = (typeof navigation)[number][2];
 type ThemePreference = "system" | "light" | "dark";
+type UtilityIconName = ThemePreference | "sort" | "search";
+
+function UtilityIcon({ name }: { name: UtilityIconName }) {
+  const shapes: Record<UtilityIconName, ReactNode> = {
+    system: <><rect x="3" y="4" width="18" height="14" rx="2" /><path d="M8 21h8m-4-3v3" /></>,
+    light: <><circle cx="12" cy="12" r="4" /><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" /></>,
+    dark: <path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5 8.5 8.5 0 1 0 20.5 14.5Z" />,
+    sort: <path d="M7 21V3m0 0L4 6m3-3 3 3m7-3v18m0 0-3-3m3 3 3-3" />,
+    search: <><circle cx="10.5" cy="10.5" r="6.5" /><path d="m15.5 15.5 5 5" /></>,
+  };
+
+  return (
+    <svg className="nav-utility-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      {shapes[name]}
+    </svg>
+  );
+}
 
 function CategoryIcon({ name }: { name: NavigationIcon }) {
   const paths: Record<NavigationIcon, ReactNode> = {
@@ -223,7 +240,7 @@ export default function SiteHeader() {
           <label
             className={`nav-theme-toggle ${darkMode ? "is-dark" : ""}`}
           >
-            <i aria-hidden="true">{themePreference === "system" ? "◐" : themePreference === "dark" ? "☾" : "☀"}</i>
+            <UtilityIcon name={themePreference} />
             <select
               aria-label="外观模式"
               value={themePreference}
@@ -245,7 +262,7 @@ export default function SiteHeader() {
               aria-pressed={importanceSort}
               onClick={toggleSortMode}
             >
-              <i aria-hidden="true">↕</i>
+              <UtilityIcon name="sort" />
               {importanceSort ? "重要度" : "时间"}
             </button>
           )}
@@ -255,7 +272,7 @@ export default function SiteHeader() {
             aria-label="搜索媒体来源"
             onClick={() => window.dispatchEvent(new Event("worldpulse-search-open"))}
           >
-            <span aria-hidden="true">⌕</span>
+            <UtilityIcon name="search" />
             搜索
           </Link>
         </div>
@@ -315,7 +332,7 @@ export default function SiteHeader() {
         aria-label="搜索媒体来源"
         onClick={() => window.dispatchEvent(new Event("worldpulse-search-open"))}
       >
-        <span aria-hidden="true">⌕</span>
+        <UtilityIcon name="search" />
         <small>SEARCH</small>
       </Link>
       {showSortToggle && (
@@ -328,7 +345,7 @@ export default function SiteHeader() {
           aria-pressed={importanceSort}
           onClick={toggleSortMode}
         >
-          <span aria-hidden="true">↕</span>
+          <UtilityIcon name="sort" />
           <small>{importanceSort ? "RANK" : "TIME"}</small>
         </button>
       )}
