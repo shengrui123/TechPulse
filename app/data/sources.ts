@@ -33,7 +33,7 @@ export const sourceGroups: SourceGroup[] = [
         focus: "突发、政治、经济与市场",
         url: "https://www.reuters.com/",
         rssUrl:
-          "https://feedfoundry-rss.vercel.app/feeds/938754f9bd588c147a53.xml",
+          "https://rss-publisher.vercel.app/api/generate?url=https%3A%2F%2Fwww.reuters.com%2F&mode=sitemap",
         contentPolicy: "complete",
       },
       {

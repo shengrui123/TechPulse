@@ -433,7 +433,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   );
   assert.ok(
     rssUrls.includes(
-      "https://feedfoundry-rss.vercel.app/feeds/938754f9bd588c147a53.xml",
+      "https://rss-publisher.vercel.app/api/generate?url=https%3A%2F%2Fwww.reuters.com%2F&mode=sitemap",
     ),
   );
   assert.ok(rssUrls.includes("https://theinitium.com/rss/"));
@@ -453,7 +453,7 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   );
   assert.ok(
     rssUrls.includes(
-      "https://feedfoundry-rss.vercel.app/feeds/938754f9bd588c147a53.xml",
+      "https://rss-publisher.vercel.app/api/generate?url=https%3A%2F%2Fwww.reuters.com%2F&mode=sitemap",
     ),
   );
   assert.ok(
