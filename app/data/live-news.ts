@@ -543,7 +543,7 @@ async function buildAllSourceNews(): Promise<LiveNewsItem[]> {
 
 export const getAllSourceNews = unstable_cache(
   buildAllSourceNews,
-  ["worldpulse-all-source-news-24h-v10"],
+  ["worldpulse-all-source-news-24h-v11"],
   { revalidate: 1800, tags: ["all-source-news"] },
 );
 
@@ -583,7 +583,7 @@ async function buildSourceEdition(): Promise<LiveNewsItem[]> {
 
 export const getSourceEdition = unstable_cache(
   buildSourceEdition,
-  ["worldpulse-source-edition-24h-v10"],
+  ["worldpulse-source-edition-24h-v11"],
   { revalidate: 900, tags: ["source-edition"] },
 );
 
