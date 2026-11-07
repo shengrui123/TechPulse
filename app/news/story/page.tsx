@@ -153,7 +153,7 @@ async function StoryContent({ story }: { story: NewsStory }) {
               source={story.source}
               src={
                 articleContent.imageUrl ||
-                `/api/news-image?url=${encodeURIComponent(story.url)}&source=${encodeURIComponent(story.source)}&title=${encodeURIComponent(story.originalTitle || story.title)}&v=5`
+                `/api/news-image?url=${encodeURIComponent(story.url)}&source=${encodeURIComponent(story.source)}&title=${encodeURIComponent(story.originalTitle || story.title)}&v=6`
               }
               alt={`${story.title} 新闻图片`}
               width={1600}

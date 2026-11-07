@@ -196,7 +196,7 @@ export default function SourceNewsBrowser({
                   <figure className="news-card-image">
                     <NewsImage
                       source={item.source}
-                      src={`/api/news-image?url=${encodeURIComponent(item.url)}&source=${encodeURIComponent(item.source)}&title=${encodeURIComponent(item.originalTitle || item.title)}&v=5`}
+                      src={`/api/news-image?url=${encodeURIComponent(item.url)}&source=${encodeURIComponent(item.source)}&title=${encodeURIComponent(item.originalTitle || item.title)}&v=6`}
                       alt={`${item.title} 新闻图片`}
                       width={800}
                       height={450}
