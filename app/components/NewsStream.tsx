@@ -1,4 +1,4 @@
-import Image from "next/image";
+import NewsImage from "./NewsImage";
 import InfiniteNews from "./InfiniteNews";
 import Link from "next/link";
 import {
@@ -93,8 +93,9 @@ export default function NewsStream({
                     </time>
                   </div>
                   <figure className="news-card-image">
-                    <Image
-                      src={`/api/news-image?url=${encodeURIComponent(item.url)}&source=${encodeURIComponent(item.source)}&title=${encodeURIComponent(item.originalTitle || item.title)}&v=4`}
+                    <NewsImage
+                      source={item.source}
+                      src={`/api/news-image?url=${encodeURIComponent(item.url)}&source=${encodeURIComponent(item.source)}&title=${encodeURIComponent(item.originalTitle || item.title)}&v=5`}
                       alt={`${item.title} 新闻图片`}
                       width={800}
                       height={450}

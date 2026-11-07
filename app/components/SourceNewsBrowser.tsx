@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import NewsImage from "./NewsImage";
 import LoadMoreTrigger from "./LoadMoreTrigger";
 import Link from "next/link";
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
@@ -194,8 +194,9 @@ export default function SourceNewsBrowser({
                     </time>
                   </div>
                   <figure className="news-card-image">
-                    <Image
-                      src={`/api/news-image?url=${encodeURIComponent(item.url)}&source=${encodeURIComponent(item.source)}&title=${encodeURIComponent(item.originalTitle || item.title)}&v=4`}
+                    <NewsImage
+                      source={item.source}
+                      src={`/api/news-image?url=${encodeURIComponent(item.url)}&source=${encodeURIComponent(item.source)}&title=${encodeURIComponent(item.originalTitle || item.title)}&v=5`}
                       alt={`${item.title} 新闻图片`}
                       width={800}
                       height={450}

@@ -4,11 +4,34 @@ import {
   resolveOriginalNewsUrl,
 } from "../../data/google-news";
 import { fetchReutersPartnerImage } from "../../data/news-article-content";
+import { trustedSources } from "../../data/sources";
 
 export const revalidate = 86400;
 
-function fallbackResponse(request: NextRequest) {
-  return NextResponse.redirect(new URL("/world-brief.png", request.url), 307);
+function escapeXml(value: string) {
+  return value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;" })[character] || "");
+}
+
+async function fallbackResponse(sourceName: string) {
+  const source = trustedSources.find((item) => item.name === sourceName);
+  const label = escapeXml(source?.shortName || "NEWS");
+  let icon = "";
+  if (source) {
+    try {
+      const url = new URL("https://www.google.com/s2/favicons");
+      url.searchParams.set("domain", new URL(source.url).hostname);
+      url.searchParams.set("sz", "128");
+      const response = await fetch(url, { next: { revalidate: 86400 }, signal: AbortSignal.timeout(3000) });
+      const type = response.headers.get("content-type")?.split(";")[0];
+      if (response.ok && (type === "image/png" || type === "image/x-icon" || type === "image/vnd.microsoft.icon")) {
+        const data = await response.arrayBuffer();
+        if (data.byteLength > 0 && data.byteLength < 100000) icon = `<image x="336" y="88" width="128" height="128" href="data:${type};base64,${Buffer.from(data).toString("base64")}"/>`;
+      }
+    } catch { /* Publisher name remains available if the icon cannot be loaded. */ }
+  }
+  const y = icon ? 285 : 230;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450"><rect width="800" height="450" fill="#f2f2f7"/>${icon}<text x="400" y="${y}" text-anchor="middle" dominant-baseline="middle" fill="#1d1d1f" font-family="Arial, sans-serif" font-size="36" font-weight="700">${label}</text></svg>`;
+  return new NextResponse(svg, { headers: { "Content-Type": "image/svg+xml; charset=utf-8", "Cache-Control": "public, max-age=3600, s-maxage=3600", "X-Content-Type-Options": "nosniff", "Content-Security-Policy": "default-src 'none'; img-src data:; style-src 'unsafe-inline'; sandbox" } });
 }
 
 function imageResponse(imageUrl: string) {
@@ -51,8 +74,8 @@ export async function GET(request: NextRequest) {
   const source = request.nextUrl.searchParams.get("source") ?? "";
   const title = request.nextUrl.searchParams.get("title") ?? "";
 
-  if (!newsUrl) {
-    return fallbackResponse(request);
+  if (request.nextUrl.searchParams.get("fallback") === "logo" || !newsUrl) {
+    return fallbackResponse(source);
   }
 
   try {
@@ -65,7 +88,7 @@ export async function GET(request: NextRequest) {
 
     const originalUrl = await resolveOriginalNewsUrl(newsUrl);
     if (!isTrustedExternalNewsUrl(originalUrl)) {
-      return fallbackResponse(request);
+      return fallbackResponse(source);
     }
 
     const response = await fetch(originalUrl, {
@@ -75,21 +98,21 @@ export async function GET(request: NextRequest) {
     });
 
     if (!response.ok) {
-      return fallbackResponse(request);
+      return fallbackResponse(source);
     }
 
     const imageUrl = imageFromHtml(await response.text());
     if (!imageUrl) {
-      return fallbackResponse(request);
+      return fallbackResponse(source);
     }
 
     const parsedImage = new URL(imageUrl);
     if (parsedImage.protocol !== "https:") {
-      return fallbackResponse(request);
+      return fallbackResponse(source);
     }
 
     return imageResponse(imageUrl);
   } catch {
-    return fallbackResponse(request);
+    return fallbackResponse(source);
   }
 }

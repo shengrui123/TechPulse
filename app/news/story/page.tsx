@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import RelatedNews from "../../components/RelatedNews";
-import Image from "next/image";
+import NewsImage from "../../components/NewsImage";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import SiteFooter from "../../components/SiteFooter";
@@ -149,10 +149,11 @@ async function StoryContent({ story }: { story: NewsStory }) {
 
   return <>
           <figure className="news-article-image">
-            <Image
+            <NewsImage
+              source={story.source}
               src={
                 articleContent.imageUrl ||
-                `/api/news-image?url=${encodeURIComponent(story.url)}&source=${encodeURIComponent(story.source)}&title=${encodeURIComponent(story.originalTitle || story.title)}&v=4`
+                `/api/news-image?url=${encodeURIComponent(story.url)}&source=${encodeURIComponent(story.source)}&title=${encodeURIComponent(story.originalTitle || story.title)}&v=5`
               }
               alt={`${story.title} 新闻图片`}
               width={1600}
