@@ -49,7 +49,7 @@ function rssSourceLabel(value: string): string {
   try {
     return new URL(value).hostname === "news.google.com"
       ? "Google News RSS"
-      : "原媒体官方 RSS";
+      : "新闻 RSS";
   } catch {
     return "RSS";
   }
@@ -140,7 +140,7 @@ async function StoryContent({ story }: { story: NewsStory }) {
   });
   const emptyContentMessage =
     story.source === "Reuters"
-      ? "Reuters RSS 仅提供标题、链接与发布时间，原文页面目前拒绝服务器读取。请使用下方按钮前往 Reuters 查看完整报道。"
+      ? "暂未取得可确认匹配的路透社正文。请使用下方按钮前往 Reuters 查看完整报道。"
       : "该来源暂未提供新闻摘要。";
   const readingMinutes = Math.max(
     1,

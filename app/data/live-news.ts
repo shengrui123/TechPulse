@@ -134,7 +134,7 @@ function field(item: string, name: string): string {
   return match ? clean(match[1]) : "";
 }
 
-function isActualNewsArticle(item: LiveNewsItem): boolean {
+function isActualNewsArticle(item: LiveNewsItem, googleReutersFeed = false): boolean {
   if (item.source !== "Reuters") {
     return true;
   }
@@ -142,6 +142,7 @@ function isActualNewsArticle(item: LiveNewsItem): boolean {
   try {
     const url = new URL(item.url);
     const hostname = url.hostname.replace(/^www\./, "");
+    if (googleReutersFeed && url.protocol === "https:" && hostname === "news.google.com" && url.pathname.startsWith("/rss/articles/")) return true;
     return (
       hostname === "reuters.com" &&
       /-[0-9]{4}-[0-9]{2}-[0-9]{2}\/?$/u.test(url.pathname)
@@ -155,6 +156,7 @@ function parseFeed(
   xml: string,
   source: string,
   sourceName: string,
+  googleReutersFeed = false,
 ): LiveNewsItem[] {
   const feedPublishedAt =
     field(xml, "lastBuildDate") ||
@@ -166,6 +168,7 @@ function parseFeed(
     [];
 
   return items
+    .filter((item) => !googleReutersFeed || field(item, "source") === "Reuters")
     .map((item) => {
       const atomLink = item.match(/<link[^>]+href=["']([^"']+)["'][^>]*>/i);
       const publishedAt =
@@ -202,7 +205,7 @@ function parseFeed(
         item.title &&
         item.url.startsWith("http") &&
         item.publishedAt &&
-        isActualNewsArticle(item),
+        isActualNewsArticle(item, googleReutersFeed),
     );
 }
 
@@ -403,26 +406,29 @@ async function translateNewsItems(items: LiveNewsItem[]) {
 async function fetchFeed(
   feed: (typeof feeds)[number],
 ): Promise<LiveNewsItem[]> {
+  const urls = feed.source === "Reuters"
+    ? [feed.url, "https://news.google.com/rss/search?q=when%3A24h%20site%3Areuters.com&ceid=US%3Aen&hl=en-US&gl=US"]
+    : [feed.url];
   let lastError: unknown;
-
-  for (let attempt = 0; attempt < 1; attempt += 1) {
+  for (const url of urls) {
     try {
-      const response = await fetch(feed.url, {
+      const response = await fetch(url, {
         headers: { "User-Agent": "WorldPulse/1.0 news reader" },
         next: { revalidate: 1800 },
         signal: AbortSignal.timeout(5000),
       });
-
-      if (!response.ok) {
-        throw new Error(`${feed.source} returned ${response.status}`);
-      }
-
-      return parseFeed(await response.text(), feed.source, feed.sourceName);
+      if (!response.ok) throw new Error(`${feed.source} returned ${response.status}`);
+      const googleReutersFeed = feed.source === "Reuters" && new URL(url).hostname === "news.google.com";
+      const items = parseFeed(await response.text(), feed.source, feed.sourceName, googleReutersFeed);
+      if (feed.source === "Reuters" && !items.some((item) => {
+        const published = new Date(item.publishedAt).getTime();
+        return Number.isFinite(published) && published >= Date.now() - newsWindowMs && published <= Date.now();
+      })) throw new Error("Reuters feed contains no recent articles");
+      return items;
     } catch (error) {
       lastError = error;
     }
   }
-
   throw lastError;
 }
 
@@ -543,7 +549,7 @@ async function buildAllSourceNews(): Promise<LiveNewsItem[]> {
 
 export const getAllSourceNews = unstable_cache(
   buildAllSourceNews,
-  ["worldpulse-all-source-news-24h-v11"],
+  ["worldpulse-all-source-news-24h-v12"],
   { revalidate: 1800, tags: ["all-source-news"] },
 );
 
@@ -583,7 +589,7 @@ async function buildSourceEdition(): Promise<LiveNewsItem[]> {
 
 export const getSourceEdition = unstable_cache(
   buildSourceEdition,
-  ["worldpulse-source-edition-24h-v11"],
+  ["worldpulse-source-edition-24h-v12"],
   { revalidate: 900, tags: ["source-edition"] },
 );
 
