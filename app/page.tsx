@@ -14,17 +14,17 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
 type HomeProps = {
-  searchParams: Promise<{ sort?: string; page?: string }>;
+  searchParams: Promise<{ sort?: string }>;
 };
 
 export default async function Home({ searchParams }: HomeProps) {
-  const { sort, page } = await searchParams;
+  const { sort } = await searchParams;
   const news = await getAllSourceNews();
 
   return (
     <>
       <SiteHeader />
-      <NewsStream news={news} hideHeader sortMode={newsSortMode(sort)} page={Number(page) || 1} />
+      <NewsStream news={news} hideHeader sortMode={newsSortMode(sort)} />
       <SiteFooter />
     </>
   );

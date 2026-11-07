@@ -3858,3 +3858,5 @@ html[data-theme="dark"] .original-news-button, html[data-theme="dark"] .nav-inne
 
 .news-pagination { display: flex; justify-content: center; align-items: center; gap: 24px; padding: 32px 0; font-size: 14px; }
 .news-pagination a, .news-pagination button { padding: 10px 16px; border: 1px solid var(--line); border-radius: 999px; background: var(--white); color: var(--ink); font-weight: 700; cursor: pointer; }
+
+.news-waterfall > .news-pagination { grid-column: 1 / -1; }

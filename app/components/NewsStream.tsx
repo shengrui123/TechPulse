@@ -1,4 +1,5 @@
 import Image from "next/image";
+import InfiniteNews from "./InfiniteNews";
 import Link from "next/link";
 import {
   formatNewsDate,
@@ -16,8 +17,7 @@ type NewsStreamProps = {
   description?: string;
   hideHeader?: boolean;
   sortMode?: NewsSortMode;
-  page?: number;
-  basePath?: string;
+  category?: string;
 };
 
 export default function NewsStream({
@@ -28,15 +28,10 @@ export default function NewsStream({
   description,
   hideHeader = false,
   sortMode = "importance",
-  page = 1,
-  basePath = "/",
+  category,
 }: NewsStreamProps) {
   const orderedNews = sortNewsItems(news, sortMode);
-  const pageSize = 24;
-  const totalPages = Math.max(1, Math.ceil(orderedNews.length / pageSize));
-  const currentPage = Math.max(1, Math.min(page, totalPages));
-  const visibleNews = orderedNews.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-  const pageHref = (nextPage: number) => `${basePath}?page=${nextPage}${sortMode === "time" ? "&sort=time" : ""}`;
+  const visibleNews = orderedNews.slice(0, 24);
   const activeSourceCount = new Set(
     orderedNews.map((item) => item.source),
   ).size;
@@ -114,6 +109,7 @@ export default function NewsStream({
                 </Link>
               </article>
             ))}
+            <InfiniteNews key={`${category || "all"}-${sortMode}`} category={category} sortMode={sortMode} initialCount={visibleNews.length} initialUrls={visibleNews.map((item) => item.url)} total={orderedNews.length} />
           </div>
         ) : (
           <div className="news-empty">
@@ -121,11 +117,6 @@ export default function NewsStream({
             <p>新闻源会持续更新，你也可以稍后刷新查看。</p>
           </div>
         )}
-        {totalPages > 1 && <nav className="news-pagination" aria-label="新闻分页">
-          {currentPage > 1 && <Link href={pageHref(currentPage - 1)}>← 上一页</Link>}
-          <span>第 {currentPage} / {totalPages} 页</span>
-          {currentPage < totalPages && <Link href={pageHref(currentPage + 1)}>下一页 →</Link>}
-        </nav>}
       </section>
     </main>
   );

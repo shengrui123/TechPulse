@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import LoadMoreTrigger from "./LoadMoreTrigger";
 import Link from "next/link";
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import type { LiveNewsItem, LiveNewsSource } from "../data/live-news";
@@ -217,7 +218,7 @@ export default function SourceNewsBrowser({
             {query && <button type="button" onClick={() => setQuery("")}>查看全部新闻</button>}
           </div>
         )}
-        {visibleCount < filteredNews.length && <div className="news-pagination"><button type="button" onClick={() => setVisibleCount((count) => count + 24)}>加载更多</button></div>}
+        {visibleCount < filteredNews.length && <LoadMoreTrigger onLoad={() => setVisibleCount((count) => count + 24)} />}
       </section>
     </main>
   );
