@@ -3459,7 +3459,7 @@ main > .source-search + .news-stream::before {
   padding-bottom: 13px;
   border-bottom: 1px solid var(--line);
   color: var(--ink);
-  content: "今天  TODAY";
+  content: "近期  RECENT";
   font-family: var(--app-display);
   font-size: 30px;
   font-weight: 750;

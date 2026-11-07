@@ -56,7 +56,13 @@ const sourceNames: Record<string, string> = {
 };
 
 const newsWindowMs = 24 * 60 * 60 * 1000;
-const allSourceNewsWindowMs = newsWindowMs;
+const reporterNewsWindowMs = 7 * newsWindowMs;
+
+function isRecentNews(item: LiveNewsItem, now: number): boolean {
+  const published = new Date(item.publishedAt).getTime();
+  const window = item.source === "The Reporter" ? reporterNewsWindowMs : newsWindowMs;
+  return Number.isFinite(published) && published >= now - window && published <= now;
+}
 
 function googleNewsFeedUrl(sourceUrl: string): string {
   const domain = new URL(sourceUrl).hostname.replace(/^www\./, "");
@@ -396,7 +402,9 @@ async function fetchFeed(
     ? [feed.url, "https://news.google.com/rss/search?q=when%3A24h%20site%3Areuters.com&ceid=US%3Aen&hl=en-US&gl=US"]
     : feed.source === "BBC News"
       ? [feed.url, "https://feeds.bbci.co.uk/news/world/rss.xml"]
-      : [feed.url];
+      : feed.source === "Bloomberg"
+        ? [feed.url, "https://www.bloomberg.com/feeds/markets/news.rss"]
+        : [feed.url];
   let lastError: unknown;
   for (const url of urls) {
     try {
@@ -408,7 +416,7 @@ async function fetchFeed(
       if (!response.ok) throw new Error(`${feed.source} returned ${response.status}`);
       const googleReutersFeed = feed.source === "Reuters" && new URL(url).hostname === "news.google.com";
       const items = parseFeed(await response.text(), feed.source, feed.sourceName, googleReutersFeed);
-      if ((feed.source === "Reuters" || feed.source === "BBC News") && !items.some((item) => {
+      if ((feed.source === "Reuters" || feed.source === "BBC News" || feed.source === "Bloomberg") && !items.some((item) => {
         const published = new Date(item.publishedAt).getTime();
         return Number.isFinite(published) && published >= Date.now() - newsWindowMs && published <= Date.now();
       })) throw new Error(`${feed.source} feed contains no recent articles`);
@@ -457,7 +465,6 @@ export async function getLatestInternationalNews(limit?: number) {
 
   const unique = new Map<string, LiveNewsItem>();
   const now = Date.now();
-  const cutoff = now - newsWindowMs;
 
   responses.forEach((response) => {
     if (response.status !== "fulfilled") {
@@ -465,14 +472,7 @@ export async function getLatestInternationalNews(limit?: number) {
     }
 
     response.value.forEach((item) => {
-      const publishedAt = new Date(item.publishedAt).getTime();
-      if (
-        !Number.isFinite(publishedAt) ||
-        publishedAt < cutoff ||
-        publishedAt > now
-      ) {
-        return;
-      }
+      if (!isRecentNews(item, now)) return;
 
       const key = item.url.toLocaleLowerCase();
       if (!unique.has(key)) {
@@ -496,7 +496,6 @@ export async function getLatestInternationalNews(limit?: number) {
 async function buildAllSourceNews(): Promise<LiveNewsItem[]> {
   const responses = await fetchAllFeeds();
   const now = Date.now();
-  const cutoff = now - allSourceNewsWindowMs;
   const unique = new Map<string, LiveNewsItem>();
 
   responses.forEach((response) => {
@@ -505,14 +504,7 @@ async function buildAllSourceNews(): Promise<LiveNewsItem[]> {
     }
 
     response.value
-      .filter((item) => {
-        const publishedAt = new Date(item.publishedAt).getTime();
-        return (
-          Number.isFinite(publishedAt) &&
-          publishedAt >= cutoff &&
-          publishedAt <= now
-        );
-      })
+      .filter((item) => isRecentNews(item, now))
       .sort(
         (left, right) =>
           new Date(right.publishedAt).getTime() -
@@ -537,14 +529,13 @@ async function buildAllSourceNews(): Promise<LiveNewsItem[]> {
 
 export const getAllSourceNews = unstable_cache(
   buildAllSourceNews,
-  ["worldpulse-all-source-news-24h-v14"],
+  ["worldpulse-all-source-news-v15"],
   { revalidate: 1800, tags: ["all-source-news"] },
 );
 
 async function buildSourceEdition(): Promise<LiveNewsItem[]> {
   const responses = await fetchAllFeeds();
   const now = Date.now();
-  const cutoff = now - newsWindowMs;
   const onePerSource: LiveNewsItem[] = [];
 
   responses.forEach((response) => {
@@ -553,14 +544,7 @@ async function buildSourceEdition(): Promise<LiveNewsItem[]> {
     }
 
     const latest = response.value
-      .filter((item) => {
-        const publishedAt = new Date(item.publishedAt).getTime();
-        return (
-          Number.isFinite(publishedAt) &&
-          publishedAt >= cutoff &&
-          publishedAt <= now
-        );
-      })
+      .filter((item) => isRecentNews(item, now))
       .sort(
         (left, right) =>
           new Date(right.publishedAt).getTime() -
@@ -577,7 +561,7 @@ async function buildSourceEdition(): Promise<LiveNewsItem[]> {
 
 export const getSourceEdition = unstable_cache(
   buildSourceEdition,
-  ["worldpulse-source-edition-24h-v14"],
+  ["worldpulse-source-edition-v15"],
   { revalidate: 900, tags: ["source-edition"] },
 );
 

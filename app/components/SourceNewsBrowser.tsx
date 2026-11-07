@@ -179,7 +179,7 @@ export default function SourceNewsBrowser({
             <span>{selectedSource ? selectedSource.source : query ? `匹配“${query}”` : "ALL PUBLISHERS"}</span>
             <h1>{selectedSource ? `${selectedSource.sourceName} 的全部报道` : "最新报道"}</h1>
           </div>
-          <strong>{filteredNews.length} 条</strong>
+          <strong>{filteredNews.length} 条{selectedSource?.source === "The Reporter" ? " · 近 7 天" : ""}</strong>
         </div>
 
         {filteredNews.length > 0 ? (

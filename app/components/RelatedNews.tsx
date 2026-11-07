@@ -51,7 +51,7 @@ export default async function RelatedNews({ story }: { story: NewsStory }) {
           />
         </span>
       </Link>
-    </li>)}</ul> : <p className="related-news-empty">最近 24 小时暂未找到足够相关的报道。</p>}
+    </li>)}</ul> : <p className="related-news-empty">近期暂未找到足够相关的报道。</p>}
     <p className="related-news-caption">根据报道标题自动匹配，请结合发布时间判断事件进展。</p>
   </aside>;
 }

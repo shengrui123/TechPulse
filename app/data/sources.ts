@@ -101,7 +101,7 @@ export const sourceGroups: SourceGroup[] = [
         focus: "澳大利亚、亚太与气候",
         url: "https://www.abc.net.au/news/",
         rssUrl:
-          "https://www.abc.net.au/news/feed/8537074/rss_fulltext.xml",
+          "https://www.abc.net.au/news/feed/51120/rss.xml",
       },
       {
         name: "Al Jazeera",
@@ -225,7 +225,7 @@ export const sourceGroups: SourceGroup[] = [
         url: "https://www.bloomberg.com/",
         alternateHosts: ["news.bloomberglaw.com"],
         rssUrl:
-          "https://news.google.com/rss/search?q=site%3Awww.bloomberg.com&hl=zh-CN&gl=CN&ceid=CN%3Azh-Hans",
+          "https://www.bloomberg.com/feeds/news.rss",
       },
       {
         name: "Financial Times",
