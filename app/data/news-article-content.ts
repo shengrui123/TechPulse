@@ -6,6 +6,7 @@ import {
   resolveGoogleNewsUrlForHosts,
 } from "./google-news";
 import { isChineseText } from "./language";
+import { findLicensedArticle } from "./licensed-articles";
 import { isUsableTranslation } from "./translation-quality";
 import { contentPolicyForUrl, urlMatchesSource } from "./sources";
 
@@ -1112,4 +1113,20 @@ async function loadArticleContent(
 }
 
 // Cache extraction and translation together so repeat visits do not refetch every paragraph.
-export const fetchArticleContent = unstable_cache(loadArticleContent, ["article-content-v2"], { revalidate: 1800 });
+const getCachedArticleContent = unstable_cache(loadArticleContent, ["article-content-v2"], { revalidate: 1800 });
+const getCachedLicensedParagraphs = unstable_cache(translateParagraphs, ["licensed-paragraphs-v1"], { revalidate: 86400 });
+
+export async function fetchArticleContent(originalUrl: string, expected: ArticleExpectation): Promise<ArticleContent> {
+  const licensed = findLicensedArticle(originalUrl, expected.source);
+  if (licensed) {
+    return {
+      paragraphs: await getCachedLicensedParagraphs(licensed.paragraphs),
+      originalParagraphs: licensed.paragraphs,
+      byline: licensed.byline,
+      imageUrl: "",
+      mode: "full",
+      matched: true,
+    };
+  }
+  return getCachedArticleContent(originalUrl, expected);
+}

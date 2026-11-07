@@ -10,6 +10,7 @@
     "build": "next build --webpack",
     "start": "next start",
     "test": "node --test tests/rendered-html.test.mjs",
+    "import-article": "node scripts/import-licensed-article.mjs",
     "lint": "eslint . --ignore-pattern .next"
   },
   "dependencies": {

@@ -1,6 +1,7 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
 import { isChineseText } from "./language";
+import { canonicalArticleUrl, licensedArticles } from "./licensed-articles";
 import { isUsableTranslation, splitMarkedTranslations } from "./translation-quality";
 import { trustedSources } from "./sources";
 import {
@@ -44,6 +45,7 @@ const sourceNames: Record<string, string> = {
   "Le Monde": "世界报",
   "Channel NewsAsia": "亚洲新闻台",
   "Initium Media": "端传媒",
+  Malaysiakini: "当今大马",
   "United Daily News": "联合新闻网",
   "Lianhe Zaobao": "联合早报",
   Bloomberg: "彭博社",
@@ -525,11 +527,30 @@ async function buildAllSourceNews(): Promise<LiveNewsItem[]> {
   return translateNewsItems(sorted);
 }
 
-export const getAllSourceNews = unstable_cache(
+const getCachedSourceNews = unstable_cache(
   buildAllSourceNews,
-  ["worldpulse-all-source-news-v16"],
+  ["worldpulse-all-source-news-v17"],
   { revalidate: 1800, tags: ["all-source-news"] },
 );
+
+export async function getAllSourceNews(): Promise<LiveNewsItem[]> {
+  const news = await getCachedSourceNews();
+  if (!licensedArticles.length) return news;
+  const imported = await translateNewsItems(licensedArticles.map((article) => ({
+    title: article.title,
+    originalTitle: article.title,
+    summary: article.paragraphs[0].slice(0, 300),
+    originalSummary: article.paragraphs[0].slice(0, 300),
+    source: article.source,
+    sourceName: sourceNames[article.source] ?? article.source,
+    url: article.url,
+    publishedAt: article.publishedAt,
+  })));
+  const urls = new Set(imported.map((item) => canonicalArticleUrl(item.url)));
+  return [...imported, ...news.filter((item) => !urls.has(canonicalArticleUrl(item.url)))].sort(
+    (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
+  );
+}
 
 async function buildSourceEdition(): Promise<LiveNewsItem[]> {
   const responses = await fetchAllFeeds();
@@ -559,7 +580,7 @@ async function buildSourceEdition(): Promise<LiveNewsItem[]> {
 
 export const getSourceEdition = unstable_cache(
   buildSourceEdition,
-  ["worldpulse-source-edition-v16"],
+  ["worldpulse-source-edition-v17"],
   { revalidate: 900, tags: ["source-edition"] },
 );
 

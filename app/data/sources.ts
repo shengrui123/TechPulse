@@ -187,6 +187,14 @@ export const sourceGroups: SourceGroup[] = [
         rssUrl: "https://theinitium.com/rss/",
       },
       {
+        name: "Malaysiakini",
+        shortName: "当今大马",
+        region: "马来西亚 / 东南亚",
+        focus: "马来西亚政治、社会与时事",
+        url: "https://www.malaysiakini.com/",
+        rssUrl: "https://www.malaysiakini.com/zh/rss/news.rss",
+      },
+      {
         name: "United Daily News",
         shortName: "聯合新聞網",
         region: "台湾 / 华语世界",
