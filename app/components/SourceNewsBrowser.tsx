@@ -40,6 +40,7 @@ export default function SourceNewsBrowser({
   sortMode = "importance",
 }: SourceNewsBrowserProps) {
   const [query, setQuery] = useState("");
+  const [visibleCount, setVisibleCount] = useState(24);
   const [searchOpen, setSearchOpen] = useState(false);
   const deferredQuery = useDeferredValue(query);
   const normalizedQuery = normalize(deferredQuery);
@@ -182,9 +183,9 @@ export default function SourceNewsBrowser({
 
         {filteredNews.length > 0 ? (
           <div className="news-waterfall">
-            {filteredNews.map((item, index) => (
+            {filteredNews.slice(0, visibleCount).map((item, index) => (
               <article className="news-card" key={`${item.source}-${item.url}`}>
-                <Link href={item.storyHref} aria-label={`阅读：${item.title}`}>
+                <Link prefetch={false} href={item.storyHref} aria-label={`阅读：${item.title}`}>
                   <div className="news-card-meta">
                     <span>{item.sourceName}</span>
                     <time dateTime={item.publishedAt}>
@@ -216,6 +217,7 @@ export default function SourceNewsBrowser({
             {query && <button type="button" onClick={() => setQuery("")}>查看全部新闻</button>}
           </div>
         )}
+        {visibleCount < filteredNews.length && <div className="news-pagination"><button type="button" onClick={() => setVisibleCount((count) => count + 24)}>加载更多</button></div>}
       </section>
     </main>
   );

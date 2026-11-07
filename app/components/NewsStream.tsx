@@ -16,6 +16,8 @@ type NewsStreamProps = {
   description?: string;
   hideHeader?: boolean;
   sortMode?: NewsSortMode;
+  page?: number;
+  basePath?: string;
 };
 
 export default function NewsStream({
@@ -26,8 +28,15 @@ export default function NewsStream({
   description,
   hideHeader = false,
   sortMode = "importance",
+  page = 1,
+  basePath = "/",
 }: NewsStreamProps) {
   const orderedNews = sortNewsItems(news, sortMode);
+  const pageSize = 24;
+  const totalPages = Math.max(1, Math.ceil(orderedNews.length / pageSize));
+  const currentPage = Math.max(1, Math.min(page, totalPages));
+  const visibleNews = orderedNews.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const pageHref = (nextPage: number) => `${basePath}?page=${nextPage}${sortMode === "time" ? "&sort=time" : ""}`;
   const activeSourceCount = new Set(
     orderedNews.map((item) => item.source),
   ).size;
@@ -75,9 +84,10 @@ export default function NewsStream({
                 : "news-waterfall"
             }
           >
-            {orderedNews.map((item, index) => (
+            {visibleNews.map((item, index) => (
               <article className="news-card" key={`${item.source}-${item.url}`}>
                 <Link
+                  prefetch={false}
                   href={`/news/story?story=${encodeNewsStory(item)}`}
                   aria-label={`阅读：${item.title}`}
                 >
@@ -111,6 +121,11 @@ export default function NewsStream({
             <p>新闻源会持续更新，你也可以稍后刷新查看。</p>
           </div>
         )}
+        {totalPages > 1 && <nav className="news-pagination" aria-label="新闻分页">
+          {currentPage > 1 && <Link href={pageHref(currentPage - 1)}>← 上一页</Link>}
+          <span>第 {currentPage} / {totalPages} 页</span>
+          {currentPage < totalPages && <Link href={pageHref(currentPage + 1)}>下一页 →</Link>}
+        </nav>}
       </section>
     </main>
   );

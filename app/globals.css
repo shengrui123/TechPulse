@@ -3855,3 +3855,6 @@ html[data-theme="dark"] .related-news li p, html[data-theme="dark"] .related-new
 @media (max-width: 760px) { .news-article-layout { grid-template-columns: 1fr; gap: 32px; } .related-news { position: static; } }
 
 html[data-theme="dark"] .original-news-button, html[data-theme="dark"] .nav-inner a.is-active { color: #111; }
+
+.news-pagination { display: flex; justify-content: center; align-items: center; gap: 24px; padding: 32px 0; font-size: 14px; }
+.news-pagination a, .news-pagination button { padding: 10px 16px; border: 1px solid var(--line); border-radius: 999px; background: var(--white); color: var(--ink); font-weight: 700; cursor: pointer; }

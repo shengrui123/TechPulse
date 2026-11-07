@@ -10,7 +10,7 @@ import { resolveOriginalNewsUrl } from "../../data/google-news";
 import { isChineseText } from "../../data/language";
 import { fetchArticleContent } from "../../data/news-article-content";
 import { formatNewsDate } from "../../data/live-news";
-import { decodeNewsStory } from "../../data/news-story";
+import { decodeNewsStory, type NewsStory } from "../../data/news-story";
 
 type StoryPageProps = {
   searchParams: Promise<{ story?: string }>;
@@ -74,6 +74,44 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
     notFound();
   }
 
+  return (
+    <>
+      <SiteHeader />
+      <main className="news-article-page">
+        <article className="page-shell news-article">
+          <nav className="news-article-breadcrumb" aria-label="面包屑">
+            <Link href="/">首页</Link>
+            <span>/</span>
+            <Link href="/news">全部新闻</Link>
+          </nav>
+
+          <header className="news-article-header">
+            <div className="news-article-title-stack">
+              {story.originalTitle &&
+                story.originalTitle !== story.title &&
+                !isChineseText(story.originalTitle) && (
+                  <p className="news-article-original-title" lang="en">
+                    {story.originalTitle}
+                  </p>
+                )}
+              <h1>{story.title}</h1>
+              <p className="eyebrow">
+                {story.sourceName} · {formatNewsDate(story.publishedAt)}
+              </p>
+            </div>
+          </header>
+
+          <Suspense fallback={<div className="news-article-layout"><div className="news-article-copy"><p className="news-article-lead">{story.summary || "正在加载新闻正文…"}</p><p role="status">正在加载完整报道…</p><a className="original-news-button" href={story.url} target="_blank" rel="noreferrer">阅读原文 ↗</a></div></div>}>
+            <StoryContent story={story} />
+          </Suspense>
+        </article>
+      </main>
+      <SiteFooter />
+    </>
+  );
+}
+
+async function StoryContent({ story }: { story: NewsStory }) {
   const originalUrl = await resolveOriginalNewsUrl(story.url);
   const rssSource = rssSourceLabel(story.url);
   const articleContent = await fetchArticleContent(originalUrl, {
@@ -109,33 +147,7 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
     Math.ceil(paragraphs.join("").length / 450),
   );
 
-  return (
-    <>
-      <SiteHeader />
-      <main className="news-article-page">
-        <article className="page-shell news-article">
-          <nav className="news-article-breadcrumb" aria-label="面包屑">
-            <Link href="/">首页</Link>
-            <span>/</span>
-            <Link href="/news">全部新闻</Link>
-          </nav>
-
-          <header className="news-article-header">
-            <div className="news-article-title-stack">
-              {story.originalTitle &&
-                story.originalTitle !== story.title &&
-                !isChineseText(story.originalTitle) && (
-                  <p className="news-article-original-title" lang="en">
-                    {story.originalTitle}
-                  </p>
-                )}
-              <h1>{story.title}</h1>
-              <p className="eyebrow">
-                {story.sourceName} · {formatNewsDate(story.publishedAt)}
-              </p>
-            </div>
-          </header>
-
+  return <>
           <figure className="news-article-image">
             <Image
               src={
@@ -250,9 +262,5 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
               <RelatedNews story={story} />
             </Suspense>
           </div>
-        </article>
-      </main>
-      <SiteFooter />
-    </>
-  );
+  </>;
 }

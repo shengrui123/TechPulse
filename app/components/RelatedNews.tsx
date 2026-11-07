@@ -32,7 +32,7 @@ export default async function RelatedNews({ story }: { story: NewsStory }) {
     <p className="related-news-kicker">继续了解</p>
     <h2>{sameSource.length ? "相关报道与进展" : "其他媒体的相关报道"}</h2>
     {selected.length ? <ul>{selected.map(({ item }) => <li key={item.url}>
-      <Link href={`/news/story?story=${encodeNewsStory(item)}`}>{item.title}</Link>
+      <Link prefetch={false} href={`/news/story?story=${encodeNewsStory(item)}`}>{item.title}</Link>
       <p>{item.sourceName} · {formatNewsDate(item.publishedAt)}</p>
     </li>)}</ul> : <p className="related-news-empty">最近 24 小时暂未找到足够相关的报道。</p>}
     <p className="related-news-caption">根据报道标题自动匹配，请结合发布时间判断事件进展。</p>

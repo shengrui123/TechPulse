@@ -12,7 +12,7 @@ import { newsSortMode } from "../../data/news-sort";
 
 type CategoryPageProps = {
   params: Promise<{ category: string }>;
-  searchParams: Promise<{ sort?: string }>;
+  searchParams: Promise<{ sort?: string; page?: string }>;
 };
 
 export const dynamic = "force-dynamic";
@@ -38,7 +38,7 @@ export default async function CategoryPage({
   searchParams,
 }: CategoryPageProps) {
   const { category } = await params;
-  const { sort } = await searchParams;
+  const { sort, page } = await searchParams;
   if (!isNewsCategory(category)) {
     notFound();
   }
@@ -48,7 +48,7 @@ export default async function CategoryPage({
   return (
     <>
       <SiteHeader />
-      <NewsStream news={news} hideHeader sortMode={newsSortMode(sort)} />
+      <NewsStream news={news} hideHeader sortMode={newsSortMode(sort)} page={Number(page) || 1} basePath={`/news/${category}`} />
       <SiteFooter />
     </>
   );
