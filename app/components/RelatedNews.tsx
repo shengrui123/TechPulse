@@ -1,4 +1,5 @@
 import Link from "next/link";
+import NewsImage from "./NewsImage";
 import { formatNewsDate, getAllSourceNews } from "../data/live-news";
 import { encodeNewsStory, type NewsStory } from "../data/news-story";
 
@@ -32,8 +33,24 @@ export default async function RelatedNews({ story }: { story: NewsStory }) {
     <p className="related-news-kicker">继续了解</p>
     <h2>{sameSource.length ? "相关报道与进展" : "其他媒体的相关报道"}</h2>
     {selected.length ? <ul>{selected.map(({ item }) => <li key={item.url}>
-      <Link prefetch={false} href={`/news/story?story=${encodeNewsStory(item)}`}>{item.title}</Link>
-      <p>{item.sourceName} · {formatNewsDate(item.publishedAt)}</p>
+      <Link className="related-news-link" prefetch={false} href={`/news/story?story=${encodeNewsStory(item)}`}>
+        <span className="related-news-text">
+          <span className="related-news-title">{item.title}</span>
+          <span className="related-news-meta">{item.sourceName} · {formatNewsDate(item.publishedAt)}</span>
+        </span>
+        <span className="related-news-image">
+          <NewsImage
+            source={item.source}
+            src={`/api/news-image?url=${encodeURIComponent(item.url)}&source=${encodeURIComponent(item.source)}&title=${encodeURIComponent(item.originalTitle || item.title)}&v=6`}
+            alt=""
+            width={320}
+            height={180}
+            sizes="(max-width: 760px) 112px, 80px"
+            loading="lazy"
+            unoptimized
+          />
+        </span>
+      </Link>
     </li>)}</ul> : <p className="related-news-empty">最近 24 小时暂未找到足够相关的报道。</p>}
     <p className="related-news-caption">根据报道标题自动匹配，请结合发布时间判断事件进展。</p>
   </aside>;
