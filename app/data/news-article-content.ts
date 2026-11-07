@@ -6,6 +6,7 @@ import {
   resolveGoogleNewsUrlForHosts,
 } from "./google-news";
 import { isChineseText } from "./language";
+import { isUsableTranslation } from "./translation-quality";
 import { contentPolicyForUrl, urlMatchesSource } from "./sources";
 
 export type ArticleContent = {
@@ -658,7 +659,7 @@ async function translateToChinese(value: string): Promise<string> {
           continue;
         }
         const translated = translatedText(await response.json());
-        if (translated) {
+        if (isUsableTranslation(value, translated)) {
           return translated;
         }
       } catch {
@@ -1111,4 +1112,4 @@ async function loadArticleContent(
 }
 
 // Cache extraction and translation together so repeat visits do not refetch every paragraph.
-export const fetchArticleContent = unstable_cache(loadArticleContent, ["article-content-v1"], { revalidate: 1800 });
+export const fetchArticleContent = unstable_cache(loadArticleContent, ["article-content-v2"], { revalidate: 1800 });

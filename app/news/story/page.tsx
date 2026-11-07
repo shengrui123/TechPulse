@@ -90,7 +90,7 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
               {story.originalTitle &&
                 story.originalTitle !== story.title &&
                 !isChineseText(story.originalTitle) && (
-                  <p className="news-article-original-title" lang="en">
+                  <p className="news-article-original-title">
                     {story.originalTitle}
                   </p>
                 )}
@@ -136,6 +136,7 @@ async function StoryContent({ story }: { story: NewsStory }) {
       original,
       translated,
       showOriginal: !isChineseText(original) && original !== translated,
+      untranslated: !isChineseText(original) && original === translated,
     };
   });
   const emptyContentMessage =
@@ -207,14 +208,14 @@ async function StoryContent({ story }: { story: NewsStory }) {
               )}
               {articleParagraphs.length > 0 ? (
                 articleParagraphs.map(
-                  ({ original, translated, showOriginal }, index) => (
+                  ({ original, translated, showOriginal, untranslated }, index) => (
                     <section
                       className="news-article-bilingual-block"
                       key={`${index}-${original}`}
-                      aria-label={`${showOriginal ? "双语" : "中文"}正文第 ${index + 1} 段`}
+                      aria-label={`${showOriginal ? "双语" : untranslated ? "原文" : "中文"}正文第 ${index + 1} 段`}
                     >
                       {showOriginal && (
-                        <p className="news-article-original" lang="en">
+                        <p className="news-article-original">
                           {original}
                         </p>
                       )}
@@ -224,7 +225,7 @@ async function StoryContent({ story }: { story: NewsStory }) {
                             ? "news-article-translation news-article-lead"
                             : "news-article-translation"
                         }
-                        lang="zh-CN"
+                        lang={untranslated ? undefined : "zh"}
                       >
                         {translated}
                       </p>
@@ -235,6 +236,7 @@ async function StoryContent({ story }: { story: NewsStory }) {
                 <p className="news-article-lead">{emptyContentMessage}</p>
               )}
 
+              {articleParagraphs.some(({ untranslated }) => untranslated) && <p>部分内容暂时无法可靠翻译，已保留原文。</p>}
               <div className="news-article-note">
                 <span>编辑说明</span>
                 <p>

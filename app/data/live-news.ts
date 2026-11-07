@@ -1,6 +1,7 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
 import { isChineseText } from "./language";
+import { isUsableTranslation, splitMarkedTranslations } from "./translation-quality";
 import { trustedSources } from "./sources";
 import {
   matchesNewsCategory,
@@ -274,8 +275,12 @@ function translationBatches(items: LiveNewsItem[]): TranslationTarget[][] {
   const batches: TranslationTarget[][] = [];
   let batch: TranslationTarget[] = [];
   let characters = 0;
+  let batchSource = "";
 
-  items.forEach((item, itemIndex) => {
+  // Group by publisher without changing the display order of the results.
+  const grouped = items.map((item, itemIndex) => ({ item, itemIndex }))
+    .sort((a, b) => a.item.source.localeCompare(b.item.source));
+  grouped.forEach(({ item, itemIndex }) => {
     (["title", "summary"] as const).forEach((field) => {
       const value = item[field];
       if (!value || isChineseText(value)) {
@@ -284,13 +289,14 @@ function translationBatches(items: LiveNewsItem[]): TranslationTarget[][] {
 
       if (
         batch.length > 0 &&
-        characters + value.length > translationBatchCharacters
+        (characters + value.length > translationBatchCharacters || batchSource !== item.source)
       ) {
         batches.push(batch);
         batch = [];
         characters = 0;
       }
 
+      batchSource = item.source;
       batch.push({ itemIndex, field, value });
       characters += value.length;
     });
@@ -315,36 +321,16 @@ async function translateBatch(
     return batch.map((target) => target.value);
   }
 
-  const matches = [
-    ...result.matchAll(/\[\[\[\s*WP\s*(\d+)\s*\]\]\]/gi),
-  ];
+  const values = splitMarkedTranslations(result, batch.length);
+  if (!values) return translateTargetsIndividually(batch);
 
-  if (matches.length === batch.length) {
-    const values = matches.map((match, index) => {
-      const start = (match.index ?? 0) + match[0].length;
-      const end = matches[index + 1]?.index ?? result.length;
-      return result.slice(start, end).trim();
-    });
-
-    const missed = batch
-      .map((target, index) => ({ target, index }))
-      .filter(({ target, index }) =>
-        !isChineseText(target.value) && !isChineseText(values[index]),
-      );
-
-    if (missed.length > 0) {
-      const replacements = await translateTargetsIndividually(
-        missed.map(({ target }) => target),
-      );
-      missed.forEach(({ index }, replacementIndex) => {
-        values[index] = replacements[replacementIndex];
-      });
-    }
-
-    return values;
+  const missed = batch.map((target, index) => ({ target, index }))
+    .filter(({ target, index }) => !isUsableTranslation(target.value, values[index]));
+  if (missed.length) {
+    const replacements = await translateTargetsIndividually(missed.map(({ target }) => target));
+    missed.forEach(({ index }, replacementIndex) => { values[index] = replacements[replacementIndex]; });
   }
-
-  return batch.map((target) => target.value);
+  return values;
 }
 
 async function translateTargetsIndividually(
@@ -358,7 +344,7 @@ async function translateTargetsIndividually(
       const index = nextTarget;
       nextTarget += 1;
       const translated = await requestTranslation(targets[index].value);
-      if (translated) {
+      if (isUsableTranslation(targets[index].value, translated)) {
         results[index] = translated;
       }
     }
@@ -549,7 +535,7 @@ async function buildAllSourceNews(): Promise<LiveNewsItem[]> {
 
 export const getAllSourceNews = unstable_cache(
   buildAllSourceNews,
-  ["worldpulse-all-source-news-24h-v12"],
+  ["worldpulse-all-source-news-24h-v13"],
   { revalidate: 1800, tags: ["all-source-news"] },
 );
 
@@ -589,7 +575,7 @@ async function buildSourceEdition(): Promise<LiveNewsItem[]> {
 
 export const getSourceEdition = unstable_cache(
   buildSourceEdition,
-  ["worldpulse-source-edition-24h-v12"],
+  ["worldpulse-source-edition-24h-v13"],
   { revalidate: 900, tags: ["source-edition"] },
 );
 
