@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
+import RelatedNews from "../../components/RelatedNews";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -244,6 +246,9 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
                 阅读完整原文 <span aria-hidden="true">↗</span>
               </a>
             </div>
+            <Suspense fallback={<aside className="related-news" aria-label="相关新闻"><h2>相关新闻</h2><p>正在查找相关报道…</p></aside>}>
+              <RelatedNews story={story} />
+            </Suspense>
           </div>
         </article>
       </main>

@@ -1,5 +1,6 @@
 import "server-only";
 import { get as httpsGet } from "node:https";
+import { unstable_cache } from "next/cache";
 import {
   isTrustedExternalNewsUrl,
   resolveGoogleNewsUrlForHosts,
@@ -651,7 +652,7 @@ async function translateToChinese(value: string): Promise<string> {
         const response = await fetch(url, {
           headers: { "User-Agent": "WorldPulse/1.0 article translator" },
           cache: "no-store",
-          signal: AbortSignal.timeout(8000),
+          signal: AbortSignal.timeout(6000),
         });
         if (!response.ok) {
           continue;
@@ -707,7 +708,7 @@ async function fetchReaderArticleContent(
         "X-Target-Selector": "article",
       },
       cache: "no-store",
-      signal: AbortSignal.timeout(30000),
+      signal: AbortSignal.timeout(6000),
     });
     if (!response.ok) {
       return emptyResult;
@@ -785,7 +786,7 @@ async function fetchReutersPartnerContent(
     const searchResponse = await fetch(searchUrl, {
       headers: { "User-Agent": "Mozilla/5.0 WorldPulse Reuters partner finder" },
       cache: "no-store",
-      signal: AbortSignal.timeout(12000),
+      signal: AbortSignal.timeout(6000),
     });
     if (!searchResponse.ok) {
       return emptyResult;
@@ -817,7 +818,7 @@ async function fetchReutersPartnerContent(
           "User-Agent": "Mozilla/5.0 WorldPulse Reuters partner reader",
         },
         cache: "no-store",
-        signal: AbortSignal.timeout(12000),
+        signal: AbortSignal.timeout(6000),
       });
       if (!response.ok || !isReutersPartnerUrl(response.url)) {
         continue;
@@ -874,7 +875,7 @@ export async function fetchReutersPartnerImage(
     const searchResponse = await fetch(searchUrl, {
       headers: { "User-Agent": "Mozilla/5.0 WorldPulse Reuters image finder" },
       next: { revalidate: 86400 },
-      signal: AbortSignal.timeout(12000),
+      signal: AbortSignal.timeout(6000),
     });
     if (!searchResponse.ok) {
       return "";
@@ -907,7 +908,7 @@ export async function fetchReutersPartnerImage(
           "User-Agent": "Mozilla/5.0 WorldPulse Reuters partner image reader",
         },
         next: { revalidate: 86400 },
-        signal: AbortSignal.timeout(12000),
+        signal: AbortSignal.timeout(6000),
       });
       if (!response.ok || !isReutersPartnerUrl(response.url)) {
         continue;
@@ -1023,7 +1024,7 @@ async function fetchReutersSyndicationContent(
   }
 }
 
-export async function fetchArticleContent(
+async function loadArticleContent(
   originalUrl: string,
   expected: ArticleExpectation,
 ): Promise<ArticleContent> {
@@ -1070,7 +1071,7 @@ export async function fetchArticleContent(
         "User-Agent": "Mozilla/5.0 WorldPulse article reader",
       },
       cache: "no-store",
-      signal: AbortSignal.timeout(12000),
+      signal: AbortSignal.timeout(6000),
     });
     if (!response.ok) {
       return sourceFallback();
@@ -1108,3 +1109,6 @@ export async function fetchArticleContent(
     return sourceFallback();
   }
 }
+
+// Cache extraction and translation together so repeat visits do not refetch every paragraph.
+export const fetchArticleContent = unstable_cache(loadArticleContent, ["article-content-v1"], { revalidate: 1800 });

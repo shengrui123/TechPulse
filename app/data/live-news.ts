@@ -236,12 +236,12 @@ async function requestTranslation(value: string): Promise<string> {
     url.searchParams.set("dt", "t");
     url.searchParams.set("q", value);
 
-    for (let attempt = 0; attempt < 2; attempt += 1) {
+    for (let attempt = 0; attempt < 1; attempt += 1) {
       try {
         const response = await fetch(url, {
           headers: { "User-Agent": "WorldPulse/1.0 news translator" },
           next: { revalidate: 86400 },
-          signal: AbortSignal.timeout(8000),
+          signal: AbortSignal.timeout(3500),
         });
 
         if (!response.ok) {
@@ -308,7 +308,8 @@ async function translateBatch(
     .join("\n");
   const result = await requestTranslation(payload);
   if (!result) {
-    return translateTargetsIndividually(batch);
+    // Keep the feed usable when the translation service is unavailable.
+    return batch.map((target) => target.value);
   }
 
   const matches = [
@@ -340,7 +341,7 @@ async function translateBatch(
     return values;
   }
 
-  return translateTargetsIndividually(batch);
+  return batch.map((target) => target.value);
 }
 
 async function translateTargetsIndividually(
@@ -404,12 +405,12 @@ async function fetchFeed(
 ): Promise<LiveNewsItem[]> {
   let lastError: unknown;
 
-  for (let attempt = 0; attempt < 2; attempt += 1) {
+  for (let attempt = 0; attempt < 1; attempt += 1) {
     try {
       const response = await fetch(feed.url, {
         headers: { "User-Agent": "WorldPulse/1.0 news reader" },
         next: { revalidate: 1800 },
-        signal: AbortSignal.timeout(15000),
+        signal: AbortSignal.timeout(5000),
       });
 
       if (!response.ok) {
@@ -587,7 +588,7 @@ export const getSourceEdition = unstable_cache(
 );
 
 export async function getNewsByCategory(category: NewsCategory) {
-  const news = await getLatestInternationalNews();
+  const news = await getAllSourceNews();
   return news.filter((item) =>
     matchesNewsCategory(category, item.title, item.summary),
   );

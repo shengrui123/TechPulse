@@ -3777,7 +3777,7 @@ body:has(.news-article-page) { padding-left: 0; padding-bottom: 0; }
   font-size: 15px;
   font-weight: 600;
 }
-.story-back-button:hover { background: rgba(229,46,82,.08); }
+.story-back-button:hover { background: rgba(128,128,128,.12); }
 .story-back-button:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
 .story-topbar-brand {
   position: absolute;
@@ -3833,3 +3833,25 @@ html[data-theme="dark"] .source-filter-list button:not(.is-active):not(:hover) {
 @media (max-width: 760px) {
   main > .source-search.is-open { grid-template-columns: 1fr; gap: 20px; }
 }
+
+/* Neutral accent and a responsive two-column reading view. */
+:root { --orange: #111; --orange-dark: #333; }
+html[data-theme="dark"] { --orange: #f5f5f5; --orange-dark: #ccc; }
+.source-filter-list button:hover, .source-filter-list button.is-active { background: #111; color: #fff; }
+html[data-theme="dark"] .source-filter-list button:hover, html[data-theme="dark"] .source-filter-list button.is-active { background: #f5f5f5; color: #111; }
+.news-article-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(230px, 300px); align-items: start; gap: 56px; }
+.news-article-copy { width: 100%; min-width: 0; }
+.related-news { position: sticky; top: 88px; padding: 24px; background: #f2f2f7; border-radius: 13px; font-family: var(--app-sans); }
+.related-news-kicker { margin: 0 0 8px; font-size: 11px; font-weight: 700; letter-spacing: .08em; }
+.related-news h2 { margin: 0; font-size: 20px; line-height: 1.4; }
+.related-news ul { list-style: none; padding: 0; margin: 12px 0 0; }
+.related-news li { padding: 16px 0; border-bottom: 1px solid rgba(128,128,128,.25); }
+.related-news li a { font-weight: 700; line-height: 1.5; }
+.related-news li a:hover { text-decoration: underline; }
+.related-news li p, .related-news-caption, .related-news-empty { color: #666; font-size: 12px; line-height: 1.6; }
+.related-news-caption { margin: 16px 0 0; }
+html[data-theme="dark"] .related-news { background: #242426; }
+html[data-theme="dark"] .related-news li p, html[data-theme="dark"] .related-news-caption, html[data-theme="dark"] .related-news-empty { color: #aaa; }
+@media (max-width: 760px) { .news-article-layout { grid-template-columns: 1fr; gap: 32px; } .related-news { position: static; } }
+
+html[data-theme="dark"] .original-news-button, html[data-theme="dark"] .nav-inner a.is-active { color: #111; }
