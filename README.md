@@ -69,3 +69,16 @@ npm run import-article -- --url "https://theinitium.com/文章網址" --title "�
 原文網址請使用媒體的實際文章網址，不要使用 Google News 連結。日期必須包含時區；`--byline` 可省略。重複匯入同一篇文章會更新既有內容。匯入後，檢查 `app/data/licensed-articles.json` 中的全文、標題、日期及授權範圍，然後將該檔提交並推送至 GitHub，Vercel 建置完成後才會顯示。新聞列表會保留已匯入文章；點開與原文網址匹配的新聞即可閱讀。英文正文會使用現有機器翻譯服務，翻譯不可用時保留原文。
 
 要移除已匯入文章，可從 `app/data/licensed-articles.json` 刪除該筆資料，檢查 JSON 格式後提交及重新部署。
+
+### 從會員登入擷取授權文章（本機操作）
+
+此流程在自己的電腦執行，不會自動讀取 Safari 或其他瀏覽器的 Cookie。先在瀏覽器登入媒體網站，從該文章的網路請求複製 Cookie **標頭值**，然後在本機終端機執行（不要把 Cookie 貼在聊天、指令參數或 Git）：
+
+```bash
+npm run member-article -- setup --url "https://theinitium.com/實際文章網址"
+npm run member-article -- fetch --url "https://theinitium.com/實際文章網址" --title "文章標題" --date "2026-11-07T10:00:00+08:00" --byline "作者"
+```
+
+`setup` 會在不回顯的提示中請您輸入 Cookie 及加密密碼，以 scrypt 衍生金鑰及 AES-256-GCM 加密後存於 `~/.worldpulse/`；端傳媒與紐約時報分別設定，且每份 Cookie 僅送往設定時的同一主機。請使用強密碼，忘記後需重新設定。Cookie 過期需重新執行 `setup`。請勿將該資料夾或密碼上傳到 GitHub、Vercel 或其他人可存取的位置。
+
+`fetch` 在本機解密並請求文章，將擷取內容儲存在僅限本機使用者讀取的預覽檔；**請先與原文核對全文是否完整及授權範圍**，確認後才會匯入。網站不會自動使用您的 Cookie，匯入後仍需檢查資料並推送部署。部分網站可能因登入機制、驗證或文章版式而無法擷取；此時可改用上方純文字手動匯入。
