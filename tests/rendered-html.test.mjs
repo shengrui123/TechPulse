@@ -301,7 +301,6 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(liveNews, /卫报/);
   assert.match(liveNews, /西班牙国家报/);
   assert.match(liveNews, /世界报/);
-  assert.match(liveNews, /印度教徒报/);
   assert.match(liveNews, /亚洲新闻台/);
   assert.match(liveNews, /端传媒/);
   assert.match(liveNews, /彭博社/);
@@ -309,7 +308,6 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.match(liveNews, /华尔街日报/);
   assert.match(liveNews, /经济学人/);
   assert.match(liveNews, /日经亚洲/);
-  assert.match(liveNews, /ProPublica 调查新闻/);
   assert.match(liveNews, /translationBatches/);
   assert.match(liveNews, /originalTitle/);
   assert.match(liveNews, /translationBatchCharacters/);
@@ -389,7 +387,6 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
   assert.equal(sourceUrls.length, slugs.length);
   assert.ok(sourceUrls.every((url) => url.startsWith("https://")));
   assert.match(articleData, /Associated Press \/ AP/);
-  assert.match(articleData, /ProPublica/);
   assert.match(articleData, /2026\.07\.30/);
   assert.match(articleData, /乌克兰称袭击俄两座大型炼油厂/);
   assert.match(layout, /WorldPulse \| 读懂全球正在发生什么/);
@@ -404,7 +401,6 @@ test("keeps the live-news homepage, article routes, and trusted sources", async 
     "The New York Times",
     "The Washington Post",
     "The Guardian",
-    "ProPublica",
     "Financial Times",
     "The Economist",
     "United Daily News",

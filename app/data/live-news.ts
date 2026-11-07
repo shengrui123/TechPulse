@@ -42,7 +42,6 @@ const sourceNames: Record<string, string> = {
   "The Guardian": "卫报",
   "El País": "西班牙国家报",
   "Le Monde": "世界报",
-  "The Hindu": "印度教徒报",
   "Channel NewsAsia": "亚洲新闻台",
   "Initium Media": "端传媒",
   "United Daily News": "联合新闻网",
@@ -52,7 +51,6 @@ const sourceNames: Record<string, string> = {
   "The Wall Street Journal": "华尔街日报",
   "The Economist": "经济学人",
   "Nikkei Asia": "日经亚洲",
-  ProPublica: "ProPublica 调查新闻",
 };
 
 const newsWindowMs = 24 * 60 * 60 * 1000;
@@ -529,7 +527,7 @@ async function buildAllSourceNews(): Promise<LiveNewsItem[]> {
 
 export const getAllSourceNews = unstable_cache(
   buildAllSourceNews,
-  ["worldpulse-all-source-news-v15"],
+  ["worldpulse-all-source-news-v16"],
   { revalidate: 1800, tags: ["all-source-news"] },
 );
 
@@ -561,7 +559,7 @@ async function buildSourceEdition(): Promise<LiveNewsItem[]> {
 
 export const getSourceEdition = unstable_cache(
   buildSourceEdition,
-  ["worldpulse-source-edition-v15"],
+  ["worldpulse-source-edition-v16"],
   { revalidate: 900, tags: ["source-edition"] },
 );
 

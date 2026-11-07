@@ -172,13 +172,6 @@ export const sourceGroups: SourceGroup[] = [
         url: "https://www.lemonde.fr/en/",
       },
       {
-        name: "The Hindu",
-        shortName: "THE HINDU",
-        region: "印度 / 南亚",
-        focus: "印度、南亚与国际事务",
-        url: "https://www.thehindu.com/",
-      },
-      {
         name: "Channel NewsAsia",
         shortName: "CNA",
         region: "新加坡 / 亚洲",
@@ -254,20 +247,6 @@ export const sourceGroups: SourceGroup[] = [
         region: "日本 / 亚洲",
         focus: "亚洲商业、经济与产业",
         url: "https://asia.nikkei.com/",
-      },
-    ],
-  },
-  {
-    id: "investigative",
-    title: "公共利益与调查新闻",
-    description: "用于问责报道、数据调查与公共利益议题的长期追踪。",
-    sources: [
-      {
-        name: "ProPublica",
-        shortName: "PROPUBLICA",
-        region: "美国",
-        focus: "公共利益、问责与数据调查",
-        url: "https://www.propublica.org/",
       },
     ],
   },

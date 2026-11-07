@@ -57,27 +57,6 @@ export const articles: Article[] = [
     points: ["欧美极端野火风险持续上升", "全球燃烧面积受非洲与亚洲趋势拉低", "面积与灾害强度需要分开理解"],
   },
   {
-    slug: "us-judges-doj-credibility",
-    tag: "调查",
-    kicker: "调查报道",
-    title: "数百份裁决揭示：美国法官频频质疑司法部陈述",
-    summary:
-      "ProPublica 审阅大量案件后发现，多名联邦法官曾批评检方不准确陈述事实、遗漏证据或未遵守法院命令。",
-    readTime: "9 分钟",
-    published: "2026.07.28",
-    source: "ProPublica",
-    sourceUrl:
-      "https://www.propublica.org/article/justice-department-presumption-of-regularity",
-    region: "美国",
-    paragraphs: [
-      "ProPublica 审阅数百起联邦案件，追踪法官如何评价司法部律师在法庭上的陈述与行为。",
-      "报道发现，多名法官曾指检方提供不准确或相互矛盾的信息、遗漏关键证据，或没有遵守法院命令。具体责任与影响仍需回到每一宗案件判断。",
-      "这项调查关注的是司法体系中的“可信推定”：法院通常假定政府律师会准确陈述事实，但反复出现的问题可能动摇这种制度信任。",
-      "比单一争议更重要的是问责机制是否有效，包括内部审查、法庭制裁、信息公开，以及受到错误陈述影响的人能否获得补救。",
-    ],
-    points: ["调查审阅数百起联邦案件", "多名法官曾批评检方行为", "司法可信度与问责机制成为焦点"],
-  },
-  {
     slug: "russia-telegram-durov",
     tag: "国际",
     kicker: "最新动态",
