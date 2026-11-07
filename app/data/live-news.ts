@@ -394,7 +394,9 @@ async function fetchFeed(
 ): Promise<LiveNewsItem[]> {
   const urls = feed.source === "Reuters"
     ? [feed.url, "https://news.google.com/rss/search?q=when%3A24h%20site%3Areuters.com&ceid=US%3Aen&hl=en-US&gl=US"]
-    : [feed.url];
+    : feed.source === "BBC News"
+      ? [feed.url, "https://feeds.bbci.co.uk/news/world/rss.xml"]
+      : [feed.url];
   let lastError: unknown;
   for (const url of urls) {
     try {
@@ -406,10 +408,10 @@ async function fetchFeed(
       if (!response.ok) throw new Error(`${feed.source} returned ${response.status}`);
       const googleReutersFeed = feed.source === "Reuters" && new URL(url).hostname === "news.google.com";
       const items = parseFeed(await response.text(), feed.source, feed.sourceName, googleReutersFeed);
-      if (feed.source === "Reuters" && !items.some((item) => {
+      if ((feed.source === "Reuters" || feed.source === "BBC News") && !items.some((item) => {
         const published = new Date(item.publishedAt).getTime();
         return Number.isFinite(published) && published >= Date.now() - newsWindowMs && published <= Date.now();
-      })) throw new Error("Reuters feed contains no recent articles");
+      })) throw new Error(`${feed.source} feed contains no recent articles`);
       return items;
     } catch (error) {
       lastError = error;
@@ -535,7 +537,7 @@ async function buildAllSourceNews(): Promise<LiveNewsItem[]> {
 
 export const getAllSourceNews = unstable_cache(
   buildAllSourceNews,
-  ["worldpulse-all-source-news-24h-v13"],
+  ["worldpulse-all-source-news-24h-v14"],
   { revalidate: 1800, tags: ["all-source-news"] },
 );
 
@@ -575,7 +577,7 @@ async function buildSourceEdition(): Promise<LiveNewsItem[]> {
 
 export const getSourceEdition = unstable_cache(
   buildSourceEdition,
-  ["worldpulse-source-edition-24h-v13"],
+  ["worldpulse-source-edition-24h-v14"],
   { revalidate: 900, tags: ["source-edition"] },
 );
 

@@ -64,7 +64,7 @@ export const sourceGroups: SourceGroup[] = [
         focus: "国际、政治、社会与公共事务",
         url: "https://www.bbc.co.uk/news",
         rssUrl:
-          "https://feedfoundry-rss.vercel.app/feeds/445fc7e3c09155599ac6.xml",
+          "https://feeds.bbci.co.uk/news/rss.xml",
       },
       {
         name: "Deutsche Welle",
