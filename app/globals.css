@@ -3871,3 +3871,6 @@ html[data-theme="dark"] .original-news-button, html[data-theme="dark"] .nav-inne
 html[data-theme="dark"] .related-news-meta { color: #aaa; }
 @media (max-width: 760px) { .related-news li .related-news-link { grid-template-columns: minmax(0, 1fr) 112px; } }
 @media (max-width: 360px) { .related-news li .related-news-link { grid-template-columns: minmax(0, 1fr) 80px; } }
+
+/* Appending cards must not pull the reader down to the loading marker. */
+html:has(.news-stream) { overflow-anchor: none; }

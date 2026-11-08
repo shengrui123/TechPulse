@@ -219,7 +219,7 @@ export default function SourceNewsBrowser({
             {query && <button type="button" onClick={() => setQuery("")}>查看全部新闻</button>}
           </div>
         )}
-        {visibleCount < filteredNews.length && <LoadMoreTrigger onLoad={() => setVisibleCount((count) => count + 24)} />}
+        {visibleCount < filteredNews.length && <LoadMoreTrigger onLoad={() => setVisibleCount((count) => count + 24)} revision={`${normalizedQuery}:${visibleCount}`} />}
       </section>
     </main>
   );

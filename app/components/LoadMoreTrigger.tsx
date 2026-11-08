@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-export default function LoadMoreTrigger({ onLoad, loading = false, error = false }: { onLoad: () => void; loading?: boolean; error?: boolean }) {
+export default function LoadMoreTrigger({ onLoad, loading = false, error = false, revision = 0 }: { onLoad: () => void; loading?: boolean; error?: boolean; revision?: string | number }) {
   const ref = useRef<HTMLDivElement>(null);
   const callback = useRef(onLoad);
   useEffect(() => { callback.current = onLoad; }, [onLoad]);
@@ -14,7 +14,9 @@ export default function LoadMoreTrigger({ onLoad, loading = false, error = false
     }, { rootMargin: "600px" });
     observer.observe(target);
     return () => observer.disconnect();
-  }, [loading, error]);
+  // Re-observe after each batch. The marker may still be inside the viewport
+  // and an existing observer will not fire again without a boundary crossing.
+  }, [loading, error, revision]);
   return <div ref={ref} className="news-pagination" role="status">
     {loading ? "正在加载更多新闻…" : <button type="button" onClick={onLoad}>{error ? "加载失败，点击重试" : "加载更多新闻"}</button>}
   </div>;

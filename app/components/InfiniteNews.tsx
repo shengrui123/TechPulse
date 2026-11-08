@@ -13,6 +13,7 @@ export default function InfiniteNews({ category, sortMode, initialCount, initial
   const [hasMore, setHasMore] = useState(initialCount < total);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [revision, setRevision] = useState(initialCount);
   const offset = useRef(initialCount);
   const pending = useRef(false);
   const seen = useRef(new Set(initialUrls));
@@ -27,8 +28,10 @@ export default function InfiniteNews({ category, sortMode, initialCount, initial
       const response = await fetch(`/api/news-batch?${params}`);
       if (!response.ok) throw new Error("Unable to load news");
       const batch: { items: Item[]; nextOffset: number; hasMore: boolean } = await response.json();
+      if (!Array.isArray(batch.items) || !Number.isInteger(batch.nextOffset) || batch.nextOffset < offset.current || (batch.hasMore && batch.nextOffset <= offset.current) || typeof batch.hasMore !== "boolean") throw new Error("Invalid news batch");
       const fresh = batch.items.filter((item) => { if (seen.current.has(item.url)) return false; seen.current.add(item.url); return true; });
       offset.current = batch.nextOffset;
+      setRevision(batch.nextOffset);
       setItems((current) => [...current, ...fresh]);
       setHasMore(batch.hasMore);
     } catch { setError(true); } finally { pending.current = false; setLoading(false); }
@@ -41,6 +44,6 @@ export default function InfiniteNews({ category, sortMode, initialCount, initial
         <h2>{item.title}</h2>{item.summary && <p>{item.summary}</p>}<strong>阅读新闻 →</strong>
       </Link>
     </article>)}
-    {hasMore && <LoadMoreTrigger onLoad={load} loading={loading} error={error} />}
+    {hasMore && <LoadMoreTrigger onLoad={load} loading={loading} error={error} revision={revision} />}
   </>;
 }
