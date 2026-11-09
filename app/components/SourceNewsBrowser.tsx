@@ -1,6 +1,7 @@
 "use client";
 
 import NewsImage from "./NewsImage";
+import MasonryGrid from "./MasonryGrid";
 import LoadMoreTrigger from "./LoadMoreTrigger";
 import Link from "next/link";
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
@@ -183,7 +184,7 @@ export default function SourceNewsBrowser({
         </div>
 
         {filteredNews.length > 0 ? (
-          <div className="news-waterfall">
+          <MasonryGrid>
             {filteredNews.slice(0, visibleCount).map((item, index) => (
               <article className="news-card" key={`${item.source}-${item.url}`}>
                 <Link prefetch={false} href={item.storyHref} aria-label={`阅读：${item.title}`}>
@@ -211,7 +212,7 @@ export default function SourceNewsBrowser({
                 </Link>
               </article>
             ))}
-          </div>
+          </MasonryGrid>
         ) : (
           <div className="news-empty news-search-empty">
             <span aria-hidden="true">00</span>

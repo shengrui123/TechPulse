@@ -1,5 +1,6 @@
 import NewsImage from "./NewsImage";
 import InfiniteNews from "./InfiniteNews";
+import MasonryGrid from "./MasonryGrid";
 import Link from "next/link";
 import {
   formatNewsDate,
@@ -72,7 +73,7 @@ export default function NewsStream({
 
       <section className="page-shell news-stream" aria-label="最新国际新闻">
         {orderedNews.length > 0 ? (
-          <div
+          <MasonryGrid
             className={
               magazineEdition
                 ? "news-waterfall news-editorial-grid"
@@ -111,7 +112,7 @@ export default function NewsStream({
               </article>
             ))}
             <InfiniteNews key={`${category || "all"}-${sortMode}`} category={category} sortMode={sortMode} initialCount={visibleNews.length} initialUrls={visibleNews.map((item) => item.url)} total={orderedNews.length} />
-          </div>
+          </MasonryGrid>
         ) : (
           <div className="news-empty">
             <h2>该分类暂时没有近期新闻</h2>

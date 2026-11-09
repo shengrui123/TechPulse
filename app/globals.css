@@ -3874,3 +3874,24 @@ html[data-theme="dark"] .related-news-meta { color: #aaa; }
 
 /* Appending cards must not pull the reader down to the loading marker. */
 html:has(.news-stream) { overflow-anchor: none; }
+
+/* Keep floating controls consistent in both themes and sort modes. */
+.floating-search, .floating-sort, .back-to-top,
+.floating-search:hover, .floating-sort:hover, .floating-sort.is-importance, .back-to-top:hover {
+  background: var(--white);
+  color: var(--ink);
+}
+.floating-search .nav-utility-icon, .floating-sort .nav-utility-icon,
+.floating-search:hover .nav-utility-icon { color: currentColor; }
+.floating-search:hover, .floating-sort:hover, .back-to-top:hover { filter: brightness(.94); }
+html[data-theme="dark"] .floating-search:hover,
+html[data-theme="dark"] .floating-sort:hover,
+html[data-theme="dark"] .back-to-top:hover { filter: brightness(1.2); }
+.floating-search:focus-visible, .floating-sort:focus-visible, .back-to-top:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+/* Cards keep their natural heights; measured spans fill each column independently. */
+.news-waterfall.masonry-ready { grid-auto-rows: 4px; row-gap: 0; align-items: start; }
+.news-waterfall.masonry-ready > .news-card { align-self: start; margin-bottom: 20px; }
+.news-card a { height: auto; }
+.news-card strong { margin-top: 0; }
+.news-waterfall.masonry-ready > .news-pagination { grid-row-end: span 24; }
