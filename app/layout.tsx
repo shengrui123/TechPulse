@@ -4,6 +4,7 @@ import BackToTop from "./components/BackToTop";
 import "./globals.css";
 import "./glass.css";
 import "./front-page.css";
+import "./controls.css";
 
 const themeBootScript = `
 let savedTheme;
