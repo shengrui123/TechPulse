@@ -3984,3 +3984,6 @@ html[data-theme="dark"] body:has(.edition-home) .nav-inner a.is-active { color: 
   body:has(.edition-home) .nav-inner { width: max-content; max-width: none; padding: 6px; }
   body:has(.edition-home) .edition-content { padding-top: 20px; }
 }
+/* Match the surrounding page so the glass navigation has no separate bottom band. */
+body:has(.edition-home) .desktop-nav { background: #fff; box-shadow: none; }
+html[data-theme="dark"] body:has(.edition-home) .desktop-nav { background: #171719; box-shadow: none; }

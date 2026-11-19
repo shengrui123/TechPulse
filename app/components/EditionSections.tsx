@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { LiveNewsItem } from "../data/live-news";
-import NewsImage from "./NewsImage";
 
 type Item = LiveNewsItem & { storyHref: string; formattedDate: string };
 const labels = [
@@ -32,28 +31,25 @@ export default function EditionSections({ items }: { items: Item[] }) {
       image.onerror = () => { window.clearTimeout(timeout); resolve(false); };
       image.src = imageUrl(item, true);
     }))).then((results) => {
-      if (!cancelled) setSelected(items.filter((_, index) => results[index]).slice(0, 4).map((item) => item.url));
+      if (!cancelled) setSelected(items.filter((_, index) => results[index]).map((item) => item.url));
     });
     return () => { cancelled = true; probes.forEach((image) => { image.onload = null; image.onerror = null; }); };
   }, [items]);
 
   if (selected === null) return <div className="edition-loading" role="status">正在挑选有图片的新闻…</div>;
-  const featured = selected.map((url) => items.find((item) => item.url === url)!).filter(Boolean);
-  const rest = items.filter((item) => !selected.includes(item.url));
+  const featured = items.filter((item) => selected.includes(item.url));
   const groups = labels.map(([title, subtitle], index) => ({
     title, subtitle,
-    items: index < 2 ? featured.slice(index * 2, index * 2 + 2) : rest.slice((index - 2) * 2, (index - 1) * 2),
+    items: featured.slice(index * 2, index * 2 + 2),
   })).filter((group) => group.items.length);
   return <>{groups.map((group) => {
     const groupIndex = labels.findIndex(([title]) => title === group.title);
     return <section className="edition-section" key={group.title} aria-label={group.title}>
-      <div className="edition-section-heading"><div><h2>{group.title}</h2><span>{group.subtitle}</span></div><span>{groupIndex === 0 ? "今日精选" : "环球报道"}</span></div>
+      <div className="edition-section-heading"><div><h2>{group.title}</h2><span>{group.subtitle}</span></div></div>
       <div className={`edition-grid edition-grid-${groupIndex % 3}`}>
         {group.items.map((item) => <article className="edition-card" key={`${item.source}-${item.url}`}>
           <Link prefetch={false} href={item.storyHref} aria-label={`阅读：${item.title}`}>
-            {groupIndex < 2
-              ? <img src={imageUrl(item, true)} alt="" width={1000} height={650} />
-              : <NewsImage source={item.source} src={imageUrl(item)} alt="" width={1000} height={650} sizes="(max-width: 700px) 100vw, 70vw" unoptimized />}
+            <img src={imageUrl(item, true)} alt="" width={1000} height={650} />
             <div className="edition-card-copy"><span className="edition-card-kicker">{item.sourceName} · {item.formattedDate}</span><h3>{item.title}</h3><span className="edition-card-action">阅读报道 <span aria-hidden="true">↗</span></span></div>
           </Link>
         </article>)}
