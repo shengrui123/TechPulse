@@ -3993,3 +3993,9 @@ html[data-theme="dark"] body:has(.edition-home) .desktop-nav { background: #1717
 .edition-card .source-label img.source-logo { position: static; inset: auto; display: inline-block; width: 20px; height: 20px; flex: 0 0 20px; padding: 2px; border-radius: 5px; background: #fff; object-fit: contain; transform: none; filter: none; }
 .source-label .source-logo-fallback { display: inline-flex; align-items: center; justify-content: center; color: #3b4250; font: 700 11px/1 sans-serif; }
 .edition-card a:hover .source-label img.source-logo { transform: none; }
+/* A compact glass control keeps the back action accessible without a label. */
+.story-back-button { width: 42px; height: 42px; padding: 0; justify-content: center; color: var(--ink); border: 1px solid rgba(255,255,255,.8); border-radius: 50%; background: linear-gradient(145deg, rgba(255,255,255,.78), rgba(225,230,239,.55)); box-shadow: 0 4px 14px rgba(25,35,50,.12), inset 0 1px rgba(255,255,255,.9); backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%); }
+.story-back-button:hover { background: rgba(255,255,255,.9); }
+html[data-theme="dark"] .story-back-button { color: #fff; border-color: rgba(255,255,255,.2); background: linear-gradient(145deg, rgba(98,102,113,.6), rgba(47,49,56,.72)); box-shadow: 0 4px 14px rgba(0,0,0,.22), inset 0 1px rgba(255,255,255,.22); }
+html[data-theme="dark"] .story-back-button:hover { background: rgba(115,119,130,.6); }
+.news-article-image img { border-radius: 18px; }
