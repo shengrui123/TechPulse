@@ -22,6 +22,7 @@ export type ArticleContent = {
 type ArticleExpectation = {
   source: string;
   originalTitle?: string;
+  publishedAt?: string;
 };
 
 function debugReutersContent(message: string, details?: unknown) {
@@ -589,9 +590,18 @@ function paragraphsFromReutersSyndication(html: string): {
   byline: string;
   headline: string;
 } {
-  const englishBody = html.match(
-    /<div\b[^>]*class=["'][^"']*reuters-content-en[^"']*["'][^>]*>([\s\S]*?)<\/div>/i,
-  )?.[1];
+  const opening = /<div\b[^>]*class=["'][^"']*reuters-content-en[^"']*["'][^>]*>/i.exec(html);
+  let englishBody = "";
+  if (opening) {
+    const start = opening.index + opening[0].length;
+    const divTags = /<\/?div\b[^>]*>/gi;
+    divTags.lastIndex = start;
+    let depth = 1;
+    for (let match = divTags.exec(html); match; match = divTags.exec(html)) {
+      depth += /^<\/div/i.test(match[0]) ? -1 : 1;
+      if (depth === 0) { englishBody = html.slice(start, match.index); break; }
+    }
+  }
   if (!englishBody) {
     return { paragraphs: [], byline: "", headline: "" };
   }
@@ -797,6 +807,28 @@ function verifiedReutersReprint(originalUrl: string, title: string): string {
   return pathMatch || verifiedReutersTitles[normalized] || "";
 }
 
+async function findDatedReutersReprint(title: string, publishedAt?: string): Promise<{ html: string; url: string } | null> {
+  const date = publishedAt ? new Date(publishedAt) : null;
+  if (!date || !Number.isFinite(date.getTime()) || !title.trim()) return null;
+  const slug = title.replace(/\s*[-–—]\s*Reuters\s*$/i, "").toLowerCase()
+    .replace(/[’‘]/g, "'").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  if (!slug || slug.length > 250) return null;
+  // Dates may differ across time zones; probe adjacent UTC dates with a strict
+  // publisher, title and Reuters-attribution check before using the result.
+  for (const offset of [0, -1, 1]) {
+    const day = new Date(date.getTime() + offset * 86400000).toISOString().slice(0, 10).replace(/-/g, "/");
+    const url = `https://www.internazionale.it/ultime-notizie-reuters/${day}/${slug}`;
+    try {
+      const response = await fetchTrustedSyndicationHtml(url);
+      if (response.status !== 200) continue;
+      const html = response.body;
+      const extracted = paragraphsFromReutersSyndication(html);
+      if (extracted.headline && partnerTitlesMatch(title.replace(/\s*[-–—]\s*Reuters\s*$/i, ""), extracted.headline) && /\bReuters\b/i.test(html) && extracted.paragraphs.length) return { html, url: response.url };
+    } catch { /* Try the next date. */ }
+  }
+  return null;
+}
+
 async function fetchReutersPartnerContent(
   originalUrl: string,
   expected: ArticleExpectation,
@@ -808,6 +840,12 @@ async function fetchReutersPartnerContent(
   }
 
   try {
+    const dated = await findDatedReutersReprint(expected.originalTitle, expected.publishedAt);
+    if (dated) {
+      const extracted = paragraphsFromReutersSyndication(dated.html);
+      const allowedParagraphs = mode === "full" || mode === "complete" ? extracted.paragraphs : buildLongExcerpt(extracted.paragraphs);
+      return { paragraphs: await translateParagraphs(allowedParagraphs), originalParagraphs: allowedParagraphs, byline: extracted.byline, imageUrl: articleImageFromHtml(dated.html, dated.url), mode, matched: true };
+    }
     const reprintUrl = verifiedReutersReprint(originalUrl, expected.originalTitle);
     if (reprintUrl) {
       const response = await fetch(reprintUrl, {
@@ -935,12 +973,18 @@ async function fetchReutersSyndicationImage(originalUrl: string, originalTitle: 
 export async function fetchReutersPartnerImage(
   originalTitle: string,
   originalUrl = "",
+  publishedAt?: string,
 ): Promise<string> {
   if (!originalTitle.trim()) {
     return "";
   }
 
   try {
+    const dated = await findDatedReutersReprint(originalTitle, publishedAt);
+    if (dated) {
+      const image = articleImageFromHtml(dated.html, dated.url);
+      if (image && new URL(image).hostname === "media.internazionale.it") return image;
+    }
     const reprintUrl = originalUrl ? verifiedReutersReprint(originalUrl, originalTitle) : "";
     if (reprintUrl) {
       const response = await fetch(reprintUrl, {
@@ -1223,7 +1267,7 @@ async function loadArticleContent(
 }
 
 // Cache extraction and translation together so repeat visits do not refetch every paragraph.
-const getCachedArticleContent = unstable_cache(loadArticleContent, ["article-content-v6"], { revalidate: 1800 });
+const getCachedArticleContent = unstable_cache(loadArticleContent, ["article-content-v7"], { revalidate: 1800 });
 const getCachedLicensedParagraphs = unstable_cache(translateParagraphs, ["licensed-paragraphs-v1"], { revalidate: 86400 });
 
 export async function fetchArticleContent(originalUrl: string, expected: ArticleExpectation): Promise<ArticleContent> {

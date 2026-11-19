@@ -140,6 +140,7 @@ async function StoryContent({ story }: { story: NewsStory }) {
   const articleContent = await fetchArticleContent(originalUrl, {
     source: story.source,
     originalTitle: story.originalTitle,
+    publishedAt: story.publishedAt,
   });
   const summaryParagraphs = paragraphizeSummary(story.summary);
   const originalSummaryParagraphs = paragraphizeSummary(
@@ -178,7 +179,7 @@ async function StoryContent({ story }: { story: NewsStory }) {
               source={story.source}
               src={
                 articleContent.imageUrl ||
-                `/api/news-image?url=${encodeURIComponent(story.url)}&source=${encodeURIComponent(story.source)}&title=${encodeURIComponent(story.originalTitle || story.title)}&v=8`
+                `/api/news-image?url=${encodeURIComponent(story.url)}&source=${encodeURIComponent(story.source)}&title=${encodeURIComponent(story.originalTitle || story.title)}&date=${encodeURIComponent(story.publishedAt)}&v=9`
               }
               alt={`${story.title} 新闻图片`}
               width={1600}

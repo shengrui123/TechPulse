@@ -42,7 +42,7 @@ export default async function RelatedNews({ story }: { story: NewsStory }) {
         <span className="related-news-image">
           <NewsImage
             source={item.source}
-            src={`/api/news-image?url=${encodeURIComponent(item.url)}&source=${encodeURIComponent(item.source)}&title=${encodeURIComponent(item.originalTitle || item.title)}&v=8`}
+            src={`/api/news-image?url=${encodeURIComponent(item.url)}&source=${encodeURIComponent(item.source)}&title=${encodeURIComponent(item.originalTitle || item.title)}&date=${encodeURIComponent(item.publishedAt)}&v=9`}
             alt=""
             width={320}
             height={180}

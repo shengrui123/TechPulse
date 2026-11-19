@@ -15,7 +15,7 @@ const labels = [
   ["环球动态", "GLOBAL UPDATE"], ["更多报道", "MORE STORIES"],
 ];
 function imageUrl(item: Item, photoOnly = false) {
-  return `/api/news-image?url=${encodeURIComponent(item.url)}&source=${encodeURIComponent(item.source)}&title=${encodeURIComponent(item.originalTitle || item.title)}&v=8${photoOnly ? "&photo=1" : ""}`;
+  return `/api/news-image?url=${encodeURIComponent(item.url)}&source=${encodeURIComponent(item.source)}&title=${encodeURIComponent(item.originalTitle || item.title)}&date=${encodeURIComponent(item.publishedAt)}&v=9${photoOnly ? "&photo=1" : ""}`;
 }
 
 export default function EditionSections({ items }: { items: Item[] }) {
