@@ -4026,3 +4026,54 @@ html[data-theme="dark"] .story-back-button:hover { background: rgba(115,119,130,
 .story-summary p { margin: 0; color: var(--ink); font-family: var(--app-sans); font-size: 16px; line-height: 1.8; overflow-wrap: anywhere; }
 html[data-theme="dark"] .story-summary { border-color: rgba(255,255,255,.08); background: rgba(255,255,255,.055); }
 @media (max-width: 760px) { .story-summary { padding: 18px; margin-bottom: 25px; } }
+/* Sources standards: a clear, document-style reading experience. */
+body:has(.sources-page) { padding-left: 0; }
+body:has(.sources-page) .site-header { position: relative; width: 100%; background: var(--paper); border: 0; backdrop-filter: none; }
+body:has(.sources-page) .header-row { width: min(980px, calc(100% - 48px)); min-height: 66px; margin: auto; padding: 0; justify-content: flex-start; }
+body:has(.sources-page) .brand { font-size: 20px; }
+body:has(.sources-page) .desktop-nav { position: relative; inset: auto; width: 100%; overflow: visible; border: 0; border-bottom: 1px solid var(--line); background: var(--paper); backdrop-filter: none; }
+body:has(.sources-page) .nav-inner { width: min(980px, calc(100% - 48px)); min-height: 0; margin: auto; padding: 0 0 12px; display: flex; flex-direction: row; align-items: center; gap: 4px; }
+body:has(.sources-page) .nav-inner a { width: auto; padding: 8px 11px; border-radius: 20px; white-space: nowrap; font-size: 13px; }
+body:has(.sources-page) .nav-inner a::before, body:has(.sources-page) .nav-icon { display: none; }
+body:has(.sources-page) .nav-inner a.is-active { background: rgba(128,128,128,.15); color: var(--ink); }
+body:has(.sources-page) .nav-theme-toggle, body:has(.sources-page) .nav-search-link { width: auto; min-height: 34px; margin: 0; padding: 7px 9px; }
+body:has(.sources-page) .nav-theme-toggle { margin-left: auto; }
+.sources-page { min-height: 70vh; background: var(--paper); }
+.sources-document { width: min(980px, calc(100% - 48px)); margin: auto; padding: 0 0 100px; }
+.sources-breadcrumb { display: flex; gap: 12px; align-items: center; padding-top: 24px; color: var(--muted); font-size: 13px; }
+.sources-breadcrumb a { color: inherit; text-decoration: none; }
+.sources-breadcrumb a:hover { text-decoration: underline; }
+.sources-document-header { padding: 76px 0 70px; text-align: center; }
+.sources-document-header > p:first-child { margin: 0 0 16px; color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .14em; }
+.sources-document-header h1 { margin: 0; color: var(--ink); font-family: var(--app-display); font-size: clamp(42px, 5vw, 60px); font-weight: 750; line-height: 1.12; letter-spacing: -.04em; }
+.sources-document-subtitle { margin: 16px 0 0; color: var(--muted); font-size: 16px; }
+.sources-document-body { max-width: 880px; margin: 0 auto; color: var(--ink); font-family: var(--app-sans); font-size: 16px; line-height: 1.8; }
+.sources-document-body p { margin: 0 0 18px; }
+.sources-document-body .sources-intro { font-weight: 600; }
+.sources-document-section { margin-top: 48px; }
+.sources-document-section h2 { margin: 0 0 20px; font-size: 23px; font-weight: 740; letter-spacing: -.02em; }
+.sources-principles-list { padding-left: 27px; margin: 0; }
+.sources-principles-list li { padding-left: 5px; margin-bottom: 14px; }
+.sources-text-group { margin-top: 32px; }
+.sources-text-group h3 { margin: 0 0 5px; font-size: 18px; font-weight: 700; }
+.sources-text-group > p { margin-bottom: 10px; color: var(--muted); }
+.sources-text-group ul { margin: 0; padding-left: 23px; }
+.sources-text-group li { margin: 7px 0; padding-left: 3px; }
+.sources-text-group a { color: #06c; text-decoration: none; }
+.sources-text-group a:hover { text-decoration: underline; }
+.sources-text-group li span { color: var(--muted); }
+html[data-theme="dark"] .sources-text-group a { color: #80baff; }
+@media (max-width: 760px) {
+  body:has(.sources-page) .site-header { position: sticky; top: 0; }
+  body:has(.sources-page) .header-row { width: calc(100% - 32px); min-height: 58px; justify-content: space-between; }
+  body:has(.sources-page) .header-actions { display: flex; }
+  body:has(.sources-page) .desktop-nav { position: relative; overflow-x: auto; }
+  body:has(.sources-page) .nav-inner { width: max-content; min-height: 0; padding: 0 16px 10px; }
+  body:has(.sources-page) .nav-inner a { display: flex; padding: 8px 11px; }
+  body:has(.sources-page) .nav-theme-toggle, body:has(.sources-page) .nav-search-link { display: none; }
+  .sources-document { width: calc(100% - 36px); padding-bottom: 65px; }
+  .sources-document-header { padding: 55px 0 45px; }
+  .sources-document-section { margin-top: 38px; }
+}
+.sources-principles-list { list-style: decimal; }
+.sources-text-group ul { list-style: disc; }

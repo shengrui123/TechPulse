@@ -21,63 +21,35 @@ export default function SourcesPage() {
     <>
       <SiteHeader />
       <main className="sources-page">
-        <header className="page-shell sources-hero">
-          <p className="eyebrow">EDITORIAL SOURCES · {trustedSources.length}</p>
-          <h1>可信不是标签，而是一套可以检查的过程。</h1>
-          <p>
-            WorldPulse
-            从具备国际采编能力、公开编辑规范或长期专业记录的新闻机构中选取报道。已提供官方 RSS
-            的媒体直接读取其 RSS，其余来源才由 Google News RSS
-            补充索引；所有条目仍会核对原媒体网址、标题与来源。纳入名单不代表任何媒体永远正确，也不代表认同其所有观点。
-          </p>
-        </header>
-
-        <section className="source-principles">
-          <div className="page-shell principle-grid">
-            {principles.map(([number, title, description]) => (
-              <article key={number}>
-                <span>{number}</span>
-                <h2>{title}</h2>
-                <p>{description}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="page-shell source-directory">
-          <div className="section-heading">
-            <h2>全球信源名单</h2>
-            <span>{trustedSources.length} 家 · 持续审查与更新</span>
-          </div>
-
-          {sourceGroups.map((group) => (
-            <section className="source-group" id={group.id} key={group.id}>
-              <header>
-                <h2>{group.title}</h2>
-                <p>{group.description}</p>
-              </header>
-              <div className="source-list">
-                {group.sources.map((source) => (
-                  <a
-                    href={source.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="source-item"
-                    key={source.name}
-                  >
-                    <strong>{source.shortName}</strong>
-                    <div>
-                      <h3>{source.name}</h3>
-                      <p>{source.focus}</p>
-                    </div>
-                    <span>{source.region}</span>
-                    <i aria-hidden="true">↗</i>
-                  </a>
-                ))}
-              </div>
+        <div className="sources-document">
+          <nav className="sources-breadcrumb" aria-label="面包屑"><a href="/">首页</a><span>/</span><span>信源标准</span></nav>
+          <header className="sources-document-header">
+            <p>WORLD PULSE · EDITORIAL STANDARDS</p>
+            <h1>信源标准</h1>
+            <p className="sources-document-subtitle">关于我们的新闻来源与编辑原则</p>
+          </header>
+          <article className="sources-document-body">
+            <p className="sources-intro">WorldPulse 从具备国际采编能力、公开编辑规范或长期专业记录的新闻机构中选取报道。已提供官方 RSS 的媒体直接读取其 RSS，其余来源由 Google News RSS 补充索引；条目会核对原媒体网址、标题与来源。</p>
+            <p>纳入名单不代表任何媒体永远正确，也不代表认同其所有观点。我们鼓励读者查看原始报道，结合不同来源理解新闻。</p>
+            <section className="sources-document-section" id="principles">
+              <h2>A. 编辑与查核原则</h2>
+              <ol className="sources-principles-list">
+                {principles.map(([number, title, description]) => <li key={number}><strong>{title}。</strong>{description}</li>)}
+              </ol>
             </section>
-          ))}
-        </section>
+            <section className="sources-document-section" id="directory">
+              <h2>B. 全球信源名单</h2>
+              <p>目前收录 {trustedSources.length} 家新闻机构，涵盖国际通讯社、公共媒体、综合报刊、财经媒体和调查新闻机构。</p>
+              {sourceGroups.map((group) => (
+                <section className="sources-text-group" id={group.id} key={group.id}>
+                  <h3>{group.title}</h3>
+                  <p>{group.description}</p>
+                  <ul>{group.sources.map((source) => <li key={source.name}><a href={source.url} target="_blank" rel="noreferrer">{source.name}</a><span> · {source.region} · {source.focus}</span></li>)}</ul>
+                </section>
+              ))}
+            </section>
+          </article>
+        </div>
       </main>
       <SiteFooter />
     </>
