@@ -786,6 +786,17 @@ const verifiedReutersReprints: Record<string, string> = {
     "https://www.thestar.com.my/news/world/2026/11/19/analysis-migrants-fuelled-spain039s-boom---now-investors-fear-an-anti-immigration-government-could-stifle-economy",
 };
 
+const verifiedReutersTitles: Record<string, string> = {
+  "surge in software patches likely behind recent tech outages; bank regulators on alert":
+    "https://www.channelnewsasia.com/business/surge-in-software-patches-likely-behind-recent-tech-outages-bank-regulators-alert-6563531",
+};
+
+function verifiedReutersReprint(originalUrl: string, title: string): string {
+  const pathMatch = verifiedReutersReprints[new URL(originalUrl).pathname];
+  const normalized = title.trim().replace(/\s*[-–—]\s*reuters\s*$/i, "").toLowerCase();
+  return pathMatch || verifiedReutersTitles[normalized] || "";
+}
+
 async function fetchReutersPartnerContent(
   originalUrl: string,
   expected: ArticleExpectation,
@@ -797,7 +808,7 @@ async function fetchReutersPartnerContent(
   }
 
   try {
-    const reprintUrl = verifiedReutersReprints[new URL(originalUrl).pathname];
+    const reprintUrl = verifiedReutersReprint(originalUrl, expected.originalTitle);
     if (reprintUrl) {
       const response = await fetch(reprintUrl, {
         headers: { Accept: "text/html,application/xhtml+xml", "User-Agent": "Mozilla/5.0 WorldPulse Reuters partner reader" },
@@ -927,6 +938,24 @@ export async function fetchReutersPartnerImage(
 ): Promise<string> {
   if (!originalTitle.trim()) {
     return "";
+  }
+
+  try {
+    const reprintUrl = originalUrl ? verifiedReutersReprint(originalUrl, originalTitle) : "";
+    if (reprintUrl) {
+      const response = await fetch(reprintUrl, {
+        headers: { Accept: "text/html,application/xhtml+xml", "User-Agent": "Mozilla/5.0 WorldPulse Reuters image reader" },
+        next: { revalidate: 3600 },
+        signal: AbortSignal.timeout(6000),
+      });
+      if (response.ok && isReutersPartnerUrl(response.url)) {
+        const html = await response.text();
+        const extracted = paragraphsFromHtml(html, response.url);
+        if (/\bReuters\b/i.test(html) && extracted.headline && partnerTitlesMatch(originalTitle, extracted.headline) && extracted.imageUrl) return extracted.imageUrl;
+      }
+    }
+  } catch {
+    // Fall through to the general syndication and partner lookup.
   }
 
   const syndicatedImage = await fetchReutersSyndicationImage(originalUrl, originalTitle);
@@ -1115,6 +1144,14 @@ async function loadArticleContent(
     !isTrustedExternalNewsUrl(originalUrl) ||
     !urlMatchesSource(originalUrl, expected.source)
   ) {
+    // A Google News link can remain unresolved. Only search explicitly allowed
+    // Reuters partners, and keep the default excerpt policy in this case.
+    try {
+      const parsed = new URL(originalUrl);
+      if (expected.source === "Reuters" && expected.originalTitle && parsed.protocol === "https:" && parsed.hostname === "news.google.com" && parsed.pathname.startsWith("/rss/articles/")) {
+        return fetchReutersPartnerContent(originalUrl, expected, "excerpt", emptyResult);
+      }
+    } catch { /* Invalid links do not trigger any external lookup. */ }
     return emptyResult;
   }
 
@@ -1186,7 +1223,7 @@ async function loadArticleContent(
 }
 
 // Cache extraction and translation together so repeat visits do not refetch every paragraph.
-const getCachedArticleContent = unstable_cache(loadArticleContent, ["article-content-v5"], { revalidate: 1800 });
+const getCachedArticleContent = unstable_cache(loadArticleContent, ["article-content-v6"], { revalidate: 1800 });
 const getCachedLicensedParagraphs = unstable_cache(translateParagraphs, ["licensed-paragraphs-v1"], { revalidate: 86400 });
 
 export async function fetchArticleContent(originalUrl: string, expected: ArticleExpectation): Promise<ArticleContent> {
