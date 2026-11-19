@@ -3987,3 +3987,12 @@ html[data-theme="dark"] body:has(.edition-home) .nav-inner a.is-active { color: 
 /* Match the surrounding page so the glass navigation has no separate bottom band. */
 body:has(.edition-home) .desktop-nav { background: #fff; box-shadow: none; }
 html[data-theme="dark"] body:has(.edition-home) .desktop-nav { background: #171719; box-shadow: none; }
+/* Show the whole photo at the card's width and extend its colors underneath. */
+.edition-grid { grid-auto-rows: auto; align-items: stretch; }
+.edition-card a { display: block; min-height: 100%; padding-bottom: 130px; }
+.edition-card img.edition-card-backdrop { position: absolute; z-index: -2; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(42px) brightness(.56); transform: scale(1.16); }
+.edition-card img.edition-card-photo { position: relative; z-index: -1; inset: auto; display: block; width: 100%; height: auto; object-fit: contain; transform: none; }
+.edition-card a:hover img.edition-card-photo { transform: none; }
+.edition-card a::after { z-index: 0; background: linear-gradient(to bottom, transparent 20%, rgba(7, 12, 20, .08) 42%, rgba(7, 12, 20, .58) 72%, rgba(7, 12, 20, .82) 100%); pointer-events: none; }
+.edition-card-copy { position: absolute; z-index: 1; right: 0; bottom: 0; left: 0; }
+@media (max-width: 540px) { .edition-card a { padding-bottom: 120px; } }

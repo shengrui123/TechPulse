@@ -50,7 +50,8 @@ export default function EditionSections({ items }: { items: Item[] }) {
       <div className={`edition-grid edition-grid-${groupIndex % 3}`}>
         {group.items.map((item) => <article className="edition-card" key={`${item.source}-${item.url}`}>
           <Link prefetch={false} href={item.storyHref} aria-label={`阅读：${item.title}`}>
-            <img src={imageUrl(item, true)} alt="" width={1000} height={650} />
+            <img className="edition-card-backdrop" src={imageUrl(item, true)} alt="" aria-hidden="true" />
+            <img className="edition-card-photo" src={imageUrl(item, true)} alt="" width={1000} height={650} />
             <div className="edition-card-copy"><span className="edition-card-kicker">{item.sourceName} · {item.formattedDate}</span><h3>{item.title}</h3><span className="edition-card-action">阅读报道 <span aria-hidden="true">↗</span></span></div>
           </Link>
         </article>)}
