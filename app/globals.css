@@ -3999,3 +3999,25 @@ html[data-theme="dark"] body:has(.edition-home) .desktop-nav { background: #1717
 html[data-theme="dark"] .story-back-button { color: #fff; border-color: rgba(255,255,255,.2); background: linear-gradient(145deg, rgba(98,102,113,.6), rgba(47,49,56,.72)); box-shadow: 0 4px 14px rgba(0,0,0,.22), inset 0 1px rgba(255,255,255,.22); }
 html[data-theme="dark"] .story-back-button:hover { background: rgba(115,119,130,.6); }
 .news-article-image img { border-radius: 18px; }
+/* The home search sits beside the rounded navigation capsule. */
+.home-nav-search { display: none; }
+@media (min-width: 761px) {
+  body:has(.edition-home) .desktop-nav { display: flex; align-items: center; justify-content: center; gap: 10px; }
+  body:has(.edition-home) .nav-inner { margin: 0; border-radius: 9999px; }
+  body:has(.edition-home) .nav-inner a,
+  body:has(.edition-home) .nav-theme-toggle,
+  body:has(.edition-home) .nav-sort-toggle { border-radius: 9999px; }
+  body:has(.edition-home) .nav-inner .nav-search-link { display: none; }
+  body:has(.edition-home) .home-nav-search { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; gap: 7px; min-height: 48px; padding: 0 15px; border: 1px solid rgba(255,255,255,.72); border-radius: 9999px; background: linear-gradient(145deg, rgba(255,255,255,.8), rgba(231,236,245,.52)); box-shadow: 0 9px 26px rgba(45,55,75,.12), inset 0 1px 1px rgba(255,255,255,.9); color: var(--ink); font-size: 13px; font-weight: 600; backdrop-filter: blur(24px) saturate(160%); -webkit-backdrop-filter: blur(24px) saturate(160%); }
+  body:has(.edition-home) .home-nav-search:hover { filter: brightness(.96); }
+  body:has(.edition-home) .home-nav-search:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+  html[data-theme="dark"] body:has(.edition-home) .home-nav-search { border-color: rgba(255,255,255,.18); background: linear-gradient(145deg, rgba(76,80,91,.64), rgba(39,41,48,.7)); box-shadow: 0 10px 28px rgba(0,0,0,.26), inset 0 1px 1px rgba(255,255,255,.2); }
+  html[data-theme="dark"] body:has(.edition-home) .home-nav-search:hover { filter: brightness(1.15); }
+}
+@media (min-width: 761px) and (max-width: 980px) {
+  body:has(.edition-home) .desktop-nav { padding-inline: 12px; gap: 6px; }
+  body:has(.edition-home) .nav-inner { gap: 0; padding: 5px; }
+  body:has(.edition-home) .nav-inner a { padding-inline: 7px; font-size: 12px; }
+  body:has(.edition-home) .nav-theme-toggle { margin-left: 3px; }
+  body:has(.edition-home) .home-nav-search { padding-inline: 11px; }
+}

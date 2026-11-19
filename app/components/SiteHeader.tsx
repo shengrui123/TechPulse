@@ -278,6 +278,12 @@ export default function SiteHeader() {
             搜索
           </Link>
         </div>
+        {pathname === "/" && !searchFloating && (
+          <Link className="home-nav-search" href={searchHref} aria-label="搜索媒体来源" onClick={() => window.dispatchEvent(new Event("worldpulse-search-open"))}>
+            <UtilityIcon name="search" />
+            <span>搜索</span>
+          </Link>
+        )}
       </nav>
       <nav
         className={`mobile-nav ${menuOpen ? "is-open" : ""}`}
