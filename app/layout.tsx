@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import BackToTop from "./components/BackToTop";
 import "./globals.css";
+import "./glass.css";
 
 const themeBootScript = `
 let savedTheme;
