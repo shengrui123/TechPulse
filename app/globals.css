@@ -3965,3 +3965,22 @@ html[data-theme="dark"] .edition-heading h1, html[data-theme="dark"] .edition-se
 @media (max-width: 540px) {
   .edition-grid, .edition-grid-1 { grid-template-columns: 1fr; grid-auto-rows: 230px; }
 }
+/* Give image-led stories more room, while retaining comfortable mobile proportions. */
+.edition-grid { grid-auto-rows: 360px; }
+.edition-loading { min-height: 180px; padding: 45px 0; color: var(--muted); text-align: center; font-size: 14px; }
+@media (max-width: 760px) { .edition-grid { grid-auto-rows: 260px; } }
+@media (max-width: 540px) { .edition-grid { grid-auto-rows: 280px; } }
+/* Translucent navigation with a soft glass edge and restrained highlights. */
+body:has(.edition-home) .desktop-nav { background: transparent; border: 0; padding: 0 28px 15px; }
+body:has(.edition-home) .nav-inner { width: fit-content; max-width: 100%; padding: 7px; border: 1px solid rgba(255,255,255,.72); border-radius: 22px; background: linear-gradient(145deg, rgba(255,255,255,.8), rgba(231,236,245,.52)); box-shadow: 0 9px 26px rgba(45,55,75,.12), inset 0 1px 1px rgba(255,255,255,.9); backdrop-filter: blur(24px) saturate(160%); -webkit-backdrop-filter: blur(24px) saturate(160%); }
+body:has(.edition-home) .nav-inner a, body:has(.edition-home) .nav-theme-toggle, body:has(.edition-home) .nav-sort-toggle, body:has(.edition-home) .nav-search-link { border-radius: 15px; }
+body:has(.edition-home) .nav-inner a.is-active { background: rgba(255,255,255,.78); box-shadow: 0 2px 7px rgba(30,50,80,.12), inset 0 1px rgba(255,255,255,.95); }
+body:has(.edition-home) .edition-content { padding-top: 24px; }
+html[data-theme="dark"] body:has(.edition-home) .desktop-nav { background: transparent; }
+html[data-theme="dark"] body:has(.edition-home) .nav-inner { background: linear-gradient(145deg, rgba(76,80,91,.64), rgba(39,41,48,.7)); border-color: rgba(255,255,255,.18); box-shadow: 0 10px 28px rgba(0,0,0,.26), inset 0 1px 1px rgba(255,255,255,.2); }
+html[data-theme="dark"] body:has(.edition-home) .nav-inner a.is-active { color: #fff; background: rgba(255,255,255,.2); box-shadow: 0 2px 8px rgba(0,0,0,.18), inset 0 1px rgba(255,255,255,.25); }
+@media (max-width: 760px) {
+  body:has(.edition-home) .desktop-nav { padding: 0 12px 12px; }
+  body:has(.edition-home) .nav-inner { width: max-content; max-width: none; padding: 6px; }
+  body:has(.edition-home) .edition-content { padding-top: 20px; }
+}

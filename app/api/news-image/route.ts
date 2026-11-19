@@ -87,9 +87,13 @@ export async function GET(request: NextRequest) {
   const newsUrl = request.nextUrl.searchParams.get("url");
   const source = request.nextUrl.searchParams.get("source") ?? "";
   const title = request.nextUrl.searchParams.get("title") ?? "";
+  const requirePhoto = request.nextUrl.searchParams.get("photo") === "1";
+  const unavailable = () => requirePhoto
+    ? new NextResponse(null, { status: 404, headers: { "Cache-Control": "public, max-age=300" } })
+    : fallbackResponse(source);
 
   if (request.nextUrl.searchParams.get("fallback") === "logo" || !newsUrl) {
-    return fallbackResponse(source);
+    return requirePhoto ? unavailable() : fallbackResponse(source);
   }
 
   try {
@@ -102,7 +106,7 @@ export async function GET(request: NextRequest) {
 
     const originalUrl = await resolveOriginalNewsUrl(newsUrl);
     if (!isTrustedExternalNewsUrl(originalUrl)) {
-      return fallbackResponse(source);
+      return unavailable();
     }
 
     const response = await fetch(originalUrl, {
@@ -112,21 +116,21 @@ export async function GET(request: NextRequest) {
     });
 
     if (!response.ok) {
-      return fallbackResponse(source);
+      return unavailable();
     }
 
     const imageUrl = imageFromHtml(await response.text());
     if (!imageUrl) {
-      return fallbackResponse(source);
+      return unavailable();
     }
 
     const parsedImage = new URL(imageUrl);
     if (parsedImage.protocol !== "https:") {
-      return fallbackResponse(source);
+      return unavailable();
     }
 
     return imageResponse(imageUrl);
   } catch {
-    return fallbackResponse(source);
+    return unavailable();
   }
 }
