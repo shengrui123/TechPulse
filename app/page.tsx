@@ -24,13 +24,6 @@ export default async function Home({ searchParams }: HomeProps) {
   return (
     <>
       <SiteHeader />
-      <header className="page-shell edition-cover">
-        <p className="edition-label" lang="en">WorldPulse / Global edition</p>
-        <h1>全球新闻简报</h1>
-        <p className="edition-meta">
-          {news.length.toLocaleString("zh-CN")} 篇报道 · {newsSortMode(sort) === "time" ? "按时间排序" : "按重要性排序"}
-        </p>
-      </header>
       <NewsStream news={news} hideHeader sortMode={newsSortMode(sort)} />
       <SiteFooter />
     </>
