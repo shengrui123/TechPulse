@@ -45,6 +45,30 @@ function paragraphizeSummary(summary: string): string[] {
   return paragraphs;
 }
 
+function storySummary(story: NewsStory, paragraphs: string[]): string {
+  const candidates = [story.summary, ...paragraphs];
+  const candidate = candidates.find((text) => {
+    const trimmed = text.trim();
+    return trimmed && isChineseText(trimmed) && trimmed !== story.title.trim();
+  });
+  if (!candidate) return "";
+
+  // Some feeds put the full article in their summary field. Use a short
+  // source-provided excerpt, keeping a complete sentence where possible.
+  const text = candidate.replace(/\s+/g, " ").trim();
+  const sentences = text.match(/[^。！？]+[。！？]+[”’」』】)]*|[^。！？]+$/gu) ?? [text];
+  let excerpt = "";
+  for (const sentence of sentences) {
+    if (excerpt && excerpt.length + sentence.length > 180) break;
+    if (sentence.length > 180) {
+      if (!excerpt) excerpt = `${sentence.slice(0, 180).trimEnd()}…`;
+      break;
+    }
+    excerpt += sentence;
+  }
+  return excerpt || text.slice(0, 180);
+}
+
 function rssSourceLabel(value: string): string {
   try {
     return new URL(value).hostname === "news.google.com"
@@ -138,6 +162,7 @@ async function StoryContent({ story }: { story: NewsStory }) {
       untranslated: !isChineseText(original) && original === translated,
     };
   });
+  const summary = storySummary(story, paragraphs);
   const emptyContentMessage =
     story.source === "Reuters"
       ? "暂未取得可确认匹配的路透社正文。请使用下方按钮前往 Reuters 查看完整报道。"
@@ -169,6 +194,12 @@ async function StoryContent({ story }: { story: NewsStory }) {
 
           <div className="news-article-layout">
             <div className="news-article-copy">
+              {summary && (
+                <section className="story-summary" aria-labelledby="story-summary-title">
+                  <h2 id="story-summary-title">新闻摘要</h2>
+                  <p>{summary}</p>
+                </section>
+              )}
               <div className="article-reading-line">
                 <span>WORLD PULSE / 国际</span>
                 <span>预计阅读 {readingMinutes} 分钟</span>

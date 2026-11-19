@@ -4021,3 +4021,8 @@ html[data-theme="dark"] .story-back-button:hover { background: rgba(115,119,130,
   body:has(.edition-home) .nav-theme-toggle { margin-left: 3px; }
   body:has(.edition-home) .home-nav-search { padding-inline: 11px; }
 }
+.story-summary { margin: 0 0 32px; padding: 22px 24px; border: 1px solid rgba(100,115,140,.16); border-radius: 16px; background: rgba(112,130,160,.08); }
+.story-summary h2 { margin: 0 0 9px; color: var(--muted); font-family: var(--app-sans); font-size: 13px; font-weight: 750; letter-spacing: .04em; }
+.story-summary p { margin: 0; color: var(--ink); font-family: var(--app-sans); font-size: 16px; line-height: 1.8; overflow-wrap: anywhere; }
+html[data-theme="dark"] .story-summary { border-color: rgba(255,255,255,.08); background: rgba(255,255,255,.055); }
+@media (max-width: 760px) { .story-summary { padding: 18px; margin-bottom: 25px; } }
