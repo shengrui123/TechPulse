@@ -1,6 +1,7 @@
 "use client";
 
 import NewsImage from "./NewsImage";
+import SourceLabel from "./SourceLabel";
 import MasonryGrid from "./MasonryGrid";
 import LoadMoreTrigger from "./LoadMoreTrigger";
 import Link from "next/link";
@@ -189,7 +190,7 @@ export default function SourceNewsBrowser({
               <article className="news-card" key={`${item.source}-${item.url}`}>
                 <Link prefetch={false} href={item.storyHref} aria-label={`阅读：${item.title}`}>
                   <div className="news-card-meta">
-                    <span>{item.sourceName}</span>
+                    <SourceLabel source={item.source} name={item.sourceName} />
                     <time dateTime={item.publishedAt}>
                       {formatNewsDate(item.publishedAt)}
                     </time>

@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import RelatedNews from "../../components/RelatedNews";
+import SourceLabel from "../../components/SourceLabel";
 import NewsImage from "../../components/NewsImage";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import SiteFooter from "../../components/SiteFooter";
 import SiteHeader from "../../components/SiteHeader";
 import { resolveOriginalNewsUrl } from "../../data/google-news";
 import { isChineseText } from "../../data/language";
@@ -96,7 +96,7 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
                 )}
               <h1>{story.title}</h1>
               <p className="eyebrow">
-                {story.sourceName} · {formatNewsDate(story.publishedAt)}
+                <SourceLabel source={story.source} name={story.sourceName} /> · {formatNewsDate(story.publishedAt)}
               </p>
             </div>
           </header>
@@ -106,7 +106,6 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
           </Suspense>
         </article>
       </main>
-      <SiteFooter />
     </>
   );
 }
@@ -173,7 +172,7 @@ async function StoryContent({ story }: { story: NewsStory }) {
               <aside className="news-article-aside" aria-label="新闻信息">
                 <div>
                   <span>来源</span>
-                  <strong>{story.sourceName}</strong>
+                  <strong><SourceLabel source={story.source} name={story.sourceName} /></strong>
                 </div>
                 <div>
                   <span>发布时间</span>

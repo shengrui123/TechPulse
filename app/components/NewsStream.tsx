@@ -1,4 +1,5 @@
 import NewsImage from "./NewsImage";
+import SourceLabel from "./SourceLabel";
 import EditionSections from "./EditionSections";
 import InfiniteNews from "./InfiniteNews";
 import MasonryGrid from "./MasonryGrid";
@@ -102,7 +103,7 @@ export default function NewsStream({
                   aria-label={`阅读：${item.title}`}
                 >
                   <div className="news-card-meta">
-                    <span>{item.sourceName}</span>
+                    <SourceLabel source={item.source} name={item.sourceName} />
                     <time dateTime={item.publishedAt}>
                       {formatNewsDate(item.publishedAt)}
                     </time>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import SourceLabel from "./SourceLabel";
 import type { LiveNewsItem } from "../data/live-news";
 
 type Item = LiveNewsItem & { storyHref: string; formattedDate: string };
@@ -51,7 +52,7 @@ export default function EditionSections({ items }: { items: Item[] }) {
         {group.items.map((item) => <article className="edition-card" key={`${item.source}-${item.url}`}>
           <Link prefetch={false} href={item.storyHref} aria-label={`阅读：${item.title}`}>
             <img src={imageUrl(item, true)} alt="" width={1000} height={650} />
-            <div className="edition-card-copy"><span className="edition-card-kicker">{item.sourceName} · {item.formattedDate}</span><h3>{item.title}</h3><span className="edition-card-action">阅读报道 <span aria-hidden="true">↗</span></span></div>
+            <div className="edition-card-copy"><span className="edition-card-kicker"><SourceLabel source={item.source} name={item.sourceName} /> · {item.formattedDate}</span><h3>{item.title}</h3><span className="edition-card-action">阅读报道 <span aria-hidden="true">↗</span></span></div>
           </Link>
         </article>)}
       </div>

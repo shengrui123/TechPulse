@@ -1,5 +1,6 @@
 import Link from "next/link";
 import NewsImage from "./NewsImage";
+import SourceLabel from "./SourceLabel";
 import { formatNewsDate, getAllSourceNews } from "../data/live-news";
 import { encodeNewsStory, type NewsStory } from "../data/news-story";
 
@@ -36,7 +37,7 @@ export default async function RelatedNews({ story }: { story: NewsStory }) {
       <Link className="related-news-link" prefetch={false} href={`/news/story?story=${encodeNewsStory(item)}`}>
         <span className="related-news-text">
           <span className="related-news-title">{item.title}</span>
-          <span className="related-news-meta">{item.sourceName} · {formatNewsDate(item.publishedAt)}</span>
+          <span className="related-news-meta"><SourceLabel source={item.source} name={item.sourceName} /> · {formatNewsDate(item.publishedAt)}</span>
         </span>
         <span className="related-news-image">
           <NewsImage

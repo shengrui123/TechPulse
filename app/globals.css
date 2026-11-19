@@ -3987,3 +3987,9 @@ html[data-theme="dark"] body:has(.edition-home) .nav-inner a.is-active { color: 
 /* Match the surrounding page so the glass navigation has no separate bottom band. */
 body:has(.edition-home) .desktop-nav { background: #fff; box-shadow: none; }
 html[data-theme="dark"] body:has(.edition-home) .desktop-nav { background: #171719; box-shadow: none; }
+/* Publisher marks stay aligned with the source name in cards and bylines. */
+.source-label { display: inline-flex; align-items: center; gap: 6px; vertical-align: middle; min-width: 0; }
+.source-label .source-logo,
+.edition-card .source-label img.source-logo { position: static; inset: auto; display: inline-block; width: 20px; height: 20px; flex: 0 0 20px; padding: 2px; border-radius: 5px; background: #fff; object-fit: contain; transform: none; filter: none; }
+.source-label .source-logo-fallback { display: inline-flex; align-items: center; justify-content: center; color: #3b4250; font: 700 11px/1 sans-serif; }
+.edition-card a:hover .source-label img.source-logo { transform: none; }

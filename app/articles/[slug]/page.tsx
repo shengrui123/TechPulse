@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import SiteFooter from "../../components/SiteFooter";
 import SiteHeader from "../../components/SiteHeader";
+import SourceLabel from "../../components/SourceLabel";
 import { articles, getArticle } from "../../data/articles";
 
 type ArticlePageProps = {
@@ -60,7 +61,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
               <span>WorldPulse 编辑部</span>
               <span>{article.published}</span>
               <span>{article.readTime}阅读</span>
-              <strong>{article.source}</strong>
+              <strong><SourceLabel source="Associated Press" name={article.source} /></strong>
             </div>
           </header>
 

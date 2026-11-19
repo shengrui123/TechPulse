@@ -1,6 +1,7 @@
 "use client";
 
 import NewsImage from "./NewsImage";
+import SourceLabel from "./SourceLabel";
 import Link from "next/link";
 import { useRef, useState } from "react";
 import type { LiveNewsItem } from "../data/live-news";
@@ -39,7 +40,7 @@ export default function InfiniteNews({ category, sortMode, initialCount, initial
   return <>
     {items.map((item) => <article className="news-card" key={item.url}>
       <Link prefetch={false} href={item.storyHref} aria-label={`阅读：${item.title}`}>
-        <div className="news-card-meta"><span>{item.sourceName}</span><time dateTime={item.publishedAt}>{new Intl.DateTimeFormat("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Asia/Shanghai" }).format(new Date(item.publishedAt))}</time></div>
+        <div className="news-card-meta"><SourceLabel source={item.source} name={item.sourceName} /><time dateTime={item.publishedAt}>{new Intl.DateTimeFormat("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Asia/Shanghai" }).format(new Date(item.publishedAt))}</time></div>
         <figure className="news-card-image"><NewsImage source={item.source} src={`/api/news-image?url=${encodeURIComponent(item.url)}&source=${encodeURIComponent(item.source)}&title=${encodeURIComponent(item.originalTitle || item.title)}&v=6`} alt={`${item.title} 新闻图片`} width={800} height={450} sizes="(max-width: 760px) 100vw, (max-width: 1080px) 50vw, 33vw" unoptimized /></figure>
         <h2>{item.title}</h2>{item.summary && <p>{item.summary}</p>}<strong>阅读新闻 →</strong>
       </Link>
