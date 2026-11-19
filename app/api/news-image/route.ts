@@ -44,7 +44,7 @@ async function fallbackResponse(sourceName: string) {
   const anchor = icon ? "start" : "middle";
   const maxWidth = icon ? 390 : 640;
   const textFit = label.length > (icon ? 18 : 28) ? ` textLength="${maxWidth}" lengthAdjust="spacingAndGlyphs"` : "";
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450"><rect width="800" height="450" fill="${theme.background}"/><path d="M0 365 L800 190 L800 450 L0 450Z" fill="${theme.accent}" opacity=".22"/><path d="M0 52 L800 0 L800 34 L0 133Z" fill="${theme.foreground}" opacity=".035"/>${icon}<text x="${x}" y="225" text-anchor="${anchor}" dominant-baseline="middle" fill="${theme.foreground}" font-family="${sourceName === "Financial Times" ? "Georgia, serif" : "Arial, sans-serif"}" font-size="${sourceName === "Financial Times" ? 40 : 42}" font-weight="700"${textFit}>${label}</text><text x="400" y="338" text-anchor="middle" fill="${theme.foreground}" font-family="sans-serif" font-size="24">来源标识 · 暂无报道配图</text></svg>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450"><rect width="800" height="450" fill="${theme.background}"/><path d="M0 365 L800 190 L800 450 L0 450Z" fill="${theme.accent}" opacity=".22"/><path d="M0 52 L800 0 L800 34 L0 133Z" fill="${theme.foreground}" opacity=".035"/>${icon}<text x="${x}" y="225" text-anchor="${anchor}" dominant-baseline="middle" fill="${theme.foreground}" font-family="${sourceName === "Financial Times" ? "Georgia, serif" : "Arial, sans-serif"}" font-size="${sourceName === "Financial Times" ? 40 : 42}" font-weight="700"${textFit}>${label}</text></svg>`;
   return new NextResponse(svg, { headers: { "Content-Type": "image/svg+xml; charset=utf-8", "Cache-Control": "public, max-age=3600, s-maxage=3600", "X-Content-Type-Options": "nosniff", "Content-Security-Policy": "default-src 'none'; img-src data:; style-src 'unsafe-inline'; sandbox" } });
 }
 
@@ -88,12 +88,8 @@ export async function GET(request: NextRequest) {
   const source = request.nextUrl.searchParams.get("source") ?? "";
   const title = request.nextUrl.searchParams.get("title") ?? "";
 
-  const missingImage = () => request.nextUrl.searchParams.get("cover") === "editorial"
-    ? NextResponse.redirect(new URL("/editorial-cover.jpg", request.url), 307)
-    : fallbackResponse(source);
-
   if (request.nextUrl.searchParams.get("fallback") === "logo" || !newsUrl) {
-    return missingImage();
+    return fallbackResponse(source);
   }
 
   try {
@@ -106,7 +102,7 @@ export async function GET(request: NextRequest) {
 
     const originalUrl = await resolveOriginalNewsUrl(newsUrl);
     if (!isTrustedExternalNewsUrl(originalUrl)) {
-      return missingImage();
+      return fallbackResponse(source);
     }
 
     const response = await fetch(originalUrl, {
@@ -116,21 +112,21 @@ export async function GET(request: NextRequest) {
     });
 
     if (!response.ok) {
-      return missingImage();
+      return fallbackResponse(source);
     }
 
     const imageUrl = imageFromHtml(await response.text());
     if (!imageUrl) {
-      return missingImage();
+      return fallbackResponse(source);
     }
 
-    const parsedImage = new URL(imageUrl, originalUrl);
+    const parsedImage = new URL(imageUrl);
     if (parsedImage.protocol !== "https:") {
-      return missingImage();
+      return fallbackResponse(source);
     }
 
-    return imageResponse(parsedImage.href);
+    return imageResponse(imageUrl);
   } catch {
-    return missingImage();
+    return fallbackResponse(source);
   }
 }

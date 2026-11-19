@@ -24,7 +24,7 @@ export default async function Home({ searchParams }: HomeProps) {
   return (
     <>
       <SiteHeader />
-      <NewsStream news={news} frontPage hideHeader sortMode={newsSortMode(sort)} />
+      <NewsStream news={news} hideHeader sortMode={newsSortMode(sort)} />
       <SiteFooter />
     </>
   );
