@@ -88,8 +88,12 @@ export async function GET(request: NextRequest) {
   const source = request.nextUrl.searchParams.get("source") ?? "";
   const title = request.nextUrl.searchParams.get("title") ?? "";
 
+  const missingImage = () => request.nextUrl.searchParams.get("cover") === "editorial"
+    ? NextResponse.redirect(new URL("/editorial-cover.jpg", request.url), 307)
+    : fallbackResponse(source);
+
   if (request.nextUrl.searchParams.get("fallback") === "logo" || !newsUrl) {
-    return fallbackResponse(source);
+    return missingImage();
   }
 
   try {
@@ -102,7 +106,7 @@ export async function GET(request: NextRequest) {
 
     const originalUrl = await resolveOriginalNewsUrl(newsUrl);
     if (!isTrustedExternalNewsUrl(originalUrl)) {
-      return fallbackResponse(source);
+      return missingImage();
     }
 
     const response = await fetch(originalUrl, {
@@ -112,21 +116,21 @@ export async function GET(request: NextRequest) {
     });
 
     if (!response.ok) {
-      return fallbackResponse(source);
+      return missingImage();
     }
 
     const imageUrl = imageFromHtml(await response.text());
     if (!imageUrl) {
-      return fallbackResponse(source);
+      return missingImage();
     }
 
     const parsedImage = new URL(imageUrl, originalUrl);
     if (parsedImage.protocol !== "https:") {
-      return fallbackResponse(source);
+      return missingImage();
     }
 
     return imageResponse(parsedImage.href);
   } catch {
-    return fallbackResponse(source);
+    return missingImage();
   }
 }

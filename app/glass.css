@@ -6,7 +6,10 @@
   --glass-light: rgba(255, 255, 255, .85);
   --glass-shadow: inset 0 1px var(--glass-light), 0 8px 28px -16px rgba(30, 63, 93, .32);
   --glass-tint: #285d79;
-  --wash: rgba(130, 201, 216, .28);
+  --sky: #6ea6d4;
+  --horizon: #b3dbec;
+  --mist: #f2fbff;
+  --workspace: rgb(239 249 255 / 65%);
 }
 html[data-theme="dark"] {
   --paper: #111a23;
@@ -15,12 +18,42 @@ html[data-theme="dark"] {
   --glass-edge: rgba(157, 191, 214, .24);
   --glass-light: rgba(202, 233, 255, .12);
   --glass-tint: #a0e1ee;
-  --wash: rgba(64, 126, 153, .22);
+  --sky: #234f77;
+  --horizon: #102838;
+  --mist: #45768a;
+  --workspace: rgb(15 31 48 / 78%);
 }
 body {
-  background: radial-gradient(ellipse at 83% 0, var(--wash), transparent 52rem) var(--paper);
+  background: radial-gradient(ellipse at 8% 35%, var(--mist), transparent 40%),
+    radial-gradient(ellipse at 92% 95%, var(--mist), transparent 52%),
+    linear-gradient(148deg, var(--sky), var(--horizon) 58%, var(--sky)) fixed;
+  background-attachment: fixed;
 }
-main { background: transparent; }
+html[data-theme] main {
+  margin: clamp(10px, 2vw, 30px);
+  border: 1px solid var(--glass-edge);
+  border-radius: 24px;
+  background: var(--workspace);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(18px);
+}
+@media (min-width: 761px) {
+  :root { --app-sidebar: clamp(178px, 18vw, 232px); }
+  html[data-theme] :is(.site-header, .desktop-nav) {
+    left: 16px;
+    width: calc(var(--app-sidebar) - 16px);
+    border: 1px solid var(--glass-edge);
+    border-radius: 20px;
+    box-shadow: var(--glass-shadow);
+  }
+  .site-header { top: 24px; }
+  .site-header .header-row { min-height: 66px; justify-content: center; padding: 16px 8px; }
+  .desktop-nav { top: 100px; bottom: auto; max-height: calc(100dvh - 120px); }
+  .desktop-nav .nav-inner { padding: 10px; min-height: 0; gap: 5px; }
+}
+@media (max-width: 760px) {
+  main .page-shell { width: calc(100% - 24px); }
+}
 html[data-theme] :is(.site-header, .desktop-nav, .story-topbar) {
   background: var(--glass-rail);
   border-color: var(--glass-edge);
@@ -48,5 +81,5 @@ html[data-theme] :is(.news-card, .source-search, .principle-grid article, .relat
   body { padding-bottom: calc(82px + env(safe-area-inset-bottom)); }
 }
 @media (prefers-reduced-transparency: reduce) {
-  html[data-theme] { --glass-panel: var(--white); --glass-rail: var(--paper); }
+  html[data-theme] { --glass-panel: var(--white); --glass-rail: var(--paper); --workspace: var(--paper); }
 }
