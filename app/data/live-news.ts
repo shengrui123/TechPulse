@@ -97,8 +97,8 @@ const translationEndpoints = [
   },
 ] as const;
 const feedConcurrency = 26;
-const translationConcurrency = 12;
-const translationBatchCharacters = 5000;
+const translationConcurrency = 6;
+const translationBatchCharacters = 1800;
 
 function clean(value: string): string {
   let decoded = value.replace(/^<!\[CDATA\[|\]\]>$/g, "");
@@ -323,8 +323,14 @@ async function translateBatch(
     .join("\n");
   const result = await requestTranslation(payload);
   if (!result) {
-    // Keep the feed usable when the translation service is unavailable.
-    return batch.map((target) => target.value);
+    // A large request can fail even when individual titles are still translatable.
+    // Retry titles individually; retain original summaries if the service is down.
+    const titles = batch.filter((target) => target.field === "title");
+    const replacements = await translateTargetsIndividually(titles);
+    let titleIndex = 0;
+    return batch.map((target) => target.field === "title"
+      ? replacements[titleIndex++]
+      : target.value);
   }
 
   const values = splitMarkedTranslations(result, batch.length);
@@ -358,7 +364,7 @@ async function translateTargetsIndividually(
 
   await Promise.all(
     Array.from(
-      { length: Math.min(translationConcurrency, targets.length) },
+      { length: Math.min(2, targets.length) },
       () => worker(),
     ),
   );
@@ -529,7 +535,7 @@ async function buildAllSourceNews(): Promise<LiveNewsItem[]> {
 
 const getCachedSourceNews = unstable_cache(
   buildAllSourceNews,
-  ["worldpulse-all-source-news-v17"],
+  ["worldpulse-all-source-news-v18"],
   { revalidate: 1800, tags: ["all-source-news"] },
 );
 

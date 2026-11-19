@@ -38,6 +38,7 @@ export default function EditionSections({ items }: { items: Item[] }) {
 
   if (selected === null) return <div className="edition-loading" role="status">正在挑选有图片的新闻…</div>;
   const featured = items.filter((item) => selected.includes(item.url));
+  if (!featured.length) return <div className="edition-loading">暂时没有可展示的中文配图新闻，请稍后再试。</div>;
   const groups = labels.map(([title, subtitle], index) => ({
     title, subtitle,
     items: featured.slice(index * 2, index * 2 + 2),
