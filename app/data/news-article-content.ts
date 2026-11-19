@@ -135,6 +135,7 @@ const reutersPartnerHosts = [
   "channelnewsasia.com",
   "finance.yahoo.com",
   "investing.com",
+  "thestar.com.my",
 ] as const;
 
 function decodeEntities(value: string): string {
@@ -429,6 +430,20 @@ function titlesLikelyMatch(expected: string, actual: string): boolean {
   }
   const overlap = [...leftTokens].filter((token) => rightTokens.has(token)).length;
   return overlap / smaller >= 0.5;
+}
+
+function partnerTitlesMatch(expected: string, actual: string): boolean {
+  // Check the full headline: removing everything after a dash can make two
+  // unrelated stories match on only their opening words.
+  const tokens = (value: string) => new Set(
+    decodeEntities(value).toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ")
+      .split(/\s+/).filter((token) => token.length > 2),
+  );
+  const expectedTokens = tokens(expected);
+  const actualTokens = tokens(actual);
+  if (expectedTokens.size < 4 || actualTokens.size < 4) return false;
+  const overlap = [...expectedTokens].filter((token) => actualTokens.has(token)).length;
+  return overlap / expectedTokens.size >= 0.8 && overlap / actualTokens.size >= 0.6;
 }
 
 function paragraphsFromHtml(html: string, pageUrl = ""): {
@@ -766,7 +781,13 @@ function isReutersPartnerUrl(value: string): boolean {
   }
 }
 
+const verifiedReutersReprints: Record<string, string> = {
+  "/business/finance/migrants-fuelled-spains-boom-now-investors-fear-an-anti-immigration-government-2026-11-19/":
+    "https://www.thestar.com.my/news/world/2026/11/19/analysis-migrants-fuelled-spain039s-boom---now-investors-fear-an-anti-immigration-government-could-stifle-economy",
+};
+
 async function fetchReutersPartnerContent(
+  originalUrl: string,
   expected: ArticleExpectation,
   mode: ArticleContent["mode"],
   emptyResult: ArticleContent,
@@ -776,6 +797,22 @@ async function fetchReutersPartnerContent(
   }
 
   try {
+    const reprintUrl = verifiedReutersReprints[new URL(originalUrl).pathname];
+    if (reprintUrl) {
+      const response = await fetch(reprintUrl, {
+        headers: { Accept: "text/html,application/xhtml+xml", "User-Agent": "Mozilla/5.0 WorldPulse Reuters partner reader" },
+        cache: "no-store",
+        signal: AbortSignal.timeout(6000),
+      });
+      if (response.ok && isReutersPartnerUrl(response.url)) {
+        const html = await response.text();
+        const extracted = paragraphsFromHtml(html, response.url);
+        if (/\bReuters\b/i.test(html) && extracted.headline && partnerTitlesMatch(expected.originalTitle, extracted.headline) && extracted.paragraphs.length) {
+          const allowedParagraphs = mode === "full" || mode === "complete" ? extracted.paragraphs : buildLongExcerpt(extracted.paragraphs);
+          return { paragraphs: await translateParagraphs(allowedParagraphs), originalParagraphs: allowedParagraphs, byline: extracted.byline || "Reuters", imageUrl: extracted.imageUrl, mode, matched: true };
+        }
+      }
+    }
     const searchUrl = new URL("https://news.google.com/rss/search");
     const siteQuery = reutersPartnerHosts
       .map((host) => `site:${host}`)
@@ -801,7 +838,7 @@ async function fetchReutersPartnerContent(
       }))
       .filter(
         (item) =>
-          item.url && titlesLikelyMatch(expected.originalTitle ?? "", item.title),
+          item.url && partnerTitlesMatch(expected.originalTitle ?? "", item.title),
       )
       .slice(0, 6);
 
@@ -831,8 +868,9 @@ async function fetchReutersPartnerContent(
         continue;
       }
       const extracted = paragraphsFromHtml(html, response.url);
-      // The Google News result has already matched the original Reuters title.
-      // Partners may update their display headline after syndication.
+      if (!extracted.headline || !partnerTitlesMatch(expected.originalTitle, extracted.headline)) {
+        continue;
+      }
       const allowedParagraphs =
         mode === "full" || mode === "complete"
           ? extracted.paragraphs
@@ -921,7 +959,7 @@ export async function fetchReutersPartnerImage(
         url: rssValue(match[1], "link"),
       }))
       .filter(
-        (item) => item.url && titlesLikelyMatch(originalTitle, item.title),
+        (item) => item.url && partnerTitlesMatch(originalTitle, item.title),
       )
       .slice(0, 6);
 
@@ -950,7 +988,9 @@ export async function fetchReutersPartnerImage(
       if (!/\bReuters\b/i.test(html)) {
         continue;
       }
-      const imageUrl = articleImageFromHtml(html, response.url);
+      const extracted = paragraphsFromHtml(html, response.url);
+      if (!extracted.headline || !partnerTitlesMatch(originalTitle, extracted.headline)) continue;
+      const imageUrl = extracted.imageUrl;
       if (imageUrl) {
         return imageUrl;
       }
@@ -1080,6 +1120,7 @@ async function loadArticleContent(
 
   const sourceFallback = async () => {
     const partner = await fetchReutersPartnerContent(
+      originalUrl,
       expected,
       mode,
       emptyResult,
@@ -1145,7 +1186,7 @@ async function loadArticleContent(
 }
 
 // Cache extraction and translation together so repeat visits do not refetch every paragraph.
-const getCachedArticleContent = unstable_cache(loadArticleContent, ["article-content-v3"], { revalidate: 1800 });
+const getCachedArticleContent = unstable_cache(loadArticleContent, ["article-content-v5"], { revalidate: 1800 });
 const getCachedLicensedParagraphs = unstable_cache(translateParagraphs, ["licensed-paragraphs-v1"], { revalidate: 86400 });
 
 export async function fetchArticleContent(originalUrl: string, expected: ArticleExpectation): Promise<ArticleContent> {
