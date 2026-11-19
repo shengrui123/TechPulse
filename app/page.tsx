@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import NewsStream from "./components/NewsStream";
-import HomeDashboard from "./components/HomeDashboard";
 import SiteFooter from "./components/SiteFooter";
 import SiteHeader from "./components/SiteHeader";
 import { getAllSourceNews } from "./data/live-news";
@@ -23,14 +22,10 @@ export default async function Home({ searchParams }: HomeProps) {
   const news = await getAllSourceNews();
 
   return (
-    <div className="home-experience">
+    <>
       <SiteHeader />
-      <HomeDashboard news={news} sortMode={newsSortMode(sort)} />
-      <div id="latest-news" className="home-news-feed">
-        <div className="page-shell home-feed-heading"><span>THE LATEST</span><h2>最新国际新闻</h2><p>持续追踪全球正在发生的事</p></div>
-        <NewsStream news={news} hideHeader sortMode={newsSortMode(sort)} />
-      </div>
+      <NewsStream news={news} hideHeader sortMode={newsSortMode(sort)} />
       <SiteFooter />
-    </div>
+    </>
   );
 }
