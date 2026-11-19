@@ -98,7 +98,7 @@ export async function GET(request: NextRequest) {
 
   try {
     if (source === "Reuters" && title) {
-      const partnerImage = await fetchReutersPartnerImage(title);
+      const partnerImage = await fetchReutersPartnerImage(title, newsUrl);
       if (partnerImage) {
         return imageResponse(partnerImage);
       }

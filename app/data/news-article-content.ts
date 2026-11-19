@@ -857,12 +857,42 @@ async function fetchReutersPartnerContent(
   return emptyResult;
 }
 
+async function fetchReutersSyndicationImage(originalUrl: string, originalTitle: string): Promise<string> {
+  const derivedUrl = reutersSyndicationUrl(originalUrl);
+  if (!derivedUrl || !originalTitle.trim()) return "";
+  const titleSlug = originalTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const titleUrl = derivedUrl.replace(/[^/]+$/, titleSlug);
+  for (const candidate of [...new Set([derivedUrl, titleUrl])]) {
+    try {
+      const response = await fetch(candidate, {
+        headers: { "User-Agent": "Mozilla/5.0 WorldPulse Reuters image reader" },
+        next: { revalidate: 3600 },
+        signal: AbortSignal.timeout(5000),
+      });
+      const resolved = new URL(response.url);
+      if (!response.ok || resolved.protocol !== "https:" || resolved.hostname !== "www.internazionale.it" || !resolved.pathname.startsWith("/ultime-notizie-reuters/")) continue;
+      const html = await response.text();
+      const extracted = paragraphsFromReutersSyndication(html);
+      if (!extracted.headline || !titlesLikelyMatch(originalTitle, extracted.headline)) continue;
+      const image = articleImageFromHtml(html, response.url);
+      if (image && new URL(image).hostname === "media.internazionale.it") return image;
+    } catch {
+      // Continue to the next candidate or the partner lookup.
+    }
+  }
+  return "";
+}
+
 export async function fetchReutersPartnerImage(
   originalTitle: string,
+  originalUrl = "",
 ): Promise<string> {
   if (!originalTitle.trim()) {
     return "";
   }
+
+  const syndicatedImage = await fetchReutersSyndicationImage(originalUrl, originalTitle);
+  if (syndicatedImage) return syndicatedImage;
 
   try {
     const searchUrl = new URL("https://news.google.com/rss/search");
@@ -1016,7 +1046,9 @@ async function fetchReutersSyndicationContent(
       paragraphs: await translateParagraphs(allowedParagraphs),
       originalParagraphs: allowedParagraphs,
       byline: extracted.byline,
-      imageUrl: "",
+      imageUrl: directResponse.status === 200 && expected.originalTitle && extracted.headline && titlesLikelyMatch(expected.originalTitle, extracted.headline)
+        ? articleImageFromHtml(directResponse.body, directResponse.url)
+        : "",
       mode,
       matched: allowedParagraphs.length > 0,
     };
@@ -1113,7 +1145,7 @@ async function loadArticleContent(
 }
 
 // Cache extraction and translation together so repeat visits do not refetch every paragraph.
-const getCachedArticleContent = unstable_cache(loadArticleContent, ["article-content-v2"], { revalidate: 1800 });
+const getCachedArticleContent = unstable_cache(loadArticleContent, ["article-content-v3"], { revalidate: 1800 });
 const getCachedLicensedParagraphs = unstable_cache(translateParagraphs, ["licensed-paragraphs-v1"], { revalidate: 86400 });
 
 export async function fetchArticleContent(originalUrl: string, expected: ArticleExpectation): Promise<ArticleContent> {
