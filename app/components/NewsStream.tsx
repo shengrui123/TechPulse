@@ -37,6 +37,49 @@ export default function NewsStream({
     orderedNews.map((item) => item.source),
   ).size;
 
+  if (hideHeader) {
+    const groupLabels = [
+      ["今日焦点", "THE TOP STORIES"], ["正在发生", "AROUND THE WORLD"],
+      ["全球视野", "THE BIG PICTURE"], ["深入了解", "STORIES THAT MATTER"],
+      ["更多值得关注", "MORE TO EXPLORE"], ["来自世界各地", "GLOBAL DISPATCHES"],
+      ["新闻速览", "THE LATEST"], ["继续阅读", "KEEP READING"],
+      ["世界观察", "WORLD WATCH"], ["今日聚焦", "IN FOCUS"],
+      ["环球动态", "GLOBAL UPDATE"], ["更多报道", "MORE STORIES"],
+    ];
+    const groups = groupLabels.map(([title, subtitle], index) => ({
+      title, subtitle, items: visibleNews.slice(index * 2, index * 2 + 2),
+    })).filter((group) => group.items.length);
+    const date = new Intl.DateTimeFormat("zh-CN", { timeZone: "Asia/Shanghai", month: "long", day: "numeric", weekday: "long" }).format(new Date());
+    return (
+      <main className="edition-home">
+        <div className="page-shell edition-content">
+          <header className="edition-heading">
+            <p>WORLD PULSE · 每日环球精选</p>
+            <h1>{date}</h1>
+            <span>发现今天正在发生的世界</span>
+          </header>
+          {groups.map((group, groupIndex) => (
+            <section className="edition-section" key={group.title} aria-label={group.title}>
+              <div className="edition-section-heading"><div><h2>{group.title}</h2><span>{group.subtitle}</span></div><span>{groupIndex === 0 ? "今日精选" : "环球报道"}</span></div>
+              <div className={`edition-grid edition-grid-${groupIndex % 3}`}>
+                {group.items.map((item, index) => (
+                  <article className="edition-card" key={`${item.source}-${item.url}`}>
+                    <Link prefetch={false} href={`/news/story?story=${encodeNewsStory(item)}`} aria-label={`阅读：${item.title}`}>
+                      <NewsImage source={item.source} src={`/api/news-image?url=${encodeURIComponent(item.url)}&source=${encodeURIComponent(item.source)}&title=${encodeURIComponent(item.originalTitle || item.title)}&v=6`} alt="" width={1000} height={650} sizes="(max-width: 700px) 100vw, 70vw" priority={groupIndex === 0 && index < 2} unoptimized />
+                      <div className="edition-card-copy"><span className="edition-card-kicker">{item.sourceName} · {formatNewsDate(item.publishedAt)}</span><h3>{item.title}</h3><span className="edition-card-action">阅读报道 <span aria-hidden="true">↗</span></span></div>
+                    </Link>
+                  </article>
+                ))}
+              </div>
+            </section>
+          ))}
+          {orderedNews.length === 0 && <div className="news-empty"><h2>暂时没有近期新闻</h2><p>新闻源会持续更新，你也可以稍后刷新查看。</p></div>}
+          <section className="edition-section edition-more" aria-label="更多新闻"><div className="edition-section-heading"><div><h2>更多新闻</h2><span>MORE STORIES</span></div></div><div className="news-waterfall edition-infinite"><InfiniteNews key={`${category || "all"}-${sortMode}`} category={category} sortMode={sortMode} initialCount={visibleNews.length} initialUrls={visibleNews.map((item) => item.url)} total={orderedNews.length} /></div></section>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main>
       {!hideHeader && (
