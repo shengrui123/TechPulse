@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import BackToTop from "./components/BackToTop";
 import "./globals.css";
 import "./glass.css";
+import "./front-page.css";
 
 const themeBootScript = `
 let savedTheme;

@@ -17,6 +17,7 @@ type NewsStreamProps = {
   heading?: string;
   description?: string;
   hideHeader?: boolean;
+  frontPage?: boolean;
   sortMode?: NewsSortMode;
   category?: string;
 };
@@ -28,9 +29,11 @@ export default function NewsStream({
   heading,
   description,
   hideHeader = false,
+  frontPage = false,
   sortMode = "importance",
   category,
 }: NewsStreamProps) {
+  const Grid = frontPage ? "div" : MasonryGrid;
   const orderedNews = sortNewsItems(news, sortMode);
   const visibleNews = orderedNews.slice(0, 24);
   const activeSourceCount = new Set(
@@ -71,11 +74,12 @@ export default function NewsStream({
         </header>
       )}
 
-      <section className="page-shell news-stream" aria-label="最新国际新闻">
+      <section className={`page-shell news-stream${frontPage ? " front-page" : ""}`} aria-label="最新国际新闻">
+        {frontPage && <h1 className="recent-heading">近期 <small>RECENT</small></h1>}
         {orderedNews.length > 0 ? (
-          <MasonryGrid
+          <Grid
             className={
-              magazineEdition
+              frontPage ? "front-grid" : magazineEdition
                 ? "news-waterfall news-editorial-grid"
                 : "news-waterfall"
             }
@@ -112,7 +116,7 @@ export default function NewsStream({
               </article>
             ))}
             <InfiniteNews key={`${category || "all"}-${sortMode}`} category={category} sortMode={sortMode} initialCount={visibleNews.length} initialUrls={visibleNews.map((item) => item.url)} total={orderedNews.length} />
-          </MasonryGrid>
+          </Grid>
         ) : (
           <div className="news-empty">
             <h2>该分类暂时没有近期新闻</h2>
