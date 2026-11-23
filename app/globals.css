@@ -4025,7 +4025,9 @@ html[data-theme="dark"] .story-back-button:hover { background: rgba(115,119,130,
 .home-nav-more-menu button, .home-nav-more-menu label { display: flex; align-items: center; gap: 9px; width: 100%; min-height: 38px; padding: 7px 9px; border: 0; border-radius: 12px; background: transparent; color: var(--ink); font-size: 13px; text-align: left; }
 .home-nav-more-menu button:hover, .home-nav-more-menu label:hover { background: rgba(80,90,110,.12); }
 .home-nav-more-menu .nav-utility-icon { width: 18px; height: 18px; flex: 0 0 18px; }
-.home-nav-more-menu select { min-width: 0; margin-left: auto; border: 0; background: transparent; color: inherit; font: inherit; }
+.home-nav-more-menu select { min-width: 0; margin-left: auto; padding: 5px 22px 5px 8px; border: 1px solid rgba(255,255,255,.32); border-radius: 999px; outline: 0; appearance: none; -webkit-appearance: none; background: rgba(255,255,255,.16); color: inherit; font: inherit; cursor: pointer; }
+.home-nav-more-menu select:hover, .home-nav-more-menu select:focus { border-color: rgba(255,255,255,.62); background: rgba(255,255,255,.24); box-shadow: 0 0 0 3px rgba(255,255,255,.08); }
+.home-nav-more-menu select option { background: #292c34; color: #fff; }
 html[data-theme="dark"] .home-nav-more { border-color: rgba(255,255,255,.18); background: linear-gradient(145deg, rgba(76,80,91,.64), rgba(39,41,48,.7)); color: #fff; }
 html[data-theme="dark"] .home-nav-more-menu { border-color: rgba(255,255,255,.18); background: rgba(39,41,48,.86); }
 @media (max-width: 760px) { body:has(.edition-home) .home-nav-more-wrap { display: none; } }
