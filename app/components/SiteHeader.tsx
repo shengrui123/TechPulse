@@ -130,6 +130,13 @@ export default function SiteHeader() {
           "worldpulse-return-path",
           `${window.location.pathname}${window.location.search}${window.location.hash}`,
         );
+        sessionStorage.setItem(
+          "worldpulse-return-scroll",
+          JSON.stringify({
+            path: `${window.location.pathname}${window.location.search}${window.location.hash}`,
+            top: Math.max(0, Math.round(window.scrollY)),
+          }),
+        );
       } catch {
         // The detail page still has a safe fallback when storage is unavailable.
       }
@@ -138,6 +145,30 @@ export default function SiteHeader() {
     document.addEventListener("click", rememberNewsList);
     return () => document.removeEventListener("click", rememberNewsList);
   }, []);
+
+  useEffect(() => {
+    let frame = 0;
+    let secondFrame = 0;
+    try {
+      const raw = sessionStorage.getItem("worldpulse-return-scroll");
+      if (!raw) return;
+      const saved = JSON.parse(raw) as { path?: unknown; top?: unknown };
+      const currentPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+      if (saved.path !== currentPath || typeof saved.top !== "number") return;
+      sessionStorage.removeItem("worldpulse-return-scroll");
+      const restore = () => window.scrollTo({ top: saved.top as number, left: 0, behavior: "auto" });
+      frame = window.requestAnimationFrame(restore);
+      secondFrame = window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(restore);
+      });
+    } catch {
+      // Ignore unavailable or malformed restoration state.
+    }
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.cancelAnimationFrame(secondFrame);
+    };
+  }, [pathname]);
 
   function hrefWithSort(href: string) {
     if (importanceSort || href === "/sources") return href;
