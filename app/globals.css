@@ -4077,3 +4077,53 @@ html[data-theme="dark"] .sources-text-group a { color: #80baff; }
 }
 .sources-principles-list { list-style: decimal; }
 .sources-text-group ul { list-style: disc; }
+
+/* Shared liquid-glass treatment for the floating action cluster. */
+.floating-search,
+.floating-sort,
+.back-to-top {
+  width: 78px;
+  height: 78px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 5px;
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 50%;
+  background: linear-gradient(145deg, rgba(102,108,122,.42), rgba(37,40,48,.64));
+  box-shadow: 0 12px 28px rgba(0,0,0,.28), inset 0 1px 1px rgba(255,255,255,.2);
+  color: rgba(255,255,255,.94);
+  backdrop-filter: blur(22px) saturate(170%);
+  -webkit-backdrop-filter: blur(22px) saturate(170%);
+  transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
+}
+.floating-search:hover,
+.floating-sort:hover,
+.floating-sort.is-importance,
+.back-to-top:hover {
+  background: linear-gradient(145deg, rgba(140,148,164,.56), rgba(54,58,69,.72));
+  color: #fff;
+  filter: none;
+  transform: translateY(-2px);
+  box-shadow: 0 15px 32px rgba(0,0,0,.34), inset 0 1px 1px rgba(255,255,255,.3);
+}
+.floating-search .nav-utility-icon,
+.floating-sort .nav-utility-icon { width: 30px; height: 30px; color: currentColor; }
+.floating-search small,
+.floating-sort small,
+.back-to-top small { color: currentColor; font-size: 11px; font-weight: 750; letter-spacing: .14em; }
+.back-to-top span { font-size: 28px; line-height: 1; }
+html[data-theme="light"] .floating-search,
+html[data-theme="light"] .floating-sort,
+html[data-theme="light"] .back-to-top {
+  border-color: rgba(255,255,255,.85);
+  background: linear-gradient(145deg, rgba(255,255,255,.78), rgba(220,226,236,.58));
+  box-shadow: 0 12px 28px rgba(35,45,65,.16), inset 0 1px 1px rgba(255,255,255,.95);
+  color: #252a33;
+}
+@media (max-width: 760px) {
+  .floating-search, .floating-sort, .back-to-top { width: 64px; height: 64px; }
+  .floating-search .nav-utility-icon, .floating-sort .nav-utility-icon { width: 25px; height: 25px; }
+  .floating-search small, .floating-sort small, .back-to-top small { font-size: 9px; }
+}
