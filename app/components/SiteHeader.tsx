@@ -319,7 +319,7 @@ export default function SiteHeader() {
         {pathname === "/" && (
           <div className="home-nav-more-wrap">
             <button className={`home-nav-more ${moreOpen ? "is-open" : ""}`} type="button" aria-expanded={moreOpen} onClick={() => setMoreOpen((open) => !open)}>
-              <span>更多</span><span aria-hidden="true">⌄</span>
+              <span>更多</span><svg className="home-nav-more-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
             </button>
             {moreOpen && (
               <div className="home-nav-more-menu">
