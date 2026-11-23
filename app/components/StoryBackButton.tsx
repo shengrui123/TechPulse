@@ -19,7 +19,13 @@ export default function StoryBackButton() {
       savedStory === story && savedPath?.startsWith("/") && !savedPath.startsWith("//")
         ? savedPath
         : "/news";
-    router.push(destination);
+    if (savedStory === story && window.history.length > 1) {
+      // Returning through browser history keeps the existing news list and its
+      // exact scroll position instead of requesting the dynamic feed again.
+      window.history.back();
+    } else {
+      router.push(destination);
+    }
   }
 
   return (
