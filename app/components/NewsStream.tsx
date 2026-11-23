@@ -46,7 +46,7 @@ export default function NewsStream({
         <div className="page-shell edition-content">
           <EditionSections items={visibleNews.filter((item) => isChineseText(item.title)).map((item) => ({ ...item, storyHref: `/news/story?story=${encodeNewsStory(item)}`, formattedDate: formatNewsDate(item.publishedAt) }))} />
           {orderedNews.length === 0 && <div className="news-empty"><h2>暂时没有近期新闻</h2><p>新闻源会持续更新，你也可以稍后刷新查看。</p></div>}
-          <section className="edition-section edition-more" aria-label="更多新闻"><div className="edition-section-heading"><div><h2>更多新闻</h2><span>MORE STORIES</span></div></div><div className="news-waterfall edition-infinite"><InfiniteNews key={`${category || "all"}-${sortMode}`} category={category} sortMode={sortMode} initialCount={visibleNews.length} initialUrls={visibleNews.map((item) => item.url)} total={orderedNews.length} /></div></section>
+          <section className="edition-section edition-more" aria-label="更多新闻"><div className="edition-section-heading"><div><h2>更多新闻</h2><span>MORE STORIES</span></div></div><MasonryGrid className="news-waterfall edition-infinite"><InfiniteNews key={`${category || "all"}-${sortMode}`} category={category} sortMode={sortMode} initialCount={visibleNews.length} initialUrls={visibleNews.map((item) => item.url)} total={orderedNews.length} /></MasonryGrid></section>
         </div>
       </main>
     );

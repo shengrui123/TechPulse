@@ -3931,7 +3931,7 @@ body:has(.edition-home) .nav-theme-toggle { margin-left: 12px; }
 .edition-card-kicker { color: rgba(255,255,255,.8); font-size: 11px; font-weight: 700; }
 .edition-card h3 { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 3; margin: 8px 0 14px; color: white; font-size: clamp(19px, 2vw, 26px); font-weight: 760; line-height: 1.28; letter-spacing: -.02em; }
 .edition-card-action { display: inline-block; padding: 6px 11px; border-radius: 20px; background: rgba(255,255,255,.22); color: #fff; font-size: 11px; font-weight: 700; backdrop-filter: blur(10px); }
-.edition-infinite { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.edition-infinite { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: start; }
 .edition-infinite .news-card:first-child { grid-column: auto; }
 html[data-theme="dark"] .edition-home, html[data-theme="dark"] body:has(.edition-home) .site-header, html[data-theme="dark"] body:has(.edition-home) .desktop-nav { background: #171719; }
 html[data-theme="dark"] .edition-heading h1, html[data-theme="dark"] .edition-section-heading h2 { color: #f4f4f5; }
