@@ -54,6 +54,7 @@ function CategoryIcon({ name }: { name: NavigationIcon }) {
 
 export default function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const [searchFloating, setSearchFloating] = useState(false);
   const [importanceSort, setImportanceSort] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
@@ -314,6 +315,19 @@ export default function SiteHeader() {
             <UtilityIcon name="search" />
             <span>搜索</span>
           </Link>
+        )}
+        {pathname === "/" && (
+          <div className="home-nav-more-wrap">
+            <button className={`home-nav-more ${moreOpen ? "is-open" : ""}`} type="button" aria-expanded={moreOpen} onClick={() => setMoreOpen((open) => !open)}>
+              <span>更多</span><span aria-hidden="true">⌄</span>
+            </button>
+            {moreOpen && (
+              <div className="home-nav-more-menu">
+                {showSortToggle && <button type="button" onClick={toggleSortMode}><UtilityIcon name="sort" />排序：{importanceSort ? "重要度" : "时间"}</button>}
+                <label><UtilityIcon name={themePreference} /><span>主题</span><select aria-label="外观模式" value={themePreference} onChange={(event) => changeTheme(event.target.value as ThemePreference)}><option value="system">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option></select></label>
+              </div>
+            )}
+          </div>
         )}
       </nav>
       <nav
